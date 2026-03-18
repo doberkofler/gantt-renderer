@@ -1,0 +1,12 @@
+{
+	"entryPoints": ["src/gantt-chart/index.ts"],
+	"out": "docs/api",
+	"exclude": ["**/*.test.ts", "**/*.integration.test.ts", "src/demo/**"],
+	"excludeInternal": true,
+	"excludePrivate": true,
+	"excludeProtected": true,
+	"readme": "none",
+	"plugin": [],
+	"tsconfig": "tsconfig.json",
+	"logLevel": "Warn"
+}

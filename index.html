@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Gantt Chart</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+	</head>
+	<body>
+		<main class="demo-shell" id="demo-shell">
+			<div id="toolbar">
+				<h1>Gantt Chart</h1>
+			</div>
+
+			<div id="gantt"></div>
+
+			<div class="demo-control-row" aria-label="Demo Controls">
+				<div class="demo-control-group" role="group" aria-label="Chart Controls">
+					<button id="control-collapse-all" class="demo-btn" type="button" title="Collapse all expandable groups">Collapse All</button>
+					<button id="control-expand-all" class="demo-btn" type="button" title="Expand all collapsed groups">Expand All</button>
+					<button id="fullscreen-btn" class="demo-btn" type="button" aria-pressed="false" title="Toggle fullscreen mode">Fullscreen</button>
+					<label class="demo-control-scale-label" for="theme-select" title="Choose theme">Theme</label>
+					<select id="theme-select" class="demo-select" title="Choose theme">
+						<option value="system" selected>System</option>
+						<option value="light">Light</option>
+						<option value="dark">Dark</option>
+					</select>
+					<label class="demo-control-scale-label" for="scale-select" title="Choose timeline scale">Scale</label>
+					<select id="scale-select" class="demo-select" title="Choose timeline scale">
+						<option value="year">Years</option>
+						<option value="quarter">Quarters</option>
+						<option value="month">Months</option>
+						<option value="week">Weeks</option>
+						<option value="day" selected>Days</option>
+						<option value="hour">Hours</option>
+					</select>
+					<label class="demo-toggle-label" for="toggle-link-creation" title="Enable/disable drag-to-create dependency links">
+						<input type="checkbox" id="toggle-link-creation" title="Enable/disable drag-to-create dependency links" />
+						Link creation
+					</label>
+					<label class="demo-toggle-label" for="toggle-highlight-deps" title="Highlight dependency arrows on task selection">
+						<input type="checkbox" id="toggle-highlight-deps" title="Highlight dependency arrows on task selection" />
+						Highlight deps
+					</label>
+					<label class="demo-toggle-label" for="toggle-show-weekends" title="Show/hide weekend day backgrounds">
+						<input type="checkbox" id="toggle-show-weekends" title="Show/hide weekend day backgrounds" checked />
+						Weekends
+					</label>
+					<label class="demo-toggle-label" for="toggle-responsive" title="Enable/disable responsive split pane behavior">
+						<input type="checkbox" id="toggle-responsive" title="Enable/disable responsive split pane behavior" checked />
+						Responsive pane
+					</label>
+				</div>
+			</div>
+
+			<section class="demo-event-panel" aria-label="Event Log">
+				<div class="demo-event-panel__header">Event Log</div>
+				<textarea id="event-log" class="demo-event-panel__log" readonly></textarea>
+			</section>
+		</main>
+
+		<script type="module" src="src/demo/app.ts"></script>
+	</body>
+</html>

@@ -1,0 +1,73 @@
+{
+	"name": "gantt-renderer",
+	"version": "0.0.0",
+	"files": [
+		"dist"
+	],
+	"type": "module",
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
+		},
+		"./styles/gantt.css": "./dist/styles/gantt.css"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"lint": "oxlint",
+		"lint:css": "stylelint 'src/**/*.css'",
+		"lint:css:fix": "stylelint --fix 'src/**/*.css'",
+		"format": "oxfmt --write && stylelint --fix 'src/**/*.css'",
+		"format:check": "oxfmt --check",
+		"ci": "pnpm run typecheck && pnpm run lint && pnpm run lint:css && pnpm run format:check && pnpm run build:lib && pnpm run build && pnpm run docs:api && pnpm run test",
+		"test": "vitest run",
+		"test:build": "vitest run --config vitest.node.config.ts",
+		"release": "release-it",
+		"create-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+		"prepare": "husky",
+		"dev": "vite",
+		"build": "vite build",
+		"build:lib": "tsdown",
+		"build:demo": "vite build",
+		"docs:api": "typedoc",
+		"preview": "vite preview",
+		"test:ui": "vitest",
+		"integration-test": "playwright test",
+		"screenshot": "npx tsx scripts/screenshot.ts"
+	},
+	"dependencies": {
+		"debug": "4.4.3",
+		"zod": "4.4.2"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "20.5.3",
+		"@commitlint/config-conventional": "20.5.3",
+		"@playwright/test": "1.59.1",
+		"@tsdown/css": "0.21.10",
+		"@types/debug": "4.1.13",
+		"@types/node": "25.6.0",
+		"@vitest/browser": "4.1.5",
+		"@vitest/browser-playwright": "4.1.5",
+		"@vitest/coverage-istanbul": "4.1.5",
+		"@vitest/coverage-v8": "4.1.5",
+		"conventional-changelog": "7.2.0",
+		"eslint-plugin-regexp": "3.1.0",
+		"husky": "9.1.7",
+		"oxfmt": "0.47.0",
+		"oxlint": "1.62.0",
+		"oxlint-tsgolint": "0.22.1",
+		"playwright": "1.59.1",
+		"release-it": "20.0.1",
+		"stylelint": "17.10.0",
+		"stylelint-config-standard": "40.0.0",
+		"tsdown": "0.21.10",
+		"typedoc": "0.28.19",
+		"typescript": "6.0.3",
+		"vite": "8.0.10",
+		"vitest": "4.1.5"
+	}
+}

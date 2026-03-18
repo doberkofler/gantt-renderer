@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-demo
+coverage
+__screenshots__
+playwright-report/**/*
+test-results
+temp
+.DS_Store
+.env
+.vitest-attachments
+docs/api

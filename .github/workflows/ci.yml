@@ -1,0 +1,131 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Resolves the Playwright Docker image tag from package.json.
+  # Other jobs depending on the Playwright container must list this in `needs`
+  # because GitHub Actions does not propagate job outputs transitively.
+  resolve-playwright-version:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.version.outputs.image }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Derive Playwright image tag
+        id: version
+        shell: bash
+        run: |
+          RAW=$(node -p "
+            const p = require('./package.json');
+            p.devDependencies?.['@playwright/test'] ?? p.dependencies['@playwright/test']
+          ")
+          VERSION=$(echo "$RAW" | sed 's/^[^0-9]*//')
+          echo "image=mcr.microsoft.com/playwright:v${VERSION}-noble" >> "$GITHUB_OUTPUT"
+
+  # Fast static checks that run in parallel with Playwright version resolution.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm run lint
+      - run: pnpm run lint:css
+
+  # Builds the library and runs browser-based unit tests inside a Playwright
+  # Docker container (provides consistent Chromium/Firefox/WebKit binaries).
+  test:
+    needs: [lint, resolve-playwright-version]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.resolve-playwright-version.outputs.image }}
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - run: pnpm run build:lib
+
+      - run: pnpm run build
+
+      # Cache the library build output (dist/) so build-regression can reuse it
+      # without re-running build:lib on a fresh runner.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lib-dist
+          path: dist
+          retention-days: 1
+
+      - run: pnpm run test
+        env:
+          CI: true
+
+      - uses: coverallsapp/github-action@v2
+
+  # Validates that the built library can be consumed in a Node environment
+  # (no browser). Reuses the artifact from the test job.
+  build-regression:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: lib-dist
+          path: dist
+
+      - run: pnpm run test:build
+        env:
+          CI: true
+
+  # End-to-end Playwright tests that drive a live dev server against the demo
+  # page across Chromium, Firefox, and WebKit.
+  integration-test:
+    needs: [test, resolve-playwright-version]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.resolve-playwright-version.outputs.image }}
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm run integration-test
+        env:
+          CI: true
+
+  # Deploys the demo site to GitHub Pages on pushes to main.
+  # Prerequisite: GitHub Pages must be enabled in the repo settings.
+  # → Settings > Pages > Source: "GitHub Actions"
+  # Without Pages enabled this job fails gracefully (continue-on-error).
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [integration-test]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm run build --base=/gantt-renderer/
+      - run: pnpm run docs:api
+      - run: mv docs/api dist-demo/docs/api
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-demo
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
