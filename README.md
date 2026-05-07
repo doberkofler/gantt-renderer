@@ -10,9 +10,9 @@
 
 **[Live Demo →](https://doberkofler.github.io/gantt-renderer/)**
 &nbsp;|&nbsp;
-**[API Docs →](https://doberkofler.github.io/gantt-renderer/docs/api/)**
-&nbsp;|&nbsp;
 **[Usage Guide →](./docs/guide.md)**
+&nbsp;|&nbsp;
+**[API Docs →](https://doberkofler.github.io/gantt-renderer/docs/api/)**
 &nbsp;|&nbsp;
 **[Contributing →](./CONTRIBUTING.md)**
 
@@ -86,8 +86,8 @@ const instance = new GanttChart(document.getElementById('chart')!, input, {
 
 ## Further Reading
 
-- **[Usage Guide →](./docs/guide.md)** — All constructor options: locale, theme, grid schema, CSS tokens,
+- **[Usage Guide](./docs/guide.md)** — All constructor options: locale, theme, grid schema, CSS tokens,
   link creation, special days, density constants, and more.
-- **[API Documentation →](https://doberkofler.github.io/gantt-renderer/docs/api/)** — TypeDoc-generated
+- **[API Documentation](https://doberkofler.github.io/gantt-renderer/docs/api/)** — TypeDoc-generated
   API reference.
-- **[Contributing →](./CONTRIBUTING.md)** — Dev setup, scripts, demo verification, and code conventions.
+- **[Contributing](./CONTRIBUTING.md)** — Dev setup, scripts, demo verification, and code conventions.
