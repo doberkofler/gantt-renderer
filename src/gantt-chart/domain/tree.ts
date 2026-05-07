@@ -1,7 +1,15 @@
 import {type Task} from '../validation/schemas.ts';
 import {GanttError} from '../errors.ts';
 
+/**
+ * A task node in the render tree, combining the flat {@link Task} input data
+ * with computed hierarchy structure.
+ *
+ * Produced by {@link buildTaskTree}; consumed by virtualized row rendering
+ * and the timeline layout engine.
+ */
 export type TaskNode = Task & {
+	/** Array of child task nodes in the tree hierarchy. */
 	children: TaskNode[];
 	/** 0 = root */
 	depth: number;

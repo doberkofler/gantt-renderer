@@ -13,40 +13,91 @@ export const SpecialDaySchema = z.object({
 });
 
 export const TaskSchema = z.object({
+	/** Unique positive integer identifier for the task. */
 	id: z.number().int().positive(),
+	/** Display name / label of the task. */
 	text: z.string().min(1),
 	/** ISO date: YYYY-MM-DD */
 	startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD'),
 	/** Duration in hours; 0 = milestone */
 	durationHours: z.number().int().min(0),
+	/** Optional id of the parent task. When set, this task is a child in the hierarchy. */
 	parent: z.number().int().positive().optional(),
 	/** 0–1 completion ratio */
 	progress: z.number().min(0).max(1).default(0),
+	/**
+	 * Task type: `'task'`, `'project'`, or `'milestone'`.
+	 *
+	 * - `'task'` — A regular task with a colored bar.
+	 * - `'project'` — A summary/group row with a colored bar.
+	 * - `'milestone'` — A zero-duration marker rendered as a diamond.
+	 *
+	 * @default 'task'
+	 */
 	type: TaskTypeSchema.default('task'),
-	/** Initial expanded state (only relevant for parent nodes) */
+	/**
+	 * Initial expanded state for tree hierarchy.
+	 * When `false`, children of this task are hidden on initial render.
+	 * Only relevant for tasks with child tasks.
+	 *
+	 * @default true
+	 */
 	open: z.boolean().default(true),
+	/** Optional CSS color value for the task bar. Overrides the default color assignment. */
 	color: z.string().optional(),
 });
 
 export const LinkSchema = z.object({
+	/** Unique positive integer identifier for the dependency link. */
 	id: z.number().int().positive(),
+	/** The `id` of the predecessor task (the task that drives the dependency). */
 	source: z.number().int().positive(),
+	/** The `id` of the successor task (the task that depends on the predecessor). */
 	target: z.number().int().positive(),
+	/**
+	 * Dependency type.
+	 *
+	 * - `'FS'` — Finish-to-start: successor starts after predecessor finishes.
+	 * - `'SS'` — Start-to-start: successor starts at the same time as predecessor.
+	 * - `'FF'` — Finish-to-finish: successor finishes at the same time as predecessor.
+	 * - `'SF'` — Start-to-finish: successor finishes after predecessor starts.
+	 *
+	 * @default 'FS'
+	 */
 	type: LinkTypeSchema.default('FS'),
 });
 
 export const GanttInputSchema = z.object({
+	/** Array of task objects. At least one task is required. */
 	tasks: z.array(TaskSchema).min(1),
+	/** Optional array of dependency link objects. Defaults to empty array. */
 	links: z.array(LinkSchema).default([]),
 });
 
+/** The raw, unvalidated input shape that consumers pass to {@link parseGanttInput}. */
 export type GanttInputRaw = z.input<typeof GanttInputSchema>;
+/** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
 export type LinkType = z.infer<typeof LinkTypeSchema>;
+/** Allowed task type values: `'task'`, `'project'`, or `'milestone'`. */
 export type TaskType = z.infer<typeof TaskTypeSchema>;
 export type SpecialDayKind = z.infer<typeof SpecialDayKindSchema>;
 export type SpecialDay = z.infer<typeof SpecialDaySchema>;
+/**
+ * A project task in the Gantt chart. Defines timing (start date, duration in hours),
+ * hierarchy (parent id), and visual properties (type, progress, color).
+ */
 export type Task = z.infer<typeof TaskSchema>;
+/**
+ * A dependency link between two tasks. The `type` determines the scheduling constraint
+ * (e.g., finish-to-start, start-to-start).
+ */
 export type Link = z.infer<typeof LinkSchema>;
+/**
+ * The complete input data for the chart.
+ *
+ * Pass a raw plain object (typed as {@link GanttInputRaw}) to
+ * {@link parseGanttInput} to validate and get back a typed {@link GanttInput}.
+ */
 export type GanttInput = z.infer<typeof GanttInputSchema>;
 
 /**

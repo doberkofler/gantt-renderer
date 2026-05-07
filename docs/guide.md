@@ -13,6 +13,125 @@ The primary entrypoint is `src/gantt-chart/index.ts`, which exports:
 - Timeline/domain utilities (`computeLayout`, `createPixelMapper`, `routeLinks`, and others).
 - Vanilla chart class (`GanttChart`) and instance/callback types.
 
+## Input data structure
+
+The chart renders data in the shape of `GanttInput`, which consists of two arrays:
+`tasks` (required, at least one) and `links` (optional).
+
+```ts
+export type GanttInput = {
+	tasks: Task[];
+	links: Link[];
+};
+```
+
+Pass your raw data through `parseGanttInput(yourData)` to validate against the `zod` schemas
+and get back a fully typed `GanttInput` with defaults applied. Use `safeParseGanttInput(yourData)`
+if you prefer a `null` return on failure instead of throwing.
+
+### `Task`
+
+Each `Task` object defines one row in the chart — either a regular task, a summary project row,
+or a zero-duration milestone.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | `number` | **yes** | — | Unique positive integer identifier. |
+| `text` | `string` | **yes** | — | Display name / label. |
+| `startDate` | `string` | **yes** | — | ISO date `YYYY-MM-DD`. Determines the visual start position on the timeline. |
+| `durationHours` | `number` | **yes** | — | Duration in hours; `0` = milestone. |
+| `parent` | `number` | no | — | `id` of the parent task. When set, this task becomes a child in the tree hierarchy. |
+| `progress` | `number` | no | `0` | Completion ratio from `0` to `1`. Rendered as a darker fill inside the task bar. |
+| `type` | `TaskType` | no | `'task'` | Row type (see below). |
+| `open` | `boolean` | no | `true` | Initial tree expand/collapse state. Only relevant for tasks with children. |
+| `color` | `string` | no | — | Optional CSS color override for the task bar. |
+
+#### Task type values (`TaskType`)
+
+| Value | Description |
+|---|---|
+| `'task'` | A regular task with a colored bar. |
+| `'project'` | A summary / group row with a colored bar. Same visual as `'task'`. |
+| `'milestone'` | A zero-duration marker rendered as a diamond. Must have `durationHours: 0`. |
+
+Tasks with `type: 'project'` typically have children. The chart uses the `parent` field —
+not the `type` — to build the tree hierarchy.
+
+### `Link`
+
+Each `Link` object defines a dependency arrow between two tasks.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | `number` | **yes** | — | Unique positive integer identifier for the link. |
+| `source` | `number` | **yes** | — | The `id` of the predecessor task. |
+| `target` | `number` | **yes** | — | The `id` of the successor task. |
+| `type` | `LinkType` | no | `'FS'` | Dependency constraint type (see below). |
+
+#### Link type values (`LinkType`)
+
+| Value | Name | Description |
+|---|---|---|
+| `'FS'` | Finish-to-start | Successor starts after predecessor finishes. The most common dependency. |
+| `'SS'` | Start-to-start | Successor starts at the same time as predecessor. |
+| `'FF'` | Finish-to-finish | Successor finishes at the same time as predecessor. |
+| `'SF'` | Start-to-finish | Successor finishes after predecessor starts. |
+
+Both `source` and `target` must reference valid `id` values present in the `tasks` array.
+`parseGanttInput` only checks schema validity; use `validateLinkRefs(tasks, links)` from the
+public API to detect dangling references at runtime.
+
+### Full example
+
+```ts
+import {GanttChart, parseGanttInput} from 'gantt-renderer';
+import 'gantt-renderer/styles/gantt.css';
+
+const rawData = {
+	tasks: [
+		{id: 1, text: 'Website Redesign', startDate: '2026-06-01', durationHours: 360, type: 'project', open: true, progress: 0.4},
+		{id: 2, text: 'Design Phase',     startDate: '2026-06-01', durationHours: 120, parent: 1, type: 'project', open: true, progress: 0.9},
+		{id: 3, text: 'Wireframes',       startDate: '2026-06-01', durationHours: 40,  parent: 2, type: 'task', progress: 1},
+		{id: 4, text: 'Mockups',          startDate: '2026-06-05', durationHours: 56,  parent: 2, type: 'task', progress: 0.85},
+		{id: 5, text: 'Design Sign-Off',  startDate: '2026-06-09', durationHours: 0,   parent: 2, type: 'milestone', progress: 0},
+		{id: 6, text: 'Development',      startDate: '2026-06-10', durationHours: 200, parent: 1, type: 'project', open: true, progress: 0.3},
+		{id: 7, text: 'Frontend Build',   startDate: '2026-06-10', durationHours: 100, parent: 6, type: 'task', progress: 0.4},
+		{id: 8, text: 'Backend API',      startDate: '2026-06-12', durationHours: 80,  parent: 6, type: 'task', progress: 0.25},
+		{id: 9, text: 'Launch',           startDate: '2026-06-26', durationHours: 0,   parent: 1, type: 'milestone', progress: 0},
+	],
+	links: [
+		{id: 1, source: 3, target: 4, type: 'FS'},
+		{id: 2, source: 4, target: 5, type: 'FS'},
+		{id: 3, source: 5, target: 7, type: 'FS'},
+		{id: 4, source: 5, target: 8, type: 'FS'},
+		{id: 5, source: 7, target: 8, type: 'FF'},
+		{id: 6, source: 7, target: 9, type: 'FS'},
+		{id: 7, source: 8, target: 9, type: 'FS'},
+	],
+};
+
+const input = parseGanttInput(rawData);
+
+const instance = new GanttChart(document.getElementById('chart')!, {
+	scale: 'day',
+});
+instance.update(input);
+```
+
+### `TaskNode` (internal domain type)
+
+`TaskNode` is the internal tree-shaped type produced by `buildTaskTree(tasks)`. It extends
+`Task` with two computed fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `children` | `TaskNode[]` | Array of child nodes in the tree hierarchy. Populated by `buildTaskTree`. |
+| `depth` | `number` | Nesting depth. `0` = root-level task. |
+
+Consumers don't create `TaskNode` directly; it is only used internally for virtualized row
+rendering and timeline layout. The `GanttCallbacks` (e.g., `onTaskSelect`, `onTaskEditIntent`)
+return the flat `Task` shape, not `TaskNode`.
+
 ## Time scale support
 
 `TimeScale` supports all chart zoom levels:
@@ -70,7 +189,7 @@ const deLocale: ChartLocale = {
   weekNumbering: 'iso',
   labels: {
     columnTaskName: 'Aufgabe',
-    columnStart: 'Start',
+    columnStartDate: 'Start',
     columnDuration: 'Dauer',
     addSubtaskTitle: 'Teilaufgabe hinzufügen',
     ariaTask: 'Aufgabe {0}',
@@ -92,7 +211,7 @@ When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conve
 | `ariaMilestone` | `Milestone {0}` | Milestone `aria-label` |
 | `addSubtaskTitle` | `Add subtask` | Add-button `title` attribute |
 | `columnTaskName` | `Task name` | Grid column header |
-| `columnStart` | `Start time` | Grid column header |
+| `columnStartDate` | `Start time` | Grid column header |
 | `columnDuration` | `Duration` | Grid column header |
 | `columnQuarter` | `Q` | Quarter prefix in time header |
 
@@ -379,7 +498,7 @@ import {GanttChart, type GridColumn} from 'gantt-renderer';
 const columns: GridColumn[] = [
   {id: 'name', header: 'Task', width: '2fr'},
   {id: 'progress', header: 'Progress', width: '70px', align: 'right', field: 'progress', format: (v) => `${Math.round((v as number) * 100)}%`},
-  {id: 'start', header: 'Start', width: '90px', field: 'start'},
+  {id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
   {id: 'durationHours', header: 'Hours', width: '60px', field: 'durationHours'},
 ];
 
