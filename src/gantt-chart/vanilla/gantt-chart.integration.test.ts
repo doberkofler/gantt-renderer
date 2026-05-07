@@ -99,7 +99,7 @@ describe('core rendering and viewport', () => {
 				{id: 'name', header: 'Task name', width: '1fr'},
 				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 				{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
-				{id: 'progress', header: '%', width: '60px', field: 'progress'},
+				{id: 'percentComplete', header: '%', width: '60px', field: 'percentComplete'},
 				{id: 'actions', header: '', width: '28px'},
 			],
 		});

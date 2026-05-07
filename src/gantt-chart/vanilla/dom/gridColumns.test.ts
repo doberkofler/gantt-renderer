@@ -145,7 +145,7 @@ describe('gridNaturalWidth', () => {
 	it('handles mixed units in schema', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '2fr'},
-			{id: 'progress', header: 'Progress', width: '70px', field: 'progress'},
+			{id: 'percentComplete', header: 'Progress', width: '70px', field: 'percentComplete'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'durationHours', header: 'Days', width: '60px', field: 'durationHours'},
 		];

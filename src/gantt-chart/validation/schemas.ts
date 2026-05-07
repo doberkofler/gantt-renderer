@@ -23,8 +23,8 @@ export const TaskSchema = z.object({
 	durationHours: z.number().int().min(0),
 	/** Optional id of the parent task. When set, this task is a child in the hierarchy. */
 	parent: z.number().int().positive().optional(),
-	/** 0–1 completion ratio */
-	progress: z.number().min(0).max(1).default(0),
+	/** 0–100 completion percentage (integer) */
+	percentComplete: z.number().int().min(0).max(100).default(0),
 	/**
 	 * Task type: `'task'`, `'project'`, or `'milestone'`.
 	 *
@@ -84,7 +84,7 @@ export type SpecialDayKind = z.infer<typeof SpecialDayKindSchema>;
 export type SpecialDay = z.infer<typeof SpecialDaySchema>;
 /**
  * A project task in the Gantt chart. Defines timing (start date, duration in hours),
- * hierarchy (parent id), and visual properties (type, progress, color).
+ * hierarchy (parent id), and visual properties (type, percentComplete, color).
  */
 export type Task = z.infer<typeof TaskSchema>;
 /**

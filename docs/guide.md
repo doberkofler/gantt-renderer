@@ -41,7 +41,7 @@ or a zero-duration milestone.
 | `startDate` | `string` | **yes** | — | ISO date `YYYY-MM-DD`. Determines the visual start position on the timeline. |
 | `durationHours` | `number` | **yes** | — | Duration in hours; `0` = milestone. |
 | `parent` | `number` | no | — | `id` of the parent task. When set, this task becomes a child in the tree hierarchy. |
-| `progress` | `number` | no | `0` | Completion ratio from `0` to `1`. Rendered as a darker fill inside the task bar. |
+| `percentComplete` | `number` | no | `0` | Completion percentage from `0` to `100` (integer). Rendered as a darker fill inside the task bar. |
 | `type` | `TaskType` | no | `'task'` | Row type (see below). |
 | `open` | `boolean` | no | `true` | Initial tree expand/collapse state. Only relevant for tasks with children. |
 | `color` | `string` | no | — | Optional CSS color override for the task bar. |
@@ -89,15 +89,15 @@ import 'gantt-renderer/styles/gantt.css';
 
 const rawData = {
 	tasks: [
-		{id: 1, text: 'Website Redesign', startDate: '2026-06-01', durationHours: 360, type: 'project', open: true, progress: 0.4},
-		{id: 2, text: 'Design Phase',     startDate: '2026-06-01', durationHours: 120, parent: 1, type: 'project', open: true, progress: 0.9},
-		{id: 3, text: 'Wireframes',       startDate: '2026-06-01', durationHours: 40,  parent: 2, type: 'task', progress: 1},
-		{id: 4, text: 'Mockups',          startDate: '2026-06-05', durationHours: 56,  parent: 2, type: 'task', progress: 0.85},
-		{id: 5, text: 'Design Sign-Off',  startDate: '2026-06-09', durationHours: 0,   parent: 2, type: 'milestone', progress: 0},
-		{id: 6, text: 'Development',      startDate: '2026-06-10', durationHours: 200, parent: 1, type: 'project', open: true, progress: 0.3},
-		{id: 7, text: 'Frontend Build',   startDate: '2026-06-10', durationHours: 100, parent: 6, type: 'task', progress: 0.4},
-		{id: 8, text: 'Backend API',      startDate: '2026-06-12', durationHours: 80,  parent: 6, type: 'task', progress: 0.25},
-		{id: 9, text: 'Launch',           startDate: '2026-06-26', durationHours: 0,   parent: 1, type: 'milestone', progress: 0},
+		{id: 1, text: 'Website Redesign', startDate: '2026-06-01', durationHours: 360, type: 'project', open: true, percentComplete: 40},
+		{id: 2, text: 'Design Phase',     startDate: '2026-06-01', durationHours: 120, parent: 1, type: 'project', open: true, percentComplete: 90},
+		{id: 3, text: 'Wireframes',       startDate: '2026-06-01', durationHours: 40,  parent: 2, type: 'task', percentComplete: 100},
+		{id: 4, text: 'Mockups',          startDate: '2026-06-05', durationHours: 56,  parent: 2, type: 'task', percentComplete: 85},
+		{id: 5, text: 'Design Sign-Off',  startDate: '2026-06-09', durationHours: 0,   parent: 2, type: 'milestone', percentComplete: 0},
+		{id: 6, text: 'Development',      startDate: '2026-06-10', durationHours: 200, parent: 1, type: 'project', open: true, percentComplete: 30},
+		{id: 7, text: 'Frontend Build',   startDate: '2026-06-10', durationHours: 100, parent: 6, type: 'task', percentComplete: 40},
+		{id: 8, text: 'Backend API',      startDate: '2026-06-12', durationHours: 80,  parent: 6, type: 'task', percentComplete: 25},
+		{id: 9, text: 'Launch',           startDate: '2026-06-26', durationHours: 0,   parent: 1, type: 'milestone', percentComplete: 0},
 	],
 	links: [
 		{id: 1, source: 3, target: 4, type: 'FS'},
@@ -497,7 +497,7 @@ import {GanttChart, type GridColumn} from 'gantt-renderer';
 
 const columns: GridColumn[] = [
   {id: 'name', header: 'Task', width: '2fr'},
-  {id: 'progress', header: 'Progress', width: '70px', align: 'right', field: 'progress', format: (v) => `${Math.round((v as number) * 100)}%`},
+  {id: 'percentComplete', header: 'Progress', width: '70px', align: 'right', field: 'percentComplete', format: (v) => `${String(v)}%`},
   {id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
   {id: 'durationHours', header: 'Hours', width: '60px', field: 'durationHours'},
 ];

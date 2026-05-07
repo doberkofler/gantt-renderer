@@ -7,7 +7,7 @@ describe('schema utilities', () => {
 			tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 48}],
 			links: [{id: 1, source: 1, target: 1}],
 		});
-		expect(parsed.tasks[0]?.progress).toBe(0);
+		expect(parsed.tasks[0]?.percentComplete).toBe(0);
 		expect(parsed.tasks[0]?.type).toBe('task');
 		expect(parsed.tasks[0]?.open).toBe(true);
 		expect(parsed.links[0]?.type).toBe('FS');
@@ -55,7 +55,7 @@ describe('schema utilities', () => {
 		});
 		expect(parsed.tasks).toHaveLength(1);
 		expect(parsed.links).toEqual([]);
-		expect(parsed.tasks[0]?.progress).toBe(0);
+		expect(parsed.tasks[0]?.percentComplete).toBe(0);
 		expect(parsed.tasks[0]?.type).toBe('task');
 		expect(parsed.tasks[0]?.open).toBe(true);
 		expect(parsed.tasks[0]?.parent).toBeUndefined();

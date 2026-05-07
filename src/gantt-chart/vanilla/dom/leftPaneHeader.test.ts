@@ -22,7 +22,7 @@ describe('buildLeftPaneHeader', () => {
 	it('renders custom columns with correct header labels', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '2fr'},
-			{id: 'progress', header: 'Progress', width: '80px', align: 'right', field: 'progress'},
+			{id: 'percentComplete', header: 'Progress', width: '80px', align: 'right', field: 'percentComplete'},
 			{id: 'actions', header: '', width: '28px'},
 		];
 		const header = buildLeftPaneHeader(cols);

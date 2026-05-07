@@ -106,7 +106,7 @@ export const init = (): void => {
 					`start=${task.startDate}`,
 					`durationHours=${task.durationHours}h`,
 					`type=${task.type}`,
-					`progress=${Math.round(task.progress * 100)}%`,
+					`percentComplete=${task.percentComplete}%`,
 				].join(' | '),
 			);
 		},

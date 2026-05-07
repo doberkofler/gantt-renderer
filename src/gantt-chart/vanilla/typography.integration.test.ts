@@ -40,9 +40,9 @@ const TOKENS_STYLE = `
 
 const INPUT: GanttInput = {
 	tasks: [
-		{id: 1, text: 'Project Alpha', startDate: '2026-02-01', durationHours: 288, progress: 0.4, type: 'project', open: true},
-		{id: 2, text: 'Task Beta', startDate: '2026-02-01', durationHours: 72, progress: 0.9, type: 'task', parent: 1, open: true},
-		{id: 3, text: 'Milestone Gamma', startDate: '2026-02-05', durationHours: 0, progress: 0, type: 'milestone', parent: 1, open: true},
+		{id: 1, text: 'Project Alpha', startDate: '2026-02-01', durationHours: 288, percentComplete: 40, type: 'project', open: true},
+		{id: 2, text: 'Task Beta', startDate: '2026-02-01', durationHours: 72, percentComplete: 90, type: 'task', parent: 1, open: true},
+		{id: 3, text: 'Milestone Gamma', startDate: '2026-02-05', durationHours: 0, percentComplete: 0, type: 'milestone', parent: 1, open: true},
 	],
 	links: [{id: 1, source: 2, target: 3, type: 'FS'}],
 };

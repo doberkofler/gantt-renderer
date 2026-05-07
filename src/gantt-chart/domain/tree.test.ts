@@ -3,9 +3,9 @@ import {buildTaskTree, flattenTree, isParent} from './tree.ts';
 import {type Task} from '../validation/schemas.ts';
 
 const tasks: Task[] = [
-	{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, progress: 0, type: 'project', open: true},
-	{id: 2, text: 'Child A', startDate: '2026-01-02', durationHours: 48, parent: 1, progress: 0, type: 'task', open: true},
-	{id: 3, text: 'Child B', startDate: '2026-01-03', durationHours: 24, parent: 1, progress: 0, type: 'task', open: true},
+	{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, type: 'project', open: true},
+	{id: 2, text: 'Child A', startDate: '2026-01-02', durationHours: 48, parent: 1, percentComplete: 0, type: 'task', open: true},
+	{id: 3, text: 'Child B', startDate: '2026-01-03', durationHours: 24, parent: 1, percentComplete: 0, type: 'task', open: true},
 ];
 
 describe('tree utilities', () => {
@@ -18,7 +18,7 @@ describe('tree utilities', () => {
 	});
 
 	it('throws when parent id does not exist', () => {
-		const broken: Task[] = [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 24, parent: 999, progress: 0, type: 'task', open: true}];
+		const broken: Task[] = [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 24, parent: 999, percentComplete: 0, type: 'task', open: true}];
 		expect(() => buildTaskTree(broken)).toThrow('references non-existent parent');
 	});
 

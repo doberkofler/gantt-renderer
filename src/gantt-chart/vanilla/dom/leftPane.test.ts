@@ -274,14 +274,14 @@ describe('renderLeftPane', () => {
 
 	it('renders custom column schema with different order and widths', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', durationHours: 72, progress: 0.75});
+		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', durationHours: 72, percentComplete: 75});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
 		const customColumns: GridColumn[] = [
 			{id: 'durationHours', header: 'Dur', width: '50px', field: 'durationHours'},
 			{id: 'name', header: 'Name', width: '2fr'},
-			{id: 'progress', header: '%', width: '60px', field: 'progress', align: 'right', format: (value) => `${Math.round((value as number) * 100)}%`},
+			{id: 'percentComplete', header: '%', width: '60px', field: 'percentComplete', align: 'right', format: (value) => `${String(value)}%`},
 		];
 
 		renderLeftPane(container, state, cbs, customColumns);
@@ -307,14 +307,14 @@ describe('renderLeftPane', () => {
 	it('custom column headers and body use same gridTemplateColumns', () => {
 		const customColumns: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '2fr'},
-			{id: 'progress', header: 'Progress', width: '80px', field: 'progress', format: (v) => String(Math.round((v as number) * 100))},
+			{id: 'percentComplete', header: 'Progress', width: '80px', field: 'percentComplete', format: String},
 		];
 
 		const header = buildLeftPaneHeader(customColumns);
 		expect(header.style.gridTemplateColumns).toBe('2fr 80px');
 
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Test', progress: 0.5});
+		const node = taskNode({id: 1, text: 'Test', percentComplete: 50});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 

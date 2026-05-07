@@ -24,7 +24,7 @@ function toTask(row: TaskNode): Task {
 		text: row.text,
 		startDate: row.startDate,
 		durationHours: row.durationHours,
-		progress: row.progress,
+		percentComplete: row.percentComplete,
 		type: row.type,
 		open: row.open,
 		...(row.parent === undefined ? {} : {parent: row.parent}),

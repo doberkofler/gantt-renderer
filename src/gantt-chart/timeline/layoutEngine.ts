@@ -72,7 +72,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 		}
 
 		const width = Math.max(mapper.durationToWidth(task.durationHours), 4);
-		const progressWidth = width * Math.min(1, Math.max(0, task.progress ?? 0));
+		const progressWidth = width * Math.min(1, Math.max(0, (task.percentComplete ?? 0) / 100));
 
 		result.set(task.id, {
 			taskId: task.id,
