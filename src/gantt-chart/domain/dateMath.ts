@@ -58,6 +58,13 @@ export function startOfHour(date: Date): Date {
 	return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours()));
 }
 
+function resolveQuarterLabel(locale: ChartLocale): string {
+	if (locale.labels?.column_quarter !== undefined) {
+		return locale.labels.column_quarter;
+	}
+	return EN_US_LABELS.column_quarter;
+}
+
 /**
  * Formats a Date for the time-header label given the active scale.
  */
@@ -111,13 +118,6 @@ export function formatUpperLabel(date: Date, scale: TimeScale, locale: ChartLoca
 			return `${date.getUTCFullYear()}`;
 		}
 	}
-}
-
-function resolveQuarterLabel(locale: ChartLocale): string {
-	if (locale.labels?.column_quarter !== undefined) {
-		return locale.labels.column_quarter;
-	}
-	return EN_US_LABELS.column_quarter;
 }
 
 /** Formats YYYY-MM-DD for display in the grid. */

@@ -4,6 +4,20 @@ import {parseDate, addDays} from '../../domain/dateMath.ts';
 import {type Task} from '../../validation/schemas.ts';
 import {type GanttCallbacks} from '../gantt-chart.ts';
 
+function toTask(row: TaskNode): Task {
+	return {
+		id: row.id,
+		text: row.text,
+		start_date: row.start_date,
+		duration: row.duration,
+		progress: row.progress,
+		type: row.type,
+		open: row.open,
+		...(row.parent === undefined ? {} : {parent: row.parent}),
+		...(row.color === undefined ? {} : {color: row.color}),
+	};
+}
+
 /**
  * Attaches drag-to-move and resize listeners to a bar element.
  * Returns a cleanup function that removes all listeners.
@@ -123,18 +137,4 @@ export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs
 
 export function bindMilestoneTask(diamondEl: HTMLElement, task: Task): void {
 	(diamondEl as HTMLElement & {__task?: Task}).__task = task;
-}
-
-function toTask(row: TaskNode): Task {
-	return {
-		id: row.id,
-		text: row.text,
-		start_date: row.start_date,
-		duration: row.duration,
-		progress: row.progress,
-		type: row.type,
-		open: row.open,
-		...(row.parent === undefined ? {} : {parent: row.parent}),
-		...(row.color === undefined ? {} : {color: row.color}),
-	};
 }

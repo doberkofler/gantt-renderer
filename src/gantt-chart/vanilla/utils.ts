@@ -14,6 +14,10 @@ export function buildTaskIndex(tasks: GanttInput['tasks']): Map<number, number> 
 	return index;
 }
 
+export function toIsoDate(date: Date): string {
+	return date.toISOString().slice(0, 10);
+}
+
 export function buildSpecialDayIndex(specialDays: SpecialDay[]): Map<string, ResolvedSpecialDay> {
 	const map = new Map<string, ResolvedSpecialDay>();
 	for (const specialDay of specialDays) {
@@ -26,10 +30,6 @@ export function buildSpecialDayIndex(specialDays: SpecialDay[]): Map<string, Res
 		});
 	}
 	return map;
-}
-
-export function toIsoDate(date: Date): string {
-	return date.toISOString().slice(0, 10);
 }
 
 export function normalizeWeekendDays(days: number[] | undefined): Set<number> {

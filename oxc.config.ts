@@ -45,7 +45,6 @@ export const linter = defineConfig({
 		'eslint/no-negated-condition': 'off', // TODO: consider enabling
 		'eslint/no-nested-ternary': 'off',
 		'eslint/no-underscore-dangle': 'off',
-		'eslint/no-use-before-define': 'off',
 		'eslint/no-warning-comments': 'off',
 		'eslint/no-undefined': 'off', // TODO: consider enabling
 		'eslint/no-plusplus': 'off',

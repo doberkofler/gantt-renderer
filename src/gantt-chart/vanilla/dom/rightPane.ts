@@ -61,147 +61,9 @@ export function createRightPaneRefs(): RightPaneRefs {
 	};
 }
 
-/**
- * Full render of the right pane.
- * Grid lines and stripes are rebuilt each call (cheap — no event listeners).
- * Bars are rebuilt each call with fresh drag listeners (old ones cleaned up first).
- */
-export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: GanttCallbacks): void {
-	const {
-		allRows,
-		layouts,
-		links,
-		mapper,
-		scale,
-		viewportStart,
-		viewportEnd,
-		totalWidth,
-		selectedId,
-		highlightLinkedDependenciesOnSelect,
-		paddingTop,
-		paddingBottom,
-		startIndex,
-	} = state;
-
-	const {stripeContainer, absoluteLayer, svgLayer, barRegistry} = refs;
-	const rowCount = allRows.length;
-	const contentHeight = totalContentHeight(rowCount);
-
-	// ── Stripe rows (virtual slice only) ───────────────────────────────────
-	const visibleRows = allRows.slice(state.startIndex, state.endIndex + 1);
-	clearChildren(stripeContainer);
-	css(stripeContainer, {width: `${totalWidth}px`});
-
-	// Top spacer
-	if (paddingTop > 0) {
-		const s = el('div');
-		s.style.height = `${paddingTop}px`;
-		stripeContainer.append(s);
-	}
-
-	for (let i = 0; i < visibleRows.length; i++) {
-		const rowIdx = startIndex + i;
-		const stripe = el('div');
-		css(stripe, {
-			height: `${ROW_HEIGHT}px`,
-			background: rowIdx % 2 === 0 ? 'var(--gantt-bg)' : 'var(--gantt-stripe)',
-			borderBottom: '1px solid var(--gantt-border)',
-		});
-		stripeContainer.append(stripe);
-	}
-
-	// Bottom spacer
-	if (paddingBottom > 0) {
-		const s = el('div');
-		s.style.height = `${paddingBottom}px`;
-		stripeContainer.append(s);
-	}
-
-	// ── Absolute layer: grid lines + today + bars ──────────────────────────
-	css(absoluteLayer, {width: `${totalWidth}px`, height: `${contentHeight}px`});
-
-	// Remove all children except svgLayer (last child)
-	const toRemove: Element[] = [];
-	for (const child of [...absoluteLayer.children]) {
-		if (child !== svgLayer) {
-			toRemove.push(child);
-		}
-	}
-	for (const node of toRemove) {
-		absoluteLayer.removeChild(node);
-	}
-
-	// Clean up orphaned ghost line from interrupted drags
-	hideGhostLine(svgLayer);
-
-	// Clean up previous drag listeners
-	for (const {cleanupDrag, cleanupLinkHandles} of barRegistry.values()) {
-		cleanupDrag();
-		cleanupLinkHandles?.();
-	}
-	barRegistry.clear();
-
-	// Grid lines
-	if (scale === 'day') {
-		renderSpecialDayBackgrounds(absoluteLayer, svgLayer, state, contentHeight);
-	}
-
-	// Grid lines
-	let gridCur = snapToScaleBoundary(viewportStart, scale);
-	while (gridCur <= viewportEnd) {
-		const x = mapper.toX(gridCur);
-		const line = el('div');
-		css(line, {
-			position: 'absolute',
-			left: `${x}px`,
-			top: '0',
-			width: '1px',
-			height: `${contentHeight}px`,
-			background: 'var(--gantt-grid-line)',
-			pointerEvents: 'none',
-		});
-		absoluteLayer.insertBefore(line, svgLayer);
-		gridCur = nextScaleBoundary(gridCur, scale);
-	}
-
-	// Today marker (render only when within timeline bounds)
-	const todayX = mapper.toX(new Date());
-	const todayLineWidth = 2;
-	if (todayX >= 0 && todayX <= totalWidth - todayLineWidth) {
-		const todayLine = el('div');
-		todayLine.className = 'gantt-today-marker';
-		css(todayLine, {
-			position: 'absolute',
-			left: `${todayX}px`,
-			top: '0',
-			width: `${todayLineWidth}px`,
-			height: `${contentHeight}px`,
-			background: 'var(--gantt-today)',
-			pointerEvents: 'none',
-			zIndex: '5',
-		});
-		absoluteLayer.insertBefore(todayLine, svgLayer);
-	}
-
-	const visibleTaskIds = new Set(visibleRows.map((task) => task.id));
-
-	// Bars (virtual slice only)
-	for (const task of visibleRows) {
-		const layout = layouts.get(task.id);
-		if (layout === undefined) {
-			continue;
-		}
-
-		if (layout.type === 'milestone') {
-			renderMilestone(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, cbs, state);
-		} else {
-			renderBar(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, state, cbs);
-		}
-	}
-
-	// SVG dependency overlay (visible rows only)
-	const visibleLinks = links.filter((link) => visibleTaskIds.has(link.sourceTaskId) && visibleTaskIds.has(link.targetTaskId));
-	updateDependencyLayer(svgLayer, visibleLinks, totalWidth, contentHeight, selectedId, highlightLinkedDependenciesOnSelect);
+function ariaLabel(locale: ChartLocale, key: 'aria_task' | 'aria_milestone', arg: string): string {
+	const template = locale.labels?.[key] ?? EN_US_LABELS[key];
+	return formatLabel(template, arg);
 }
 
 function renderSpecialDayBackgrounds(layer: HTMLElement, beforeNode: Element, state: GanttState, contentHeight: number): void {
@@ -507,7 +369,145 @@ function renderMilestone(
 	registry.set(task.id, entry);
 }
 
-function ariaLabel(locale: ChartLocale, key: 'aria_task' | 'aria_milestone', arg: string): string {
-	const template = locale.labels?.[key] ?? EN_US_LABELS[key];
-	return formatLabel(template, arg);
+/**
+ * Full render of the right pane.
+ * Grid lines and stripes are rebuilt each call (cheap — no event listeners).
+ * Bars are rebuilt each call with fresh drag listeners (old ones cleaned up first).
+ */
+export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: GanttCallbacks): void {
+	const {
+		allRows,
+		layouts,
+		links,
+		mapper,
+		scale,
+		viewportStart,
+		viewportEnd,
+		totalWidth,
+		selectedId,
+		highlightLinkedDependenciesOnSelect,
+		paddingTop,
+		paddingBottom,
+		startIndex,
+	} = state;
+
+	const {stripeContainer, absoluteLayer, svgLayer, barRegistry} = refs;
+	const rowCount = allRows.length;
+	const contentHeight = totalContentHeight(rowCount);
+
+	// ── Stripe rows (virtual slice only) ───────────────────────────────────
+	const visibleRows = allRows.slice(state.startIndex, state.endIndex + 1);
+	clearChildren(stripeContainer);
+	css(stripeContainer, {width: `${totalWidth}px`});
+
+	// Top spacer
+	if (paddingTop > 0) {
+		const s = el('div');
+		s.style.height = `${paddingTop}px`;
+		stripeContainer.append(s);
+	}
+
+	for (let i = 0; i < visibleRows.length; i++) {
+		const rowIdx = startIndex + i;
+		const stripe = el('div');
+		css(stripe, {
+			height: `${ROW_HEIGHT}px`,
+			background: rowIdx % 2 === 0 ? 'var(--gantt-bg)' : 'var(--gantt-stripe)',
+			borderBottom: '1px solid var(--gantt-border)',
+		});
+		stripeContainer.append(stripe);
+	}
+
+	// Bottom spacer
+	if (paddingBottom > 0) {
+		const s = el('div');
+		s.style.height = `${paddingBottom}px`;
+		stripeContainer.append(s);
+	}
+
+	// ── Absolute layer: grid lines + today + bars ──────────────────────────
+	css(absoluteLayer, {width: `${totalWidth}px`, height: `${contentHeight}px`});
+
+	// Remove all children except svgLayer (last child)
+	const toRemove: Element[] = [];
+	for (const child of [...absoluteLayer.children]) {
+		if (child !== svgLayer) {
+			toRemove.push(child);
+		}
+	}
+	for (const node of toRemove) {
+		absoluteLayer.removeChild(node);
+	}
+
+	// Clean up orphaned ghost line from interrupted drags
+	hideGhostLine(svgLayer);
+
+	// Clean up previous drag listeners
+	for (const {cleanupDrag, cleanupLinkHandles} of barRegistry.values()) {
+		cleanupDrag();
+		cleanupLinkHandles?.();
+	}
+	barRegistry.clear();
+
+	// Special day backgrounds (day scale only)
+	if (scale === 'day') {
+		renderSpecialDayBackgrounds(absoluteLayer, svgLayer, state, contentHeight);
+	}
+
+	// Grid lines
+	let gridCur = snapToScaleBoundary(viewportStart, scale);
+	while (gridCur <= viewportEnd) {
+		const x = mapper.toX(gridCur);
+		const line = el('div');
+		css(line, {
+			position: 'absolute',
+			left: `${x}px`,
+			top: '0',
+			width: '1px',
+			height: `${contentHeight}px`,
+			background: 'var(--gantt-grid-line)',
+			pointerEvents: 'none',
+		});
+		absoluteLayer.insertBefore(line, svgLayer);
+		gridCur = nextScaleBoundary(gridCur, scale);
+	}
+
+	// Today marker (render only when within timeline bounds)
+	const todayX = mapper.toX(new Date());
+	const todayLineWidth = 2;
+	if (todayX >= 0 && todayX <= totalWidth - todayLineWidth) {
+		const todayLine = el('div');
+		todayLine.className = 'gantt-today-marker';
+		css(todayLine, {
+			position: 'absolute',
+			left: `${todayX}px`,
+			top: '0',
+			width: `${todayLineWidth}px`,
+			height: `${contentHeight}px`,
+			background: 'var(--gantt-today)',
+			pointerEvents: 'none',
+			zIndex: '5',
+		});
+		absoluteLayer.insertBefore(todayLine, svgLayer);
+	}
+
+	const visibleTaskIds = new Set(visibleRows.map((task) => task.id));
+
+	// Bars (virtual slice only)
+	for (const task of visibleRows) {
+		const layout = layouts.get(task.id);
+		if (layout === undefined) {
+			continue;
+		}
+
+		if (layout.type === 'milestone') {
+			renderMilestone(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, cbs, state);
+		} else {
+			renderBar(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, state, cbs);
+		}
+	}
+
+	// SVG dependency overlay (visible rows only)
+	const visibleLinks = links.filter((link) => visibleTaskIds.has(link.sourceTaskId) && visibleTaskIds.has(link.targetTaskId));
+	updateDependencyLayer(svgLayer, visibleLinks, totalWidth, contentHeight, selectedId, highlightLinkedDependenciesOnSelect);
 }

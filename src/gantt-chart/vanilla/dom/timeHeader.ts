@@ -5,6 +5,14 @@ import {formatHeaderLabel, formatUpperLabel} from '../../domain/dateMath.ts';
 
 type Cell = {label: string; x: number; width: number};
 
+/** Inline style helper local to this module. */
+function css_(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
+	for (const [k, v] of Object.entries(styles)) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(elem.style as any)[k] = v ?? '';
+	}
+}
+
 /**
  * Fully replaces the content of `container` with two header rows.
  * Called on scale change or viewport change only — not on scroll.
@@ -113,12 +121,4 @@ export function renderTimeHeader(container: HTMLElement, state: GanttState): voi
 	clearChildren(container);
 	container.append(upperRow);
 	container.append(lowerRow);
-}
-
-/** Inline style helper local to this module. */
-function css_(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
-	for (const [k, v] of Object.entries(styles)) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(elem.style as any)[k] = v ?? '';
-	}
 }

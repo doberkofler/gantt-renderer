@@ -1,3 +1,11 @@
+/** Batches style assignments; avoids repeated style recalculations. */
+export function css(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
+	for (const [k, v] of Object.entries(styles)) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(elem.style as any)[k] = v ?? '';
+	}
+}
+
 /**
  * Typed element factory. Avoids littering `as HTMLElement` casts everywhere.
  *
@@ -22,14 +30,6 @@ export function el(tag: string, props?: Record<string, unknown>, ns?: string): E
 		}
 	}
 	return elem;
-}
-
-/** Batches style assignments; avoids repeated style recalculations. */
-export function css(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
-	for (const [k, v] of Object.entries(styles)) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(elem.style as any)[k] = v ?? '';
-	}
 }
 
 /** Removes all child nodes from elem. Faster than innerHTML = '' for large subtrees. */

@@ -156,13 +156,13 @@ export const init = (): void => {
 		};
 	}
 
+	let instance: GanttInstance = new GanttChart(ganttEl, initialInput, buildOptions());
+	appendEventLog('demo initialized');
+
 	function remountChart(): void {
 		instance.destroy();
 		instance = new GanttChart(ganttEl, initialInput, buildOptions());
 	}
-
-	let instance: GanttInstance = new GanttChart(ganttEl, initialInput, buildOptions());
-	appendEventLog('demo initialized');
 
 	const themeSelect = document.querySelector<HTMLSelectElement>('#theme-select');
 	themeSelect?.addEventListener('change', () => {

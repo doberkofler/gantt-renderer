@@ -15,29 +15,6 @@ export type RoutedLink = {
 const TURN_MARGIN = 12; // px gap before/after bar for routing clearance
 
 /**
- * Computes orthogonal routing for all dependency links.
- * Links whose source or target is not in the layout map are skipped silently
- * (e.g. when the row is collapsed).
- */
-export function routeLinks(links: Link[], layouts: Map<number, BarLayout>): RoutedLink[] {
-	return links
-		.map((link) => {
-			const src = layouts.get(link.source);
-			const tgt = layouts.get(link.target);
-			if (src === undefined || tgt === undefined) {
-				return null;
-			}
-			return {
-				linkId: link.id,
-				sourceTaskId: link.source,
-				targetTaskId: link.target,
-				points: route(link.type, src, tgt),
-			};
-		})
-		.filter((r): r is RoutedLink => r !== null);
-}
-
-/**
  * Produces the vertex list for an orthogonal connector between src and tgt.
  *
  * Link semantics:
@@ -103,4 +80,27 @@ function route(type: Link['type'], src: BarLayout, tgt: BarLayout): Point[] {
 		{x: loopX, y: ty},
 		{x: tx, y: ty},
 	];
+}
+
+/**
+ * Computes orthogonal routing for all dependency links.
+ * Links whose source or target is not in the layout map are skipped silently
+ * (e.g. when the row is collapsed).
+ */
+export function routeLinks(links: Link[], layouts: Map<number, BarLayout>): RoutedLink[] {
+	return links
+		.map((link) => {
+			const src = layouts.get(link.source);
+			const tgt = layouts.get(link.target);
+			if (src === undefined || tgt === undefined) {
+				return null;
+			}
+			return {
+				linkId: link.id,
+				sourceTaskId: link.source,
+				targetTaskId: link.target,
+				points: route(link.type, src, tgt),
+			};
+		})
+		.filter((r): r is RoutedLink => r !== null);
 }

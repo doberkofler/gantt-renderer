@@ -18,89 +18,18 @@ export type LeftPaneCallbacks = {
 	onAdd: (id: number) => void;
 };
 
-/** Renders the left grid pane. */
-export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: LeftPaneCallbacks, columns: GridColumn[]): void {
-	const {allRows, selectedId, expandedIds, startIndex, endIndex, paddingTop, paddingBottom, locale} = state;
-
-	const frag = document.createDocumentFragment();
-
-	if (paddingTop > 0) {
-		const spacer = el('div');
-		spacer.style.height = `${paddingTop}px`;
-		frag.append(spacer);
-	}
-
-	for (const row of allRows.slice(startIndex, endIndex + 1)) {
-		frag.append(buildRow(row, selectedId, expandedIds, cbs, columns, locale));
-	}
-
-	if (paddingBottom > 0) {
-		const spacer = el('div');
-		spacer.style.height = `${paddingBottom}px`;
-		frag.append(spacer);
-	}
-
-	clearChildren(container);
-	container.append(frag);
-}
-
-function buildRow(
-	row: TaskNode,
-	selectedId: number | null,
-	expandedIds: Set<number>,
-	cbs: LeftPaneCallbacks,
-	columns: GridColumn[],
-	locale: ChartLocale,
-): HTMLElement {
-	const selected = row.id === selectedId;
-
-	const wrapper = el('div');
-	wrapper.className = 'gantt-row';
-	css(wrapper, {
-		display: 'grid',
-		gridTemplateColumns: gridTemplateColumns(columns),
-		height: `${ROW_HEIGHT}px`,
-		alignItems: 'center',
-		paddingLeft: '8px',
-		background: selected ? 'var(--gantt-row-selected)' : 'var(--gantt-bg)',
-		borderBottom: '1px solid var(--gantt-border)',
-		cursor: 'default',
-		boxSizing: 'border-box',
-	});
-	wrapper.tabIndex = 0;
-	wrapper.setAttribute('role', 'row');
-	wrapper.setAttribute('aria-selected', String(selected));
-	wrapper.dataset['taskId'] = String(row.id);
-	wrapper.addEventListener('click', () => {
-		const task = toTask(row);
-		cbs.onRowClick({id: row.id, task});
-	});
-	wrapper.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter' || event.key === ' ') {
-			event.preventDefault();
-			cbs.onSelect(row.id);
-		}
-	});
-
-	for (const column of visibleColumns(columns)) {
-		wrapper.append(buildCell(column, row, expandedIds, cbs, locale));
-	}
-
-	return wrapper;
-}
-
-function buildCell(column: GridColumn, row: TaskNode, expandedIds: Set<number>, cbs: LeftPaneCallbacks, locale: ChartLocale): HTMLElement {
-	switch (column.id) {
-		case 'name': {
-			return buildTreeNameCell(row, expandedIds, cbs);
-		}
-		case 'actions': {
-			return buildAddButton(row, cbs, locale);
-		}
-		default: {
-			return buildDataCell(row, column, locale);
-		}
-	}
+function toTask(row: TaskNode): Task {
+	return {
+		id: row.id,
+		text: row.text,
+		start_date: row.start_date,
+		duration: row.duration,
+		progress: row.progress,
+		type: row.type,
+		open: row.open,
+		...(row.parent === undefined ? {} : {parent: row.parent}),
+		...(row.color === undefined ? {} : {color: row.color}),
+	};
 }
 
 function buildTreeNameCell(row: TaskNode, expandedIds: Set<number>, cbs: LeftPaneCallbacks): HTMLElement {
@@ -209,18 +138,89 @@ function buildAddButton(row: TaskNode, cbs: LeftPaneCallbacks, locale: ChartLoca
 	return btn;
 }
 
-function toTask(row: TaskNode): Task {
-	return {
-		id: row.id,
-		text: row.text,
-		start_date: row.start_date,
-		duration: row.duration,
-		progress: row.progress,
-		type: row.type,
-		open: row.open,
-		...(row.parent === undefined ? {} : {parent: row.parent}),
-		...(row.color === undefined ? {} : {color: row.color}),
-	};
+function buildCell(column: GridColumn, row: TaskNode, expandedIds: Set<number>, cbs: LeftPaneCallbacks, locale: ChartLocale): HTMLElement {
+	switch (column.id) {
+		case 'name': {
+			return buildTreeNameCell(row, expandedIds, cbs);
+		}
+		case 'actions': {
+			return buildAddButton(row, cbs, locale);
+		}
+		default: {
+			return buildDataCell(row, column, locale);
+		}
+	}
+}
+
+function buildRow(
+	row: TaskNode,
+	selectedId: number | null,
+	expandedIds: Set<number>,
+	cbs: LeftPaneCallbacks,
+	columns: GridColumn[],
+	locale: ChartLocale,
+): HTMLElement {
+	const selected = row.id === selectedId;
+
+	const wrapper = el('div');
+	wrapper.className = 'gantt-row';
+	css(wrapper, {
+		display: 'grid',
+		gridTemplateColumns: gridTemplateColumns(columns),
+		height: `${ROW_HEIGHT}px`,
+		alignItems: 'center',
+		paddingLeft: '8px',
+		background: selected ? 'var(--gantt-row-selected)' : 'var(--gantt-bg)',
+		borderBottom: '1px solid var(--gantt-border)',
+		cursor: 'default',
+		boxSizing: 'border-box',
+	});
+	wrapper.tabIndex = 0;
+	wrapper.setAttribute('role', 'row');
+	wrapper.setAttribute('aria-selected', String(selected));
+	wrapper.dataset['taskId'] = String(row.id);
+	wrapper.addEventListener('click', () => {
+		const task = toTask(row);
+		cbs.onRowClick({id: row.id, task});
+	});
+	wrapper.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			cbs.onSelect(row.id);
+		}
+	});
+
+	for (const column of visibleColumns(columns)) {
+		wrapper.append(buildCell(column, row, expandedIds, cbs, locale));
+	}
+
+	return wrapper;
+}
+
+/** Renders the left grid pane. */
+export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: LeftPaneCallbacks, columns: GridColumn[]): void {
+	const {allRows, selectedId, expandedIds, startIndex, endIndex, paddingTop, paddingBottom, locale} = state;
+
+	const frag = document.createDocumentFragment();
+
+	if (paddingTop > 0) {
+		const spacer = el('div');
+		spacer.style.height = `${paddingTop}px`;
+		frag.append(spacer);
+	}
+
+	for (const row of allRows.slice(startIndex, endIndex + 1)) {
+		frag.append(buildRow(row, selectedId, expandedIds, cbs, columns, locale));
+	}
+
+	if (paddingBottom > 0) {
+		const spacer = el('div');
+		spacer.style.height = `${paddingBottom}px`;
+		frag.append(spacer);
+	}
+
+	clearChildren(container);
+	container.append(frag);
 }
 
 /** Builds the header row for the left pane. */

@@ -15,99 +15,8 @@ export type ChartLocale = {
 	weekendDays?: number[];
 };
 
-export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
-	aria_task: 'Task {0}',
-	aria_milestone: 'Milestone {0}',
-	add_subtask_title: 'Add subtask',
-	column_task_name: 'Task name',
-	column_start_time: 'Start time',
-	column_duration: 'Duration',
-	column_quarter: 'Q',
-};
-
-export const CHART_LOCALE_EN_US: ChartLocale = {
-	code: 'en-US',
-	labels: EN_US_LABELS,
-	weekStartsOn: 0,
-	weekNumbering: 'iso',
-	weekendDays: [0, 6],
-};
-
-/**
- * Resolves a ChartLocale from either a full ChartLocale object or a BCP 47 string.
- * When given a string, derives weekStartsOn, weekNumbering, and weekendDays from CLDR conventions.
- */
-export function resolveChartLocale(raw: ChartLocale | string | undefined): ChartLocale {
-	if (raw === undefined) {
-		return CHART_LOCALE_EN_US;
-	}
-	if (typeof raw !== 'string') {
-		const locale: ChartLocale = {
-			code: raw.code,
-			weekStartsOn: raw.weekStartsOn ?? deriveWeekStartsOn(raw.code),
-			weekNumbering: raw.weekNumbering ?? deriveWeekNumbering(raw.code),
-			weekendDays: raw.weekendDays ?? deriveWeekendDays(raw.code),
-		};
-		if (raw.labels !== undefined) {
-			locale.labels = raw.labels;
-		}
-		return locale;
-	}
-	const code = raw;
-	return {
-		code,
-		weekStartsOn: deriveWeekStartsOn(code),
-		weekNumbering: deriveWeekNumbering(code),
-		weekendDays: deriveWeekendDays(code),
-	};
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type IntlLocaleWithWeekInfo = Intl.Locale & {getWeekInfo?: () => {firstDay: number; weekend: number[]; minimalDays: number}};
-
-function tryGetWeekInfo(code: string): {firstDay: number; weekend: number[]; minimalDays: number} | undefined {
-	try {
-		if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
-			const locale = new Intl.Locale(code) as IntlLocaleWithWeekInfo;
-			const fn = locale.getWeekInfo;
-			if (typeof fn === 'function') {
-				return fn.call(locale);
-			}
-		}
-	} catch {
-		// Not available — use fallback mapping table
-	}
-	return undefined;
-}
-
-/**
- * Derives the first day of week (0=Sun, 1=Mon, 6=Sat) from a BCP 47 code.
- * Uses Intl.Locale.getWeekInfo() where available (Chromium, Safari 15.4+),
- * with a CLDR-based fallback table for Firefox and older runtimes.
- */
-export function deriveWeekStartsOn(code: string): 0 | 1 | 6 {
-	const primary = code.split('-')[0]?.toLowerCase() ?? 'en';
-	const region = code.split('-')[1]?.toUpperCase();
-
-	if (region !== undefined) {
-		const fromRegion = WEEK_START_REGION[region];
-		if (fromRegion !== undefined) {
-			return fromRegion;
-		}
-	}
-	const fromLang = WEEK_START_LANG[primary];
-	if (fromLang !== undefined) {
-		return fromLang;
-	}
-
-	const info = tryGetWeekInfo(code);
-	if (info !== undefined) {
-		const day = info.firstDay;
-		return (day === 7 ? 0 : day) as 0 | 1 | 6;
-	}
-
-	return 1;
-}
 
 const WEEK_START_REGION: Record<string, 0 | 1 | 6> = {
 	US: 0,
@@ -163,33 +72,6 @@ const WEEK_START_LANG: Record<string, 0 | 1 | 6> = {
 	fa: 6,
 };
 
-/**
- * Derives the week numbering scheme from a BCP 47 code.
- * Europe and ISO-aligned regions default to 'iso'; Americas and others to 'us'.
- */
-export function deriveWeekNumbering(code: string): 'iso' | 'us' | 'simple' {
-	const region = code.split('-')[1]?.toUpperCase();
-	if (region !== undefined) {
-		const fromRegion = WEEK_NUMBERING_REGION[region];
-		if (fromRegion !== undefined) {
-			return fromRegion;
-		}
-		if (region in WEEK_START_REGION) {
-			return 'us';
-		}
-	}
-
-	const info = tryGetWeekInfo(code);
-	if (info !== undefined) {
-		if (info.minimalDays >= 4 && info.firstDay === 1) {
-			return 'iso';
-		}
-		return 'us';
-	}
-
-	return 'iso';
-}
-
 const WEEK_NUMBERING_REGION: Record<string, 'iso' | 'us'> = {
 	US: 'us',
 	CA: 'us',
@@ -213,31 +95,6 @@ const WEEK_NUMBERING_REGION: Record<string, 'iso' | 'us'> = {
 	AU: 'us',
 	NZ: 'us',
 };
-
-/**
- * Derives weekend days (0=Sun … 6=Sat) from a BCP 47 code.
- * Uses Intl.Locale.getWeekInfo() where available, with a CLDR-based fallback table.
- */
-export function deriveWeekendDays(code: string): number[] {
-	const region = code.split('-')[1]?.toUpperCase();
-	if (region !== undefined) {
-		const fromRegion = WEEKEND_REGION[region];
-		if (fromRegion !== undefined) {
-			const days = [...fromRegion];
-			days.sort((a, b) => a - b);
-			return days;
-		}
-	}
-
-	const info = tryGetWeekInfo(code);
-	if (info !== undefined) {
-		const days = info.weekend.map((d: number) => (d === 7 ? 0 : d));
-		days.sort((a, b) => a - b);
-		return days;
-	}
-
-	return [0, 6];
-}
 
 const WEEKEND_REGION: Record<string, number[]> = {
 	AE: [5, 6],
@@ -273,25 +130,147 @@ const WEEKEND_REGION: Record<string, number[]> = {
 	MY: [5, 0],
 };
 
+export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
+	aria_task: 'Task {0}',
+	aria_milestone: 'Milestone {0}',
+	add_subtask_title: 'Add subtask',
+	column_task_name: 'Task name',
+	column_start_time: 'Start time',
+	column_duration: 'Duration',
+	column_quarter: 'Q',
+};
+
+export const CHART_LOCALE_EN_US: ChartLocale = {
+	code: 'en-US',
+	labels: EN_US_LABELS,
+	weekStartsOn: 0,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+function tryGetWeekInfo(code: string): {firstDay: number; weekend: number[]; minimalDays: number} | undefined {
+	try {
+		if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
+			const locale = new Intl.Locale(code) as IntlLocaleWithWeekInfo;
+			const fn = locale.getWeekInfo;
+			if (typeof fn === 'function') {
+				return fn.call(locale);
+			}
+		}
+	} catch {
+		// Not available — use fallback mapping table
+	}
+	return undefined;
+}
+
 /**
- * Formats a week number according to the specified scheme.
- *
- * - `'iso'`: ISO 8601 (week 1 contains the first Thursday; Monday start).
- * - `'us'`: Week 1 contains January 1; Sunday start.
- * - `'simple'`: `Math.ceil(dayOfYear / 7)`.
+ * Derives the first day of week (0=Sun, 1=Mon, 6=Sat) from a BCP 47 code.
+ * Uses Intl.Locale.getWeekInfo() where available (Chromium, Safari 15.4+),
+ * with a CLDR-based fallback table for Firefox and older runtimes.
  */
-export function formatWeekNumber(date: Date, scheme: 'iso' | 'us' | 'simple'): number {
-	switch (scheme) {
-		case 'iso': {
-			return isoWeek(date);
-		}
-		case 'us': {
-			return usWeek(date);
-		}
-		case 'simple': {
-			return simpleWeek(date);
+export function deriveWeekStartsOn(code: string): 0 | 1 | 6 {
+	const primary = code.split('-')[0]?.toLowerCase() ?? 'en';
+	const region = code.split('-')[1]?.toUpperCase();
+
+	if (region !== undefined) {
+		const fromRegion = WEEK_START_REGION[region];
+		if (fromRegion !== undefined) {
+			return fromRegion;
 		}
 	}
+	const fromLang = WEEK_START_LANG[primary];
+	if (fromLang !== undefined) {
+		return fromLang;
+	}
+
+	const info = tryGetWeekInfo(code);
+	if (info !== undefined) {
+		const day = info.firstDay;
+		return (day === 7 ? 0 : day) as 0 | 1 | 6;
+	}
+
+	return 1;
+}
+
+/**
+ * Derives the week numbering scheme from a BCP 47 code.
+ * Europe and ISO-aligned regions default to 'iso'; Americas and others to 'us'.
+ */
+export function deriveWeekNumbering(code: string): 'iso' | 'us' | 'simple' {
+	const region = code.split('-')[1]?.toUpperCase();
+	if (region !== undefined) {
+		const fromRegion = WEEK_NUMBERING_REGION[region];
+		if (fromRegion !== undefined) {
+			return fromRegion;
+		}
+		if (region in WEEK_START_REGION) {
+			return 'us';
+		}
+	}
+
+	const info = tryGetWeekInfo(code);
+	if (info !== undefined) {
+		if (info.minimalDays >= 4 && info.firstDay === 1) {
+			return 'iso';
+		}
+		return 'us';
+	}
+
+	return 'iso';
+}
+
+/**
+ * Derives weekend days (0=Sun … 6=Sat) from a BCP 47 code.
+ * Uses Intl.Locale.getWeekInfo() where available, with a CLDR-based fallback table.
+ */
+export function deriveWeekendDays(code: string): number[] {
+	const region = code.split('-')[1]?.toUpperCase();
+	if (region !== undefined) {
+		const fromRegion = WEEKEND_REGION[region];
+		if (fromRegion !== undefined) {
+			const days = [...fromRegion];
+			days.sort((a, b) => a - b);
+			return days;
+		}
+	}
+
+	const info = tryGetWeekInfo(code);
+	if (info !== undefined) {
+		const days = info.weekend.map((d: number) => (d === 7 ? 0 : d));
+		days.sort((a, b) => a - b);
+		return days;
+	}
+
+	return [0, 6];
+}
+
+/**
+ * Resolves a ChartLocale from either a full ChartLocale object or a BCP 47 string.
+ * When given a string, derives weekStartsOn, weekNumbering, and weekendDays from CLDR conventions.
+ */
+export function resolveChartLocale(raw: ChartLocale | string | undefined): ChartLocale {
+	if (raw === undefined) {
+		return CHART_LOCALE_EN_US;
+	}
+	if (typeof raw !== 'string') {
+		const locale: ChartLocale = {
+			code: raw.code,
+			weekStartsOn: raw.weekStartsOn ?? deriveWeekStartsOn(raw.code),
+			weekNumbering: raw.weekNumbering ?? deriveWeekNumbering(raw.code),
+			weekendDays: raw.weekendDays ?? deriveWeekendDays(raw.code),
+		};
+		if (raw.labels !== undefined) {
+			locale.labels = raw.labels;
+		}
+		return locale;
+	}
+	const code = raw;
+	return {
+		code,
+		weekStartsOn: deriveWeekStartsOn(code),
+		weekNumbering: deriveWeekNumbering(code),
+		weekendDays: deriveWeekendDays(code),
+	};
 }
 
 function isoWeek(date: Date): number {
@@ -320,6 +299,27 @@ function simpleWeek(date: Date): number {
 	const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
 	const dayOfYear = Math.floor((d.getTime() - yearStart.getTime()) / 86_400_000);
 	return Math.ceil((dayOfYear + 1) / 7);
+}
+
+/**
+ * Formats a week number according to the specified scheme.
+ *
+ * - `'iso'`: ISO 8601 (week 1 contains the first Thursday; Monday start).
+ * - `'us'`: Week 1 contains January 1; Sunday start.
+ * - `'simple'`: `Math.ceil(dayOfYear / 7)`.
+ */
+export function formatWeekNumber(date: Date, scheme: 'iso' | 'us' | 'simple'): number {
+	switch (scheme) {
+		case 'iso': {
+			return isoWeek(date);
+		}
+		case 'us': {
+			return usWeek(date);
+		}
+		case 'simple': {
+			return simpleWeek(date);
+		}
+	}
 }
 
 /**
