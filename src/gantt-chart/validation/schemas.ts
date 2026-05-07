@@ -17,8 +17,8 @@ export const TaskSchema = z.object({
 	text: z.string().min(1),
 	/** ISO date: YYYY-MM-DD */
 	startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD'),
-	/** Duration in days; 0 = milestone */
-	duration: z.number().int().min(0),
+	/** Duration in hours; 0 = milestone */
+	durationHours: z.number().int().min(0),
 	parent: z.number().int().positive().optional(),
 	/** 0–1 completion ratio */
 	progress: z.number().min(0).max(1).default(0),

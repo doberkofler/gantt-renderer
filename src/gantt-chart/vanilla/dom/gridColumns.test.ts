@@ -36,7 +36,7 @@ describe('gridColumns helpers', () => {
 		expect(DEFAULT_GRID_COLUMNS).toHaveLength(4);
 		expect(DEFAULT_GRID_COLUMNS[0]?.id).toBe('name');
 		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('startDate');
-		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('duration');
+		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('durationHours');
 		expect(DEFAULT_GRID_COLUMNS[3]?.id).toBe('actions');
 	});
 });
@@ -48,7 +48,7 @@ describe('gridColumnDefaults', () => {
 		expect(columns).toHaveLength(4);
 		expect(columns[0]?.id).toBe('name');
 		expect(columns[1]?.id).toBe('startDate');
-		expect(columns[2]?.id).toBe('duration');
+		expect(columns[2]?.id).toBe('durationHours');
 		expect(columns[3]?.id).toBe('actions');
 	});
 
@@ -147,7 +147,7 @@ describe('gridNaturalWidth', () => {
 			{id: 'name', header: 'Name', width: '2fr'},
 			{id: 'progress', header: 'Progress', width: '70px', field: 'progress'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'duration', header: 'Days', width: '60px', field: 'duration'},
+			{id: 'durationHours', header: 'Days', width: '60px', field: 'durationHours'},
 		];
 		expect(gridNaturalWidth(cols)).toBe(2 * GRID_COLUMN_FR_MIN_WIDTH + 220);
 	});

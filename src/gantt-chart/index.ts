@@ -25,7 +25,7 @@ export {
 
 export {buildTaskTree, flattenTree, isParent} from './domain/tree.ts';
 export {detectCycles, validateLinkRefs} from './domain/dependencies.ts';
-export {parseDate, addDays, diffDays} from './domain/dateMath.ts';
+export {parseDate, addDays, diffDays, addHours, diffHours} from './domain/dateMath.ts';
 
 // ─── Timeline ─────────────────────────────────────────────────────────────────
 

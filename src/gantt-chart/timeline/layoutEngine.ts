@@ -1,6 +1,6 @@
 import {type TaskNode} from '../domain/tree.ts';
 import {type PixelMapper} from './pixelMapper.ts';
-import {parseDate, addDays} from '../domain/dateMath.ts';
+import {parseDate, addHours} from '../domain/dateMath.ts';
 
 export const DENSITY = {
 	rowHeight: 44,
@@ -71,7 +71,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 			continue;
 		}
 
-		const width = Math.max(mapper.durationToWidth(task.duration), 4);
+		const width = Math.max(mapper.durationToWidth(task.durationHours), 4);
 		const progressWidth = width * Math.min(1, Math.max(0, task.progress ?? 0));
 
 		result.set(task.id, {
@@ -105,13 +105,13 @@ export function totalContentHeight(rowCount: number): number {
  * Derives viewport bounds from task data with padding.
  *
  * @param tasks - The task nodes to derive bounds from.
- * @param paddingDays - Extra days added before the earliest start and after the latest end. Defaults to `2`.
+ * @param paddingHours - Extra hours added before the earliest start and after the latest end. Defaults to `48`.
  * @returns A tuple `[start, end]` of UTC midnight `Date` instances.
  */
-export function deriveViewport(tasks: TaskNode[], paddingDays = 2): [Date, Date] {
+export function deriveViewport(tasks: TaskNode[], paddingHours = 48): [Date, Date] {
 	if (tasks.length === 0) {
 		const now = new Date();
-		return [now, addDays(now, 30)];
+		return [now, addHours(now, 720)];
 	}
 
 	let minMs = Infinity;
@@ -119,7 +119,7 @@ export function deriveViewport(tasks: TaskNode[], paddingDays = 2): [Date, Date]
 
 	for (const task of tasks) {
 		const start = parseDate(task.startDate);
-		const end = addDays(start, task.duration);
+		const end = addHours(start, task.durationHours);
 		if (start.getTime() < minMs) {
 			minMs = start.getTime();
 		}
@@ -128,5 +128,5 @@ export function deriveViewport(tasks: TaskNode[], paddingDays = 2): [Date, Date]
 		}
 	}
 
-	return [addDays(new Date(minMs), -paddingDays), addDays(new Date(maxMs), paddingDays)];
+	return [addHours(new Date(minMs), -paddingHours), addHours(new Date(maxMs), paddingHours)];
 }

@@ -20,7 +20,7 @@ import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 
 export type OnTaskSelect = (taskId: number | null) => void;
 export type OnTaskMove = (payload: {id: number; startDate: Date}) => void;
-export type OnTaskResize = (payload: {id: number; duration: number}) => void;
+export type OnTaskResize = (payload: {id: number; durationHours: number}) => void;
 export type OnTaskAdd = (payload: {parentId: number}) => void;
 export type OnTaskDoubleClick = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'}) => void;
 export type OnTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
@@ -167,7 +167,7 @@ export class GanttChart implements GanttInstance {
 				this.#scheduleRender();
 			},
 			onResize: (payload): void => {
-				this.#patchTask(payload.id, {duration: payload.duration});
+				this.#patchTask(payload.id, {durationHours: payload.durationHours});
 				opts.onResize?.(payload);
 				this.#scheduleRender();
 			},
@@ -363,7 +363,7 @@ export class GanttChart implements GanttInstance {
 		const [vpStart, vpEnd] =
 			this.#opts.viewportStart !== undefined && this.#opts.viewportEnd !== undefined
 				? [this.#opts.viewportStart, this.#opts.viewportEnd]
-				: deriveViewport(allRows, 2);
+				: deriveViewport(allRows, 48);
 
 		const mapper = createPixelMapper(this.#scale, vpStart);
 		const totalWidth = Math.ceil(mapper.toX(vpEnd)) + 1;

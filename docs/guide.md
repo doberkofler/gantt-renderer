@@ -355,7 +355,7 @@ These tokens ensure row alignment, bar centering, and hit areas stay consistent 
 
 `GanttOptions` includes a `gridColumns` option for customising the left-pane grid:
 
-- `gridColumns?: GridColumn[]` - Column schema array. When omitted, `gridColumnDefaults(locale)` generates a localized 4-column layout (name, start time, duration, actions).
+- `gridColumns?: GridColumn[]` - Column schema array. When omitted, `gridColumnDefaults(locale)` generates a localized 4-column layout (name, start time, durationHours, actions).
 
 `GridColumn` shape:
 
@@ -380,7 +380,7 @@ const columns: GridColumn[] = [
   {id: 'name', header: 'Task', width: '2fr'},
   {id: 'progress', header: 'Progress', width: '70px', align: 'right', field: 'progress', format: (v) => `${Math.round((v as number) * 100)}%`},
   {id: 'start', header: 'Start', width: '90px', field: 'start'},
-  {id: 'duration', header: 'Days', width: '60px', field: 'duration'},
+  {id: 'durationHours', header: 'Hours', width: '60px', field: 'durationHours'},
 ];
 
 const instance = new GanttChart(container, {gridColumns: columns});

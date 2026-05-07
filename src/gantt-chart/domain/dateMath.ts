@@ -28,6 +28,17 @@ export function addDays(date: Date, days: number): Date {
 }
 
 /**
+ * Returns `date + n` hours using exact millisecond arithmetic.
+ *
+ * @param date - The base date.
+ * @param hours - Number of hours to add (may be negative).
+ * @returns A new `Date` offset by the given number of hours.
+ */
+export function addHours(date: Date, hours: number): Date {
+	return new Date(date.getTime() + hours * 3_600_000);
+}
+
+/**
  * Difference in days (float). Positive when `b > a`.
  *
  * @param a - The earlier date.
@@ -36,6 +47,17 @@ export function addDays(date: Date, days: number): Date {
  */
 export function diffDays(a: Date, b: Date): number {
 	return (b.getTime() - a.getTime()) / 86_400_000;
+}
+
+/**
+ * Difference in hours (float). Positive when `b > a`.
+ *
+ * @param a - The earlier date.
+ * @param b - The later date.
+ * @returns The fractional number of hours between the two dates.
+ */
+export function diffHours(a: Date, b: Date): number {
+	return (b.getTime() - a.getTime()) / 3_600_000;
 }
 
 /**

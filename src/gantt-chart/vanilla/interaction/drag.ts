@@ -1,6 +1,6 @@
 import {type TaskNode} from '../../domain/tree.ts';
 import {type PixelMapper} from '../../timeline/pixelMapper.ts';
-import {parseDate, addDays} from '../../domain/dateMath.ts';
+import {parseDate, addHours} from '../../domain/dateMath.ts';
 import {type Task} from '../../validation/schemas.ts';
 import {type GanttCallbacks} from '../gantt-chart.ts';
 
@@ -9,7 +9,7 @@ function toTask(row: TaskNode): Task {
 		id: row.id,
 		text: row.text,
 		startDate: row.startDate,
-		duration: row.duration,
+		durationHours: row.durationHours,
 		progress: row.progress,
 		type: row.type,
 		open: row.open,
@@ -51,8 +51,8 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
-			const days = Math.round(mapper.widthToDuration(dx));
-			cbs.onMove?.({id: task.id, startDate: addDays(originDate, days)});
+			const hours = Math.round(mapper.widthToDuration(dx));
+			cbs.onMove?.({id: task.id, startDate: addHours(originDate, hours)});
 		}
 
 		function onUp(): void {
@@ -80,13 +80,13 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		}
 
 		const startX = e.clientX;
-		const origDur = task.duration;
+		const origDur = task.durationHours;
 		const mapper = getMapper();
 
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
-			const daysDelta = Math.round(mapper.widthToDuration(dx));
-			cbs.onResize?.({id: task.id, duration: Math.max(1, origDur + daysDelta)});
+			const hoursDelta = Math.round(mapper.widthToDuration(dx));
+			cbs.onResize?.({id: task.id, durationHours: Math.max(1, origDur + hoursDelta)});
 		}
 
 		function onUp(): void {

@@ -40,11 +40,11 @@ describe('task interaction', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 		const onMoveMock = vi.fn<(payload: {id: number; startDate: Date}) => void>();
-		const onResizeMock = vi.fn<(payload: {id: number; duration: number}) => void>();
+		const onResizeMock = vi.fn<(payload: {id: number; durationHours: number}) => void>();
 		const onMove = (payload: {id: number; startDate: Date}): void => {
 			onMoveMock(payload);
 		};
-		const onResize = (payload: {id: number; duration: number}): void => {
+		const onResize = (payload: {id: number; durationHours: number}): void => {
 			onResizeMock(payload);
 		};
 
@@ -77,6 +77,6 @@ describe('task interaction', () => {
 			throw new Error('Expected first resize callback call');
 		}
 		expect(firstResizeCall[0]).toMatchObject({id: 1});
-		expect(firstResizeCall[0].duration).toBeGreaterThanOrEqual(1);
+		expect(firstResizeCall[0].durationHours).toBeGreaterThanOrEqual(1);
 	});
 });

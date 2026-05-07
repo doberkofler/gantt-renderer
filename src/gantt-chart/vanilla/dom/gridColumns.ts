@@ -27,10 +27,10 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 		format: (value, _task, _row, locale) => formatDisplayDate(String(value), locale),
 	},
 	{
-		id: 'duration',
+		id: 'durationHours',
 		header: 'Duration',
 		width: '68px',
-		field: 'duration',
+		field: 'durationHours',
 		format: (value) => ((value as number) > 0 ? String(value) : '—'),
 	},
 	{
@@ -62,10 +62,10 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 			format: (value, _task, _row, loc) => formatDisplayDate(String(value), loc),
 		},
 		{
-			id: 'duration',
+			id: 'durationHours',
 			header: locale.labels?.columnDuration ?? EN_US_LABELS.columnDuration,
 			width: '68px',
-			field: 'duration',
+			field: 'durationHours',
 			format: (value) => ((value as number) > 0 ? String(value) : '—'),
 		},
 		{

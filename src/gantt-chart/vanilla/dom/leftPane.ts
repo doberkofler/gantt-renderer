@@ -23,7 +23,7 @@ function toTask(row: TaskNode): Task {
 		id: row.id,
 		text: row.text,
 		startDate: row.startDate,
-		duration: row.duration,
+		durationHours: row.durationHours,
 		progress: row.progress,
 		type: row.type,
 		open: row.open,

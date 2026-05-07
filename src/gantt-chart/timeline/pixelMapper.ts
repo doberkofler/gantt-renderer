@@ -6,9 +6,9 @@ export type PixelMapper = {
 	toX: (date: Date) => number;
 	/** x pixel offset → Date */
 	toDate: (x: number) => Date;
-	/** Days → pixel width */
-	durationToWidth: (days: number) => number;
-	/** Pixel width → days (float) */
+	/** Hours → pixel width */
+	durationToWidth: (hours: number) => number;
+	/** Pixel width → hours (float) */
 	widthToDuration: (px: number) => number;
 	/** The origin timestamp used for this mapper */
 	originMs: number;
@@ -29,7 +29,7 @@ export function createPixelMapper(scale: TimeScale, viewportStart: Date): PixelM
 	const originMs = viewportStart.getTime();
 	const pxPerMs = columnWidth / msPerColumn;
 	const msPerPx = msPerColumn / columnWidth;
-	const msPerDay = 86_400_000;
+	const msPerHour = 3_600_000;
 
 	return {
 		originMs,
@@ -40,11 +40,11 @@ export function createPixelMapper(scale: TimeScale, viewportStart: Date): PixelM
 		toDate(x: number): Date {
 			return new Date(originMs + x * msPerPx);
 		},
-		durationToWidth(days: number): number {
-			return days * msPerDay * pxPerMs;
+		durationToWidth(hours: number): number {
+			return hours * msPerHour * pxPerMs;
 		},
 		widthToDuration(px: number): number {
-			return (px * msPerPx) / msPerDay;
+			return (px * msPerPx) / msPerHour;
 		},
 	};
 }

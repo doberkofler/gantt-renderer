@@ -28,7 +28,7 @@ describe('column resize handles (M14)', () => {
 			gridColumns: [
 				{id: 'name', header: 'Name', width: '1fr'},
 				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-				{id: 'duration', header: 'Dur', width: '68px', field: 'duration'},
+				{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
 			],
 			onGridColumnsChange: onColMock,
 		});
@@ -56,7 +56,7 @@ describe('column resize handles (M14)', () => {
 		mountTracked(container, INPUT, {
 			gridColumns: [
 				{id: 'name', header: 'Name', width: '1fr'},
-				{id: 'duration', header: 'Dur', width: '68px', field: 'duration'},
+				{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
 			],
 		});
 

@@ -185,7 +185,7 @@ test.describe('gantt chart UX regressions', () => {
 	test('drag and resize produce identical day deltas across all zoom levels', async ({page}) => {
 		const SCALES = ['hour', 'day', 'week', 'month', 'quarter', 'year'] as const;
 		const TASK_ID = 1000;
-		const PX_DELTA: Record<string, number> = {hour: 720, day: 280, week: 80, month: 40, quarter: 20, year: 10};
+		const PX_DELTA: Record<string, number> = {hour: 2880, day: 288, week: 120, month: 320, quarter: 440, year: 560};
 		const SCROLL_MARGIN = 400;
 
 		const scrollEl = page.locator('.gantt-root > div').first();

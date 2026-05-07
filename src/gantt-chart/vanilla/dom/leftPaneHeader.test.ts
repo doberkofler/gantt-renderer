@@ -38,7 +38,7 @@ describe('buildLeftPaneHeader', () => {
 	it('applies alignment to header cells', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '1fr'},
-			{id: 'duration', header: 'Duration', width: '68px', align: 'right'},
+			{id: 'durationHours', header: 'Duration', width: '68px', align: 'right'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const cells = [...header.querySelectorAll('span')];
@@ -51,7 +51,7 @@ describe('buildLeftPaneHeader', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '1fr'},
 			{id: 'startDate', header: 'Start time', width: '90px', visible: false},
-			{id: 'duration', header: 'Duration', width: '68px'},
+			{id: 'durationHours', header: 'Duration', width: '68px'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const cells = [...header.querySelectorAll('span')];
@@ -83,7 +83,7 @@ describe('buildLeftPaneHeader resize handles', () => {
 	it('wraps each header cell in a positioned container', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'duration', header: 'Days', width: '60px'},
+			{id: 'durationHours', header: 'Days', width: '60px'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const wrappers = [...header.children] as HTMLElement[];
@@ -109,7 +109,7 @@ describe('setupColumnResize', () => {
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
+			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);
@@ -135,7 +135,7 @@ describe('setupColumnResize', () => {
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
+			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);
@@ -171,7 +171,7 @@ describe('setupColumnResize', () => {
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
+			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);

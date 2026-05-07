@@ -4,7 +4,7 @@ import {parseGanttInput, safeParseGanttInput, SpecialDaySchema, type GanttInputR
 describe('schema utilities', () => {
 	it('parses valid input and applies defaults', () => {
 		const parsed = parseGanttInput({
-			tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', duration: 2}],
+			tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 48}],
 			links: [{id: 1, source: 1, target: 1}],
 		});
 		expect(parsed.tasks[0]?.progress).toBe(0);
@@ -19,21 +19,21 @@ describe('schema utilities', () => {
 	});
 
 	it('rejects invalid task fields', () => {
-		expect(() => parseGanttInput({tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', duration: -1}]})).toThrow();
-		expect(() => parseGanttInput({tasks: [{id: 1, text: '', startDate: '2026-01-01', duration: 1}]})).toThrow();
-		expect(() => parseGanttInput({tasks: [{id: 1.5, text: 'Task', startDate: '2026-01-01', duration: 1}]})).toThrow();
+		expect(() => parseGanttInput({tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: -1}]})).toThrow();
+		expect(() => parseGanttInput({tasks: [{id: 1, text: '', startDate: '2026-01-01', durationHours: 24}]})).toThrow();
+		expect(() => parseGanttInput({tasks: [{id: 1.5, text: 'Task', startDate: '2026-01-01', durationHours: 24}]})).toThrow();
 	});
 
 	it('rejects invalid link fields', () => {
 		expect(() =>
 			parseGanttInput({
-				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', duration: 1}],
+				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 24}],
 				links: [{id: 1, source: -1, target: 1}],
 			}),
 		).toThrow();
 		expect(() =>
 			parseGanttInput({
-				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', duration: 1}],
+				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', durationHours: 24}],
 				links: [{id: 1, source: 1, target: 1, type: 'INVALID'}],
 			} as unknown as GanttInputRaw),
 		).toThrow();
@@ -51,7 +51,7 @@ describe('schema utilities', () => {
 
 	it('applies defaults on minimal input with only required fields', () => {
 		const parsed = parseGanttInput({
-			tasks: [{id: 1, text: 'Minimal', startDate: '2026-04-01', duration: 5}],
+			tasks: [{id: 1, text: 'Minimal', startDate: '2026-04-01', durationHours: 120}],
 		});
 		expect(parsed.tasks).toHaveLength(1);
 		expect(parsed.links).toEqual([]);
@@ -64,7 +64,7 @@ describe('schema utilities', () => {
 
 	it('accepts input annotated with GanttInputRaw type', () => {
 		const raw: GanttInputRaw = {
-			tasks: [{id: 1, text: 'Typed', startDate: '2026-05-01', duration: 3}],
+			tasks: [{id: 1, text: 'Typed', startDate: '2026-05-01', durationHours: 72}],
 		};
 		const parsed = parseGanttInput(raw);
 		expect(parsed.tasks[0]?.text).toBe('Typed');
@@ -73,7 +73,7 @@ describe('schema utilities', () => {
 
 	it('safeParse returns parsed data for valid input', () => {
 		const result = safeParseGanttInput({
-			tasks: [{id: 1, text: 'Safe', startDate: '2026-05-01', duration: 3}],
+			tasks: [{id: 1, text: 'Safe', startDate: '2026-05-01', durationHours: 72}],
 		});
 		expect(result).not.toBeNull();
 		expect(result?.tasks[0]?.text).toBe('Safe');
@@ -82,7 +82,7 @@ describe('schema utilities', () => {
 
 	it('safeParse returns null for various invalid shapes', () => {
 		expect(safeParseGanttInput({tasks: []})).toBeNull();
-		expect(safeParseGanttInput({tasks: [{id: 0, text: 'X', startDate: '2026-01-01', duration: 1}]})).toBeNull();
-		expect(safeParseGanttInput({tasks: [{id: 1, text: 'X', startDate: 'not-a-date', duration: 1}]})).toBeNull();
+		expect(safeParseGanttInput({tasks: [{id: 0, text: 'X', startDate: '2026-01-01', durationHours: 24}]})).toBeNull();
+		expect(safeParseGanttInput({tasks: [{id: 1, text: 'X', startDate: 'not-a-date', durationHours: 24}]})).toBeNull();
 	});
 });

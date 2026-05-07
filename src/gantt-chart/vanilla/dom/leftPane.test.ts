@@ -6,7 +6,7 @@ import {mockState, mockCallbacks, taskNode, projectNode} from './leftPane.test-u
 describe('renderLeftPane', () => {
 	it('renders rows with default column schema', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', duration: 8});
+		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', durationHours: 192});
 		const state = mockState({
 			allRows: [node],
 			startIndex: 0,
@@ -35,7 +35,7 @@ describe('renderLeftPane', () => {
 		// Duration cell
 		const durCell = row.children[2] as HTMLElement;
 		expect(durCell.tagName).toBe('SPAN');
-		expect(durCell.textContent).toBe('8');
+		expect(durCell.textContent).toBe('192');
 
 		// Actions cell (add button)
 		const actionsCell = row.children[3] as HTMLElement;
@@ -46,7 +46,7 @@ describe('renderLeftPane', () => {
 
 	it('renders zero-duration as em dash in duration column', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Milestone', duration: 0, type: 'milestone'});
+		const node = taskNode({id: 1, text: 'Milestone', durationHours: 0, type: 'milestone'});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
@@ -274,12 +274,12 @@ describe('renderLeftPane', () => {
 
 	it('renders custom column schema with different order and widths', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', duration: 3, progress: 0.75});
+		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', durationHours: 72, progress: 0.75});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
 		const customColumns: GridColumn[] = [
-			{id: 'duration', header: 'Dur', width: '50px', field: 'duration'},
+			{id: 'durationHours', header: 'Dur', width: '50px', field: 'durationHours'},
 			{id: 'name', header: 'Name', width: '2fr'},
 			{id: 'progress', header: '%', width: '60px', field: 'progress', align: 'right', format: (value) => `${Math.round((value as number) * 100)}%`},
 		];
@@ -295,7 +295,7 @@ describe('renderLeftPane', () => {
 		expect(el.children).toHaveLength(3);
 
 		// Duration first
-		expect((el.children[0] as HTMLElement).textContent).toBe('3');
+		expect((el.children[0] as HTMLElement).textContent).toBe('72');
 		// Name second (tree name cell — label is last child)
 		const nameCell = el.children[1] as HTMLElement;
 		expect(nameCell.lastElementChild?.textContent).toBe('Custom');
@@ -352,13 +352,13 @@ describe('renderLeftPane', () => {
 
 	it('renders column with field but no format as raw string', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Test', duration: 7});
+		const node = taskNode({id: 1, text: 'Test', durationHours: 168});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'duration', header: 'Dur', width: '50px', field: 'duration'},
+			{id: 'durationHours', header: 'Dur', width: '50px', field: 'durationHours'},
 		];
 
 		renderLeftPane(container, state, cbs, columns);
@@ -366,7 +366,7 @@ describe('renderLeftPane', () => {
 		const row2 = container.querySelector('[role="row"]');
 		expect(row2).not.toBeNull();
 		const durCell2 = row2?.children[1] as HTMLElement;
-		expect(durCell2?.textContent).toBe('7');
+		expect(durCell2?.textContent).toBe('168');
 	});
 
 	it('renders padding spacers for virtualized rows', () => {

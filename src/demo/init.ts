@@ -104,7 +104,7 @@ export const init = (): void => {
 					`selected ${task.text}`,
 					`id=${task.id}`,
 					`start=${task.startDate}`,
-					`duration=${task.duration}d`,
+					`durationHours=${task.durationHours}h`,
 					`type=${task.type}`,
 					`progress=${Math.round(task.progress * 100)}%`,
 				].join(' | '),
@@ -116,7 +116,7 @@ export const init = (): void => {
 		},
 		onResize(payload): void {
 			logControlHook('task-resize', 'integrated', payload.id.toString());
-			console.info('resize', payload.id, payload.duration);
+			console.info('resize', payload.id, payload.durationHours);
 		},
 		onTaskEditIntent(payload): void {
 			const task = initialInput.tasks.find((t) => t.id === payload.id);
@@ -130,7 +130,7 @@ export const init = (): void => {
 					`source=${payload.source}`,
 					`trigger=${payload.trigger}`,
 					`start=${task.startDate}`,
-					`duration=${task.duration}d`,
+					`durationHours=${task.durationHours}h`,
 				].join(' | '),
 			);
 		},

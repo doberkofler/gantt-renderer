@@ -8,7 +8,7 @@ const baseRows: TaskNode[] = [
 		id: 1,
 		text: 'Task 1',
 		startDate: '2026-01-01',
-		duration: 3,
+		durationHours: 72,
 		progress: 0.5,
 		type: 'task',
 		open: true,
@@ -19,7 +19,7 @@ const baseRows: TaskNode[] = [
 		id: 2,
 		text: 'Milestone',
 		startDate: '2026-01-03',
-		duration: 0,
+		durationHours: 0,
 		progress: 0,
 		type: 'milestone',
 		open: true,
@@ -61,7 +61,7 @@ describe('layoutEngine utilities', () => {
 				id: 9,
 				text: 'Tiny',
 				startDate: '2026-01-01',
-				duration: 0,
+				durationHours: 0,
 				progress: 9,
 				type: 'task',
 				open: true,
@@ -79,7 +79,7 @@ describe('layoutEngine utilities', () => {
 	});
 
 	it('derives viewport across all tasks with padding', () => {
-		const [start, end] = deriveViewport(baseRows, 2);
+		const [start, end] = deriveViewport(baseRows, 48);
 		expect(start.toISOString()).toBe('2025-12-30T00:00:00.000Z');
 		expect(end.toISOString()).toBe('2026-01-06T00:00:00.000Z');
 	});
