@@ -38,7 +38,11 @@ export type RightPaneRefs = {
 	>;
 };
 
-/** Creates the skeleton DOM structure for the right pane. Call once. */
+/**
+ * Creates the skeleton DOM structure for the right pane. Call once.
+ *
+ * @returns A new {@link RightPaneRefs} with empty containers and bar registry.
+ */
 export function createRightPaneRefs(): RightPaneRefs {
 	const scrollContainer = el('div');
 	const stripeContainer = el('div');
@@ -373,6 +377,10 @@ function renderMilestone(
  * Full render of the right pane.
  * Grid lines and stripes are rebuilt each call (cheap — no event listeners).
  * Bars are rebuilt each call with fresh drag listeners (old ones cleaned up first).
+ *
+ * @param refs - The right pane DOM references.
+ * @param state - The current chart state.
+ * @param cbs - The chart callbacks.
  */
 export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: GanttCallbacks): void {
 	const {

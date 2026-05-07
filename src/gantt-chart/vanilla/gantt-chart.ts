@@ -72,6 +72,20 @@ export type GanttInstance = {
 
 const HEADER_H = 52;
 const OVERSCAN = 4;
+
+/**
+ * Progressive-enhancement Gantt chart component.
+ * Validates input, builds a DOM tree, and renders a full interactive chart
+ * inside the given container element.
+ *
+ * @example
+ * ```ts
+ * const chart = new GanttChart(document.getElementById('chart')!, input, {
+ *   locale: 'de-DE',
+ *   theme: 'dark',
+ * });
+ * ```
+ */
 export class GanttChart implements GanttInstance {
 	readonly #container: HTMLElement;
 	readonly #opts: GanttOptions;
@@ -108,6 +122,14 @@ export class GanttChart implements GanttInstance {
 	#resizeObserver: ResizeObserver | null = null;
 	#columnResizeCleanup!: () => void;
 
+	/**
+	 * Constructs a new chart, validates the dataset, builds the DOM, and
+	 * performs the initial render.
+	 *
+	 * @param container - The host `HTMLElement` the chart will be appended to.
+	 * @param input - The validated {@link GanttInput} dataset.
+	 * @param opts - Configuration and callback options.
+	 */
 	public constructor(container: HTMLElement, input: GanttInput, opts: GanttOptions = {}) {
 		this.#container = container;
 
@@ -178,6 +200,12 @@ export class GanttChart implements GanttInstance {
 		this.#render();
 	}
 
+	/**
+	 * Replaces the full dataset and re-renders.
+	 *
+	 * @param newInput - The new {@link GanttInput} to apply.
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
 	public update(newInput: GanttInput): void {
 		this.#assertAlive();
 		validateLinkRefs(newInput.tasks, newInput.links);
@@ -187,12 +215,24 @@ export class GanttChart implements GanttInstance {
 		this.#scheduleRender();
 	}
 
+	/**
+	 * Switches the time scale and re-renders.
+	 *
+	 * @param scale - The new {@link TimeScale} to display.
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
 	public setScale(scale: TimeScale): void {
 		this.#assertAlive();
 		this.#scale = scale;
 		this.#scheduleRender();
 	}
 
+	/**
+	 * Programmatically selects or deselects a task.
+	 *
+	 * @param id - The task ID to select, or `null` to clear the selection.
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
 	public select(id: number | null): void {
 		this.#assertAlive();
 		this.#selectedId = id;
@@ -205,6 +245,11 @@ export class GanttChart implements GanttInstance {
 		this.#render();
 	}
 
+	/**
+	 * Collapses all expandable groups in the task tree.
+	 *
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
 	public collapseAll(): void {
 		this.#assertAlive();
 		this.#expandedIds.clear();
@@ -216,6 +261,11 @@ export class GanttChart implements GanttInstance {
 		this.#render();
 	}
 
+	/**
+	 * Expands all expandable groups in the task tree.
+	 *
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
 	public expandAll(): void {
 		this.#assertAlive();
 		this.#expandedIds.clear();
@@ -230,6 +280,10 @@ export class GanttChart implements GanttInstance {
 		this.#render();
 	}
 
+	/**
+	 * Removes the chart DOM and internal listeners, rendering the instance
+	 * unusable. Subsequent calls to any public method will throw.
+	 */
 	public destroy(): void {
 		if (this.#destroyed) {
 			return;

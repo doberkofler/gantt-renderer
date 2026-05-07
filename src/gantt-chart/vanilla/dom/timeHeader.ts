@@ -5,7 +5,12 @@ import {formatHeaderLabel, formatUpperLabel} from '../../domain/dateMath.ts';
 
 type Cell = {label: string; x: number; width: number};
 
-/** Inline style helper local to this module. */
+/**
+ * Inline style helper local to this module.
+ *
+ * @param elem - The target element.
+ * @param styles - A partial CSS style declaration to apply.
+ */
 function css_(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
 	for (const [k, v] of Object.entries(styles)) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,6 +21,9 @@ function css_(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
 /**
  * Fully replaces the content of `container` with two header rows.
  * Called on scale change or viewport change only — not on scroll.
+ *
+ * @param container - The header container element to render into.
+ * @param state - The current chart state.
  */
 export function renderTimeHeader(container: HTMLElement, state: GanttState): void {
 	const {scale, viewportStart, viewportEnd, mapper, totalWidth, locale} = state;

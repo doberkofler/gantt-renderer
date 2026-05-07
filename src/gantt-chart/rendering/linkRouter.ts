@@ -22,6 +22,11 @@ const TURN_MARGIN = 12; // px gap before/after bar for routing clearance
  *   SS = source.start  → target.start
  *   FF = source.finish → target.finish
  *   SF = source.start  → target.finish
+ *
+ * @param type - The link type determining start/end anchor points.
+ * @param src - The source bar layout.
+ * @param tgt - The target bar layout.
+ * @returns An ordered array of `Point` vertices.
  */
 function route(type: Link['type'], src: BarLayout, tgt: BarLayout): Point[] {
 	let sx: number, tx: number;
@@ -86,6 +91,10 @@ function route(type: Link['type'], src: BarLayout, tgt: BarLayout): Point[] {
  * Computes orthogonal routing for all dependency links.
  * Links whose source or target is not in the layout map are skipped silently
  * (e.g. when the row is collapsed).
+ *
+ * @param links - The dependency links to route.
+ * @param layouts - A map from task ID to its computed {@link BarLayout}.
+ * @returns An array of {@link RoutedLink} objects with computed vertex paths.
  */
 export function routeLinks(links: Link[], layouts: Map<number, BarLayout>): RoutedLink[] {
 	return links

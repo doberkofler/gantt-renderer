@@ -20,10 +20,16 @@ function toTask(row: TaskNode): Task {
 
 /**
  * Attaches drag-to-move and resize listeners to a bar element.
- * Returns a cleanup function that removes all listeners.
  *
  * Design: all mutable state lives in closure variables captured at mousedown.
  * No global state; multiple bars can be dragged independently (one at a time).
+ *
+ * @param barEl - The bar DOM element.
+ * @param resizeHandleEl - The resize handle DOM element.
+ * @param task - The {@link TaskNode} for this bar.
+ * @param getMapper - A function returning the current {@link PixelMapper} (snapshotted at mousedown).
+ * @param cbs - The chart callbacks.
+ * @returns A cleanup function that removes all listeners.
  */
 export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task: TaskNode, getMapper: () => PixelMapper, cbs: GanttCallbacks): () => void {
 	// ── Move ───────────────────────────────────────────────────────────────
@@ -112,7 +118,11 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 
 /**
  * Attaches click-to-select on a milestone diamond.
- * Returns cleanup.
+ *
+ * @param diamondEl - The milestone diamond DOM element.
+ * @param taskId - The task ID to select.
+ * @param cbs - The chart callbacks.
+ * @returns A cleanup function that removes all listeners.
  */
 export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs: GanttCallbacks): () => void {
 	function onClick(): void {

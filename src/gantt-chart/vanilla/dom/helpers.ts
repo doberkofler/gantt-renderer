@@ -1,4 +1,9 @@
-/** Batches style assignments; avoids repeated style recalculations. */
+/**
+ * Batches style assignments; avoids repeated style recalculations.
+ *
+ * @param elem - The target element.
+ * @param styles - A partial CSS style declaration to apply.
+ */
 export function css(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
 	for (const [k, v] of Object.entries(styles)) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,14 +37,23 @@ export function el(tag: string, props?: Record<string, unknown>, ns?: string): E
 	return elem;
 }
 
-/** Removes all child nodes from elem. Faster than innerHTML = '' for large subtrees. */
+/**
+ * Removes all child nodes from elem. Faster than `innerHTML = ''` for large subtrees.
+ *
+ * @param elem - The element to clear.
+ */
 export function clearChildren(elem: Element): void {
 	while (elem.firstChild !== null) {
 		elem.removeChild(elem.firstChild);
 	}
 }
 
-/** Appends all nodes from an array/fragment into parent in one pass. */
+/**
+ * Appends all nodes from an array/fragment into parent in one pass.
+ *
+ * @param parent - The parent element.
+ * @param children - The child elements or text nodes to append.
+ */
 export function appendAll(parent: Element, children: (Element | Text)[]): void {
 	const frag = document.createDocumentFragment();
 	for (const c of children) {
@@ -48,7 +62,13 @@ export function appendAll(parent: Element, children: (Element | Text)[]): void {
 	parent.append(frag);
 }
 
-/** Creates an SVG element in the SVG namespace. */
+/**
+ * Creates an SVG element in the SVG namespace.
+ *
+ * @param tag - The SVG tag name.
+ * @param attrs - Optional attributes to set on the element.
+ * @returns A new SVG element.
+ */
 export function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs?: Record<string, string | number>): SVGElementTagNameMap[K] {
 	const NS = 'http://www.w3.org/2000/svg';
 	const elem = document.createElementNS(NS, tag);
@@ -60,7 +80,12 @@ export function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs?: Reco
 	return elem;
 }
 
-/** Sets multiple SVG attributes in one call. */
+/**
+ * Sets multiple SVG attributes in one call.
+ *
+ * @param elem - The target SVG element.
+ * @param attrs - Attributes to set (values are stringified).
+ */
 export function setAttrs(elem: Element, attrs: Record<string, string | number>): void {
 	for (const [k, v] of Object.entries(attrs)) {
 		elem.setAttribute(k, String(v));

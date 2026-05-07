@@ -3,8 +3,10 @@ import {GanttError} from '../errors.ts';
 
 /**
  * Detects circular dependencies in the link graph using DFS tri-colour marking.
- * Throws with a human-readable cycle path on detection.
- * Silent return = no cycles.
+ *
+ * @param tasks - The task list (used to build the vertex set).
+ * @param links - The dependency links defining the directed edges.
+ * @throws {GanttError} When a cycle is detected, with a human-readable cycle path.
  */
 export function detectCycles(tasks: Task[], links: Link[]): void {
 	// Build adjacency list (directed: source → target)
@@ -63,8 +65,11 @@ export function detectCycles(tasks: Task[], links: Link[]): void {
 }
 
 /**
- * Returns true when all link source/target ids reference existing tasks.
- * Throws with details on failure.
+ * Validates that every link references existing task IDs.
+ *
+ * @param tasks - The task list (used as the reference set of valid IDs).
+ * @param links - The dependency links to validate.
+ * @throws {GanttError} When any link references a non-existent source or target task.
  */
 export function validateLinkRefs(tasks: Task[], links: Link[]): void {
 	const ids = new Set(tasks.map((t) => t.id));

@@ -10,7 +10,10 @@ export type TaskNode = Task & {
 /**
  * Builds a typed tree from a flat task array.
  * Order of tasks[] is irrelevant — parents need not precede children.
- * Throws if any parent reference is unresolvable.
+ *
+ * @param tasks - The flat array of tasks to convert into a tree.
+ * @returns Root-level {@link TaskNode} instances with populated `children`.
+ * @throws {GanttError} When a task references a `parent` id that does not exist.
  */
 export function buildTaskTree(tasks: Task[]): TaskNode[] {
 	const map = new Map<number, TaskNode>();
@@ -51,7 +54,11 @@ export function buildTaskTree(tasks: Task[]): TaskNode[] {
 
 /**
  * Flattens a tree into a visible row list.
- * A node's children are included only when its id is in expandedIds.
+ * A node's children are included only when its id is in `expandedIds`.
+ *
+ * @param roots - The root-level {@link TaskNode} instances of the tree.
+ * @param expandedIds - Set of task IDs whose children should be rendered.
+ * @returns A depth-first flattened array of visible {@link TaskNode} items.
  */
 export function flattenTree(roots: TaskNode[], expandedIds: ReadonlySet<number>): TaskNode[] {
 	const rows: TaskNode[] = [];
@@ -69,7 +76,12 @@ export function flattenTree(roots: TaskNode[], expandedIds: ReadonlySet<number>)
 	return rows;
 }
 
-/** Returns true when a node has children in the tree. */
+/**
+ * Returns `true` when a node has children in the tree.
+ *
+ * @param node - The {@link TaskNode} to inspect.
+ * @returns `true` if `node.children.length > 0`.
+ */
 export function isParent(node: TaskNode): boolean {
 	return node.children.length > 0;
 }

@@ -23,8 +23,12 @@ export const SCALE_CONFIGS: Record<TimeScale, ScaleConfig> = {
 /**
  * Snaps a date to the column boundary for the provided scale.
  * All operations use UTC semantics.
- * The week boundary respects the optional weekStartsOn override (0=Sun, 1=Mon, 6=Sat).
- * Defaults to Monday (1) when omitted.
+ * The week boundary respects the optional `weekStartsOn` override (0=Sun, 1=Mon, 6=Sat).
+ *
+ * @param date - The date to snap.
+ * @param scale - The target {@link TimeScale}.
+ * @param weekStartsOn - First day of the week (`0`-Sun, `1`-Mon, `6`-Sat). Defaults to `1` (Monday).
+ * @returns A new `Date` snapped to the column boundary.
  */
 export function snapToScaleBoundary(date: Date, scale: TimeScale, weekStartsOn: 0 | 1 | 6 = 1): Date {
 	switch (scale) {
@@ -58,6 +62,10 @@ export function snapToScaleBoundary(date: Date, scale: TimeScale, weekStartsOn: 
 /**
  * Returns the next column boundary from a boundary-aligned date.
  * Month/quarter/year use true calendar stepping (not fixed-day approximations).
+ *
+ * @param date - A boundary-aligned date.
+ * @param scale - The target {@link TimeScale}.
+ * @returns The next boundary date.
  */
 export function nextScaleBoundary(date: Date, scale: TimeScale): Date {
 	switch (scale) {

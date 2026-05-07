@@ -3,7 +3,15 @@ import {showGhostLine, hideGhostLine} from '../dom/dependencyLayer.ts';
 
 /**
  * Attaches a link-creation drag listener to an endpoint handle.
- * Returns a cleanup function that removes all listeners.
+ *
+ * @param handle - The endpoint DOM element.
+ * @param sourceTaskId - The task ID from which the link originates.
+ * @param anchorX - The X anchor coordinate (task center).
+ * @param anchorY - The Y anchor coordinate (task center).
+ * @param svgLayer - The SVG dependency layer element for ghost line rendering.
+ * @param absoluteLayer - The absolute-positioned layer for coordinate calculations.
+ * @param cbs - The chart callbacks.
+ * @returns A cleanup function that removes all listeners.
  */
 export function attachLinkEndpointHandle(
 	handle: HTMLElement,
@@ -78,6 +86,8 @@ export function attachLinkEndpointHandle(
 /**
  * Creates an endpoint handle DOM element.
  * The caller must position it with inline styles and append it to the layer.
+ *
+ * @returns A new `HTMLElement` with the `gantt-link-endpoint` class.
  */
 export function createEndpointHandle(): HTMLElement {
 	const handle = document.createElement('div');

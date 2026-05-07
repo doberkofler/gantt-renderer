@@ -34,6 +34,10 @@ export type BarLayout = {
 /**
  * Computes pixel-space layout for all visible task rows.
  * Returns a map keyed by task id for O(1) lookup during link routing.
+ *
+ * @param rows - The flattened, visible {@link TaskNode} rows.
+ * @param mapper - The {@link PixelMapper} for coordinate conversion.
+ * @returns A `Map` from task ID to its computed {@link BarLayout}.
  */
 export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number, BarLayout> {
 	const result = new Map<number, BarLayout>();
@@ -89,6 +93,9 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 
 /**
  * Computes the total pixel height of all rows.
+ *
+ * @param rowCount - The number of visible rows.
+ * @returns The total pixel height (`rowCount * ROW_HEIGHT`).
  */
 export function totalContentHeight(rowCount: number): number {
 	return rowCount * ROW_HEIGHT;
@@ -96,7 +103,10 @@ export function totalContentHeight(rowCount: number): number {
 
 /**
  * Derives viewport bounds from task data with padding.
- * Returns [start, end] as UTC midnight dates.
+ *
+ * @param tasks - The task nodes to derive bounds from.
+ * @param paddingDays - Extra days added before the earliest start and after the latest end. Defaults to `2`.
+ * @returns A tuple `[start, end]` of UTC midnight `Date` instances.
  */
 export function deriveViewport(tasks: TaskNode[], paddingDays = 2): [Date, Date] {
 	if (tasks.length === 0) {

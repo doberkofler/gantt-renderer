@@ -42,7 +42,10 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 
 /**
  * Returns a localized default grid column schema.
- * Column headers use locale label overrides with EN_US_LABELS fallback.
+ * Column headers use locale label overrides with `EN_US_LABELS` fallback.
+ *
+ * @param locale - The {@link ChartLocale} to derive column header labels from.
+ * @returns An array of {@link GridColumn} objects.
  */
 export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 	return [
@@ -73,6 +76,12 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 	];
 }
 
+/**
+ * Builds a CSS `grid-template-columns` value from a column schema.
+ *
+ * @param columns - The full column schema array (only visible columns are included).
+ * @returns A space-separated CSS track list.
+ */
 export function gridTemplateColumns(columns: GridColumn[]): string {
 	return columns
 		.filter((c) => c.visible !== false)
@@ -80,6 +89,12 @@ export function gridTemplateColumns(columns: GridColumn[]): string {
 		.join(' ');
 }
 
+/**
+ * Filters a column schema to only visible columns.
+ *
+ * @param columns - The full column schema array.
+ * @returns A new array containing only columns where `visible` is not `false`.
+ */
 export function visibleColumns(columns: GridColumn[]): GridColumn[] {
 	return columns.filter((c) => c.visible !== false);
 }
@@ -102,6 +117,13 @@ function parseColumnMinWidth(width: string): number {
 	return 0;
 }
 
+/**
+ * Computes the minimum natural pixel width of a grid column schema.
+ *
+ * @param columns - The full column schema array.
+ * @returns The sum of minimum widths: `px` columns sum directly, `fr` units contribute
+ *          `GRID_COLUMN_FR_MIN_WIDTH` px each.
+ */
 export function gridNaturalWidth(columns: GridColumn[]): number {
 	let total = 0;
 	for (const col of visibleColumns(columns)) {

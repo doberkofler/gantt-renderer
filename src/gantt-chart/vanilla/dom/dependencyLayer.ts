@@ -7,6 +7,10 @@ const ARROW_SIZE = 6;
 /**
  * Creates the SVG overlay element. Call once; pass to updateDependencyLayer on each render.
  * Also creates a hidden ghost-line path used during link-creation drags.
+ *
+ * @param totalWidth - The total pixel width of the SVG viewport.
+ * @param totalHeight - The total pixel height of the SVG viewport.
+ * @returns An `SVGSVGElement` ready to be inserted into the DOM.
  */
 export function createDependencyLayer(totalWidth: number, totalHeight: number): SVGSVGElement {
 	const svg = document.createElementNS(NS, 'svg');
@@ -66,7 +70,13 @@ export function createDependencyLayer(totalWidth: number, totalHeight: number): 
 
 /**
  * Shows or updates the ghost line drawn during a link-creation drag.
- * Pass valid=true when the pointer is over a valid target bar.
+ *
+ * @param svg - The SVG dependency layer element.
+ * @param x1 - Start X coordinate.
+ * @param y1 - Start Y coordinate.
+ * @param x2 - End X coordinate.
+ * @param y2 - End Y coordinate.
+ * @param valid - When `true`, the line is drawn solid with an arrow marker.
  */
 export function showGhostLine(svg: SVGSVGElement, x1: number, y1: number, x2: number, y2: number, valid: boolean): void {
 	const ghost = svg.querySelector<SVGPathElement>('path.gantt-ghost-line');
@@ -87,6 +97,8 @@ export function showGhostLine(svg: SVGSVGElement, x1: number, y1: number, x2: nu
 
 /**
  * Hides the ghost line after a link-creation drag completes or is cancelled.
+ *
+ * @param svg - The SVG dependency layer element.
  */
 export function hideGhostLine(svg: SVGSVGElement): void {
 	const ghost = svg.querySelector<SVGPathElement>('path.gantt-ghost-line');
@@ -99,6 +111,13 @@ export function hideGhostLine(svg: SVGSVGElement): void {
 /**
  * Replaces all path elements in the SVG to reflect the current link set.
  * The `<defs>` node (first child) is preserved.
+ *
+ * @param svg - The SVG dependency layer element.
+ * @param links - The array of routed links to render.
+ * @param totalWidth - The total pixel width of the SVG viewport.
+ * @param totalHeight - The total pixel height of the SVG viewport.
+ * @param selectedTaskId - The currently selected task ID, or `null`.
+ * @param highlightLinkedDependenciesOnSelect - When `true`, links connected to the selected task use highlight styling.
  */
 export function updateDependencyLayer(
 	svg: SVGSVGElement,

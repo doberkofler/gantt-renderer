@@ -197,7 +197,14 @@ function buildRow(
 	return wrapper;
 }
 
-/** Renders the left grid pane. */
+/**
+ * Renders the left grid pane.
+ *
+ * @param container - The left pane body element to render into.
+ * @param state - The current chart state.
+ * @param cbs - The left pane callbacks.
+ * @param columns - The grid column schema.
+ */
 export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: LeftPaneCallbacks, columns: GridColumn[]): void {
 	const {allRows, selectedId, expandedIds, startIndex, endIndex, paddingTop, paddingBottom, locale} = state;
 
@@ -223,7 +230,12 @@ export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: L
 	container.append(frag);
 }
 
-/** Builds the header row for the left pane. */
+/**
+ * Builds the header row for the left pane.
+ *
+ * @param columns - The grid column schema.
+ * @returns The header DOM element.
+ */
 export function buildLeftPaneHeader(columns: GridColumn[]): HTMLElement {
 	const header = el('div');
 	css(header, {
@@ -287,8 +299,13 @@ export const COLUMN_RESIZE_MIN_WIDTH = COLUMN_MIN_WIDTH;
 
 /**
  * Wires up column resize interactions on header handles.
- * Must be called after the header is in the DOM (so getBoundingClientRect works).
- * Returns a cleanup function.
+ * Must be called after the header is in the DOM (so `getBoundingClientRect` works).
+ *
+ * @param headerEl - The header element containing resize handles.
+ * @param bodyEl - The body element whose rows share the column widths.
+ * @param columns - The grid column schema (mutated in place on resize end).
+ * @param onChange - Optional callback fired on drag end with updated columns.
+ * @returns A cleanup function that removes all resize listeners.
  */
 export function setupColumnResize(headerEl: HTMLElement, bodyEl: HTMLElement, columns: GridColumn[], onChange?: (columns: GridColumn[]) => void): () => void {
 	const handles = headerEl.querySelectorAll<HTMLElement>('.gantt-col-resize-handle');

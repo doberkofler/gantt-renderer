@@ -48,12 +48,23 @@ export type Task = z.infer<typeof TaskSchema>;
 export type Link = z.infer<typeof LinkSchema>;
 export type GanttInput = z.infer<typeof GanttInputSchema>;
 
-/** Parses raw external data. Throws ZodError on failure. */
+/**
+ * Parses raw external data.
+ *
+ * @param raw - The unvalidated input from the consumer.
+ * @returns The parsed and validated {@link GanttInput}.
+ * @throws {import('zod').ZodError} On schema validation failure.
+ */
 export function parseGanttInput(raw: unknown): GanttInput {
 	return GanttInputSchema.parse(raw);
 }
 
-/** Returns null instead of throwing. */
+/**
+ * Parses without throwing; returns `null` on validation failure.
+ *
+ * @param raw - The unvalidated input from the consumer.
+ * @returns The parsed {@link GanttInput} or `null` when the input is invalid.
+ */
 export function safeParseGanttInput(raw: unknown): GanttInput | null {
 	const result = GanttInputSchema.safeParse(raw);
 	return result.success ? result.data : null;

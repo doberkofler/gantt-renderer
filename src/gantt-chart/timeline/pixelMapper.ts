@@ -19,6 +19,10 @@ export type PixelMapper = {
 /**
  * Creates a stateless pixel mapper for the given scale and viewport start.
  * All conversions are O(1) arithmetic — safe to call in tight loops.
+ *
+ * @param scale - The active {@link TimeScale}.
+ * @param viewportStart - The leftmost date visible in the viewport.
+ * @returns A {@link PixelMapper} configured for the given viewport.
  */
 export function createPixelMapper(scale: TimeScale, viewportStart: Date): PixelMapper {
 	const {columnWidth, msPerColumn} = SCALE_CONFIGS[scale];
