@@ -24,6 +24,7 @@ const ZOOM_LEVELS: TimeScale[] = ['year', 'quarter', 'month', 'week', 'day', 'ho
 
 type DemoControlState = {
 	currentScale: TimeScale;
+	currentLocale: string;
 	isFullscreen: boolean;
 	zoomLevel: number;
 	currentOptions: {
@@ -77,6 +78,7 @@ export const init = (): void => {
 
 	const state: DemoControlState = {
 		currentScale: 'day',
+		currentLocale: 'en-US',
 		isFullscreen: false,
 		zoomLevel: ZOOM_LEVELS.indexOf('day'),
 		currentOptions: {
@@ -145,6 +147,7 @@ export const init = (): void => {
 		return {
 			scale: state.currentScale,
 			theme: 'system',
+			locale: state.currentLocale,
 			height: 580,
 			leftPaneWidth: 340,
 			specialDays: DEMO_SPECIAL_DAYS,
@@ -186,6 +189,14 @@ export const init = (): void => {
 		state.zoomLevel = ZOOM_LEVELS.indexOf(supported);
 		instance.setScale(supported);
 		logControlHook('scale-select', 'integrated', supported);
+	});
+
+	const localeSelect = document.querySelector<HTMLSelectElement>('#locale-select');
+	localeSelect?.addEventListener('change', () => {
+		const requested = localeSelect.value;
+		state.currentLocale = requested;
+		remountChart();
+		logControlHook('locale-select', 'integrated', requested);
 	});
 
 	document.querySelector<HTMLElement>('#control-collapse-all')?.addEventListener('click', () => {
