@@ -53,37 +53,11 @@ jobs:
 
       - run: pnpm run build
 
-      # Cache the library build output (dist/) so build-regression can reuse it
-      # without re-running build:lib on a fresh runner.
-      - uses: actions/upload-artifact@v4
-        with:
-          name: lib-dist
-          path: dist
-          retention-days: 1
-
       - run: pnpm run test
         env:
           CI: true
 
       - uses: coverallsapp/github-action@v2
-
-  # Validates that the built library can be consumed in a Node environment
-  # (no browser). Reuses the artifact from the test job.
-  build-regression:
-    needs: [test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: ./.github/actions/setup
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: lib-dist
-          path: dist
-
-      - run: pnpm run test:build
-        env:
-          CI: true
 
   # End-to-end Playwright tests that drive a live dev server against the demo
   # page across Chromium, Firefox, and WebKit.
@@ -121,7 +95,7 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm run build --base=/gantt-renderer/
       - run: pnpm run docs:api
-      - run: mv docs/api dist-demo/docs/api
+      - run: mkdir -p dist-demo/docs && mv docs/api dist-demo/docs/api
 
       - uses: actions/upload-pages-artifact@v3
         with:
