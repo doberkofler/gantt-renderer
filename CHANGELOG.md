@@ -1,3 +1,22 @@
+# [0.2.0](https://github.com/doberkofler/gantt-renderer/compare/v0.1.3...v0.2.0) (2026-05-07)
+
+
+* refactor(domain)!: rename duration to durationHours (days → hours) ([eb7a554](https://github.com/doberkofler/gantt-renderer/commit/eb7a5549e38ac3e36bb6ee47b66433e67ea9d78f))
+
+
+### Bug Fixes
+
+* **api:** type parseGanttInput parameter as GanttInputRaw instead of unknown ([d12d96b](https://github.com/doberkofler/gantt-renderer/commit/d12d96b838b0670a668d313efc61bd02c55efa36))
+* **rightPane:** offset absoluteLayer below timeline header to align bars with grid rows ([25f2785](https://github.com/doberkofler/gantt-renderer/commit/25f278561b4a789f0daf633436f6c95f4bae5ec9))
+
+
+### BREAKING CHANGES
+
+* Task duration field renamed from `duration` (days) to
+`durationHours` (hours). Durations are now integer hours; `0` = milestone.
+Added addHours/diffHours to dateMath. PixelMapper, layoutEngine, drag
+interactions, demo data, and all test fixtures updated accordingly.
+
 ## [0.1.3](https://github.com/doberkofler/gantt-renderer/compare/v0.1.2...v0.1.3) (2026-05-07)
 
 
