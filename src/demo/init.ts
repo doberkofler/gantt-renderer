@@ -159,12 +159,14 @@ export const init = (): void => {
 		};
 	}
 
-	let instance: GanttInstance = new GanttChart(ganttEl, initialInput, buildOptions());
+	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions());
+	instance.update(initialInput);
 	appendEventLog('demo initialized');
 
 	function remountChart(): void {
 		instance.destroy();
-		instance = new GanttChart(ganttEl, initialInput, buildOptions());
+		instance = new GanttChart(ganttEl, buildOptions());
+		instance.update(initialInput);
 	}
 
 	const themeSelect = document.querySelector<HTMLSelectElement>('#theme-select');

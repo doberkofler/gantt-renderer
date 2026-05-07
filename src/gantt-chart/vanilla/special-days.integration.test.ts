@@ -10,12 +10,12 @@ describe('special days', () => {
 		const now = new Date();
 		const pastYear = now.getFullYear() - 10;
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			viewportStart: new Date(pastYear, 0, 1),
 			viewportEnd: new Date(pastYear, 0, 10),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-today-marker')).toBeNull();
 	});
@@ -28,12 +28,12 @@ describe('special days', () => {
 		const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5);
 		const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			viewportStart: start,
 			viewportEnd: end,
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-today-marker')).not.toBeNull();
 	});
@@ -42,12 +42,12 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-day-cell--weekend[data-date="2026-02-07"]')).not.toBeNull();
 		expect(container.querySelector('.gantt-day-cell--weekend[data-date="2026-02-08"]')).not.toBeNull();
@@ -57,13 +57,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			showWeekends: false,
 			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-day-cell--weekend')).toBeNull();
 	});
@@ -72,13 +72,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			weekendDays: [5, 6],
 			viewportStart: new Date('2026-02-05T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-09T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-day-cell--weekend[data-date="2026-02-06"]')).not.toBeNull();
 		expect(container.querySelector('.gantt-day-cell--weekend[data-date="2026-02-07"]')).not.toBeNull();
@@ -89,13 +89,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-02-10T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-13T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		const customDay = container.querySelector<HTMLElement>('.gantt-day-cell--custom[data-date="2026-02-11"]');
 		expect(customDay).not.toBeNull();
@@ -103,13 +103,13 @@ describe('special days', () => {
 
 		const holidayContainer = document.createElement('div');
 		document.body.append(holidayContainer);
-		// eslint-disable-next-line no-new
-		new GanttChart(holidayContainer, INPUT, {
+		const holidayChart = new GanttChart(holidayContainer, {
 			scale: 'day',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-05-24T00:00:00.000Z'),
 			viewportEnd: new Date('2026-05-27T00:00:00.000Z'),
 		});
+		holidayChart.update(INPUT);
 		expect(holidayContainer.querySelector('.gantt-day-cell--holiday[data-date="2026-05-25"]')).not.toBeNull();
 		expect(holidayContainer.querySelector('.holiday-memorial-day')).not.toBeNull();
 	});
@@ -118,13 +118,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-12-24T00:00:00.000Z'),
 			viewportEnd: new Date('2026-12-27T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-day-cell--holiday[data-date="2026-12-25"]')).not.toBeNull();
 	});
@@ -134,11 +134,11 @@ describe('special days', () => {
 		document.body.append(container);
 
 		expect(() => {
-			// eslint-disable-next-line no-new
-			new GanttChart(container, INPUT, {
+			const chart = new GanttChart(container, {
 				scale: 'day',
 				weekendDays: [7],
 			});
+			chart.update(INPUT);
 		}).toThrow('weekendDays must contain integers in range 0..6');
 	});
 
@@ -146,12 +146,12 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-header-cell--weekend[data-date="2026-02-07"]')).not.toBeNull();
 		expect(container.querySelector('.gantt-header-cell--weekend[data-date="2026-02-08"]')).not.toBeNull();
@@ -161,13 +161,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			showWeekends: false,
 			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-header-cell--weekend')).toBeNull();
 	});
@@ -176,13 +176,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'day',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-02-10T00:00:00.000Z'),
 			viewportEnd: new Date('2026-02-13T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		const customCell = container.querySelector<HTMLElement>('.gantt-header-cell--custom[data-date="2026-02-11"]');
 		expect(customCell).not.toBeNull();
@@ -191,13 +191,13 @@ describe('special days', () => {
 
 		const holidayContainer = document.createElement('div');
 		document.body.append(holidayContainer);
-		// eslint-disable-next-line no-new
-		new GanttChart(holidayContainer, INPUT, {
+		const holidayChart = new GanttChart(holidayContainer, {
 			scale: 'day',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-05-24T00:00:00.000Z'),
 			viewportEnd: new Date('2026-05-27T00:00:00.000Z'),
 		});
+		holidayChart.update(INPUT);
 		expect(holidayContainer.querySelector('.gantt-header-cell--holiday[data-date="2026-05-25"]')).not.toBeNull();
 	});
 
@@ -205,13 +205,13 @@ describe('special days', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {
+		const chart = new GanttChart(container, {
 			scale: 'week',
 			specialDays: SPECIAL_DAYS,
 			viewportStart: new Date('2026-02-01T00:00:00.000Z'),
 			viewportEnd: new Date('2026-03-01T00:00:00.000Z'),
 		});
+		chart.update(INPUT);
 
 		expect(container.querySelector('.gantt-header-cell--weekend')).toBeNull();
 		expect(container.querySelector('.gantt-header-cell--holiday')).toBeNull();

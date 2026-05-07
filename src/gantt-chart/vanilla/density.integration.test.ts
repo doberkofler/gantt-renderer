@@ -8,8 +8,8 @@ describe('density', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {scale: 'day'});
+		const chart = new GanttChart(container, {scale: 'day'});
+		chart.update(INPUT);
 
 		const rightPane = container.querySelector<HTMLElement>('[data-pane="right"]');
 		expect(rightPane).not.toBeNull();
@@ -35,8 +35,8 @@ describe('density', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		// eslint-disable-next-line no-new
-		new GanttChart(container, INPUT, {scale: 'day'});
+		const chart = new GanttChart(container, {scale: 'day'});
+		chart.update(INPUT);
 
 		const bar = container.querySelector<HTMLElement>('.gantt-bar');
 		expect(bar).not.toBeNull();

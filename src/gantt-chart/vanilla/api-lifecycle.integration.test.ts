@@ -7,7 +7,8 @@ describe('api lifecycle', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		const instance = new GanttChart(container, INPUT);
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
 		instance.setScale('year');
 		instance.setScale('quarter');
 		instance.setScale('month');
@@ -27,7 +28,8 @@ describe('api lifecycle', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		const instance = new GanttChart(container, INPUT);
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
 		expect(container.querySelectorAll('[role="row"]')).toHaveLength(5);
 
 		instance.collapseAll();
@@ -41,7 +43,8 @@ describe('api lifecycle', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		const instance = new GanttChart(container, INPUT);
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
 
 		instance.collapseAll();
 		instance.collapseAll();
@@ -56,7 +59,8 @@ describe('api lifecycle', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
-		const instance = new GanttChart(container, {tasks: [], links: []});
+		const instance = new GanttChart(container);
+		instance.update({tasks: [], links: []});
 		expect(container.querySelectorAll('[role="row"]')).toHaveLength(0);
 
 		instance.collapseAll();

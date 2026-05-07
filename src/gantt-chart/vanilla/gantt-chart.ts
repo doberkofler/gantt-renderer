@@ -89,7 +89,7 @@ const OVERSCAN = 4;
 export class GanttChart implements GanttInstance {
 	readonly #container: HTMLElement;
 	readonly #opts: GanttOptions;
-	#input: GanttInput;
+	#input: GanttInput | null = null;
 	#scale: TimeScale;
 	#selectedId: number | null = null;
 	#scrollTop = 0;
@@ -107,7 +107,7 @@ export class GanttChart implements GanttInstance {
 	readonly #leftPaneDefaultWidth: number;
 	readonly #weekendDays: Set<number>;
 	readonly #specialDaysByDate: Map<string, ResolvedSpecialDay>;
-	readonly #expandedIds: Set<number>;
+	#expandedIds: Set<number>;
 
 	// oxlint-disable typescript-eslint(prefer-readonly)
 	#root!: HTMLElement;
@@ -123,23 +123,18 @@ export class GanttChart implements GanttInstance {
 	#columnResizeCleanup!: () => void;
 
 	/**
-	 * Constructs a new chart, validates the dataset, builds the DOM, and
-	 * performs the initial render.
+	 * Constructs a new chart, builds the DOM, and wires internal event handling.
+	 * Data must be loaded via {@link update} before the chart renders.
 	 *
 	 * @param container - The host `HTMLElement` the chart will be appended to.
-	 * @param input - The validated {@link GanttInput} dataset.
 	 * @param opts - Configuration and callback options.
 	 */
-	public constructor(container: HTMLElement, input: GanttInput, opts: GanttOptions = {}) {
+	public constructor(container: HTMLElement, opts: GanttOptions = {}) {
 		this.#container = container;
 
-		validateLinkRefs(input.tasks, input.links);
-		detectCycles(input.tasks, input.links);
-
-		this.#input = input;
 		this.#scale = opts.scale ?? 'day';
 		this.#opts = opts;
-		this.#taskIndex = buildTaskIndex(input.tasks);
+		this.#taskIndex = new Map();
 		this.#locale = resolveChartLocale(opts.locale);
 		this.#columns = opts.gridColumns ?? gridColumnDefaults(this.#locale);
 		this.#leftPaneDefaultWidth = opts.leftPaneWidth ?? gridNaturalWidth(this.#columns);
@@ -147,7 +142,7 @@ export class GanttChart implements GanttInstance {
 		this.#timelineMinWidth = opts.timelineMinWidth ?? TIMELINE_MIN_WIDTH;
 		this.#weekendDays = normalizeWeekendDays(opts.weekendDays ?? this.#locale.weekendDays);
 		this.#specialDaysByDate = buildSpecialDayIndex(opts.specialDays ?? []);
-		this.#expandedIds = getInitialExpandedIds(input.tasks);
+		this.#expandedIds = new Set();
 
 		this.#cbs = {
 			onSelect: (id): void => {
@@ -196,8 +191,6 @@ export class GanttChart implements GanttInstance {
 
 		this.#applyResponsivePaneStyles();
 		this.#setupResizeObserver();
-
-		this.#render();
 	}
 
 	/**
@@ -212,7 +205,13 @@ export class GanttChart implements GanttInstance {
 		detectCycles(newInput.tasks, newInput.links);
 		this.#input = newInput;
 		this.#taskIndex = buildTaskIndex(newInput.tasks);
-		this.#scheduleRender();
+		this.#expandedIds = getInitialExpandedIds(newInput.tasks);
+		if (this.#rafPending && this.#rafId !== null) {
+			cancelAnimationFrame(this.#rafId);
+			this.#rafId = null;
+			this.#rafPending = false;
+		}
+		this.#render();
 	}
 
 	/**
@@ -269,8 +268,10 @@ export class GanttChart implements GanttInstance {
 	public expandAll(): void {
 		this.#assertAlive();
 		this.#expandedIds.clear();
-		for (const id of getExpandableTaskIds(this.#input.tasks)) {
-			this.#expandedIds.add(id);
+		if (this.#input !== null) {
+			for (const id of getExpandableTaskIds(this.#input.tasks)) {
+				this.#expandedIds.add(id);
+			}
 		}
 		if (this.#rafPending && this.#rafId !== null) {
 			cancelAnimationFrame(this.#rafId);
@@ -307,6 +308,9 @@ export class GanttChart implements GanttInstance {
 	}
 
 	#patchTask(id: number, patch: Partial<GanttInput['tasks'][number]>): void {
+		if (this.#input === null) {
+			return;
+		}
 		const index = this.#taskIndex.get(id);
 		if (index === undefined) {
 			return;
@@ -353,8 +357,8 @@ export class GanttChart implements GanttInstance {
 		this.#rightPane.style.minWidth = `${this.#timelineMinWidth}px`;
 	};
 
-	#computeState(): GanttState {
-		const roots = buildTaskTree(this.#input.tasks);
+	#computeState(input: GanttInput): GanttState {
+		const roots = buildTaskTree(input.tasks);
 		const allRows = flattenTree(roots, this.#expandedIds);
 		const [vpStart, vpEnd] =
 			this.#opts.viewportStart !== undefined && this.#opts.viewportEnd !== undefined
@@ -364,7 +368,7 @@ export class GanttChart implements GanttInstance {
 		const mapper = createPixelMapper(this.#scale, vpStart);
 		const totalWidth = Math.ceil(mapper.toX(vpEnd)) + 1;
 		const layouts = computeLayout(allRows, mapper);
-		const links = routeLinks(this.#input.links, layouts);
+		const links = routeLinks(input.links, layouts);
 
 		const containerH = this.#height - HEADER_H;
 		const rowCount = allRows.length;
@@ -374,7 +378,7 @@ export class GanttChart implements GanttInstance {
 		const paddingBottom = Math.max(0, (rowCount - 1 - endIndex) * ROW_HEIGHT);
 
 		return {
-			input: this.#input,
+			input,
 			scale: this.#scale,
 			highlightLinkedDependenciesOnSelect: this.#opts.highlightLinkedDependenciesOnSelect ?? false,
 			linkCreationEnabled: this.#opts.linkCreationEnabled ?? false,
@@ -401,7 +405,11 @@ export class GanttChart implements GanttInstance {
 
 	readonly #render = (): void => {
 		this.#rafPending = false;
-		const state = this.#computeState();
+		const input = this.#input;
+		if (input === null) {
+			return;
+		}
+		const state = this.#computeState(input);
 
 		renderTimeHeader(this.#rightHeader, state);
 		renderLeftPane(

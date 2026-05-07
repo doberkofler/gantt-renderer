@@ -67,16 +67,17 @@ import {GanttChart, parseGanttInput} from 'gantt-renderer';
 import 'gantt-renderer/styles/gantt.css';
 
 const input = parseGanttInput(yourData);
-const instance = new GanttChart(document.getElementById('chart')!, input, {
+const instance = new GanttChart(document.getElementById('chart')!, {
 	scale: 'day',
 });
+instance.update(input);
 ```
 
 ## Integration Pattern
 
 1. Compute/plan project data in your domain layer or backend.
 2. Validate the result with `parseGanttInput(yourData)`.
-3. Render with `new GanttChart(container, input, options)` and react to interaction callbacks.
+3. Render with `new GanttChart(container, options)` followed by `instance.update(input)` and react to interaction callbacks.
 4. Persist user edits through your own business logic, then update with `instance.update(newInput)`.
 
 ## Package Exports

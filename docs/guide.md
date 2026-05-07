@@ -53,9 +53,10 @@ Firefox and older runtimes).
 ```ts
 import {GanttChart} from 'gantt-renderer';
 
-const instance = new GanttChart(container, input, {
+const instance = new GanttChart(container, {
   locale: 'de-DE',
 });
+instance.update(input);
 ```
 
 **Example — full ChartLocale object with label overrides:**
@@ -77,7 +78,8 @@ const deLocale: ChartLocale = {
   },
 };
 
-const instance = new GanttChart(container, input, {locale: deLocale});
+const instance = new GanttChart(container, {locale: deLocale});
+instance.update(input);
 ```
 
 When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conventions).
@@ -221,10 +223,11 @@ const onLinkCreate: OnLinkCreate = (payload) => {
   // Add the link to your data model and call instance.update(...)
 };
 
-const instance = new GanttChart(container, input, {
+const instance = new GanttChart(container, {
   linkCreationEnabled: true,
   onLinkCreate,
 });
+instance.update(input);
 ```
 
 ## Theme option
@@ -248,9 +251,10 @@ Example — force dark mode:
 ```ts
 import {GanttChart} from 'gantt-renderer';
 
-const instance = new GanttChart(container, input, {
+const instance = new GanttChart(container, {
   theme: 'dark',
 });
+instance.update(input);
 ```
 
 Consumers can also set `data-theme="dark"` on a parent element (e.g. `<html>`) to apply dark mode without passing the option.
@@ -379,7 +383,8 @@ const columns: GridColumn[] = [
   {id: 'duration', header: 'Days', width: '60px', field: 'duration'},
 ];
 
-const instance = new GanttChart(container, input, {gridColumns: columns});
+const instance = new GanttChart(container, {gridColumns: columns});
+instance.update(input);
 ```
 
 Notes:
@@ -390,7 +395,7 @@ Notes:
 
 ## Instance API
 
-`new GanttChart(container, input, options)` returns a `GanttInstance` with these methods:
+`new GanttChart(container, options)` returns a `GanttInstance` with these methods:
 
 - `update(input)` - Replaces the full dataset and rerenders after validation.
 - `setScale(scale)` - Switches between `hour|day|week|month|quarter|year` without remounting.

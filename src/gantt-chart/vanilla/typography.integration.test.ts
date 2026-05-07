@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {GanttChart} from './gantt-chart.ts';
+import {GanttChart, type GanttOptions} from './gantt-chart.ts';
 import {type GanttInput} from '../validation/schemas.ts';
 
 const TOKENS_STYLE = `
@@ -51,8 +51,9 @@ describe('typography scale tokens', () => {
 	const instances: GanttChart[] = [];
 	let styleEl: HTMLStyleElement;
 
-	function mountTracked(container: HTMLElement, input: GanttInput, opts?: ConstructorParameters<typeof GanttChart>[2]): GanttChart {
-		const instance = new GanttChart(container, input, opts);
+	function mountTracked(container: HTMLElement, input: GanttInput, opts?: GanttOptions): GanttChart {
+		const instance = new GanttChart(container, opts);
+		instance.update(input);
 		instances.push(instance);
 		return instance;
 	}
