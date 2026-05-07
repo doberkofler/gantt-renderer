@@ -18,6 +18,27 @@ describe('schema utilities', () => {
 		expect(safeParseGanttInput({tasks: [{id: -1}]})).toBeNull();
 	});
 
+	it('rejects invalid task fields', () => {
+		expect(() => parseGanttInput({tasks: [{id: 1, text: 'Task', start_date: '2026-01-01', duration: -1}]})).toThrow();
+		expect(() => parseGanttInput({tasks: [{id: 1, text: '', start_date: '2026-01-01', duration: 1}]})).toThrow();
+		expect(() => parseGanttInput({tasks: [{id: 1.5, text: 'Task', start_date: '2026-01-01', duration: 1}]})).toThrow();
+	});
+
+	it('rejects invalid link fields', () => {
+		expect(() =>
+			parseGanttInput({
+				tasks: [{id: 1, text: 'Task', start_date: '2026-01-01', duration: 1}],
+				links: [{id: 1, source: -1, target: 1}],
+			}),
+		).toThrow();
+		expect(() =>
+			parseGanttInput({
+				tasks: [{id: 1, text: 'Task', start_date: '2026-01-01', duration: 1}],
+				links: [{id: 1, source: 1, target: 1, type: 'INVALID'}],
+			}),
+		).toThrow();
+	});
+
 	it('validates special day inputs', () => {
 		expect(SpecialDaySchema.parse({date: '2026-12-25', kind: 'holiday', label: 'Christmas Day'})).toMatchObject({
 			date: '2026-12-25',

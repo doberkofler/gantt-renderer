@@ -1,5 +1,14 @@
 import {describe, expect, it} from 'vitest';
-import {type GridColumn, DEFAULT_GRID_COLUMNS, gridTemplateColumns, visibleColumns, gridNaturalWidth, GRID_COLUMN_FR_MIN_WIDTH} from './gridColumns.ts';
+import {
+	type GridColumn,
+	DEFAULT_GRID_COLUMNS,
+	gridColumnDefaults,
+	gridTemplateColumns,
+	visibleColumns,
+	gridNaturalWidth,
+	GRID_COLUMN_FR_MIN_WIDTH,
+} from './gridColumns.ts';
+import {type ChartLocale, EN_US_LABELS} from '../../locale.ts';
 
 describe('gridColumns helpers', () => {
 	it('computes gridTemplateColumns from column widths', () => {
@@ -29,6 +38,59 @@ describe('gridColumns helpers', () => {
 		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('start_date');
 		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('duration');
 		expect(DEFAULT_GRID_COLUMNS[3]?.id).toBe('actions');
+	});
+});
+
+describe('gridColumnDefaults', () => {
+	it('generates four columns with correct ids', () => {
+		const locale: ChartLocale = {code: 'en-US'};
+		const columns = gridColumnDefaults(locale);
+		expect(columns).toHaveLength(4);
+		expect(columns[0]?.id).toBe('name');
+		expect(columns[1]?.id).toBe('start_date');
+		expect(columns[2]?.id).toBe('duration');
+		expect(columns[3]?.id).toBe('actions');
+	});
+
+	it('uses EN_US_LABELS as fallback when locale has no labels', () => {
+		const locale: ChartLocale = {code: 'en-US'};
+		const columns = gridColumnDefaults(locale);
+		expect(columns[0]?.header).toBe(EN_US_LABELS.column_task_name);
+		expect(columns[1]?.header).toBe(EN_US_LABELS.column_start_time);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.column_duration);
+	});
+
+	it('uses locale label overrides when provided', () => {
+		const locale: ChartLocale = {
+			code: 'de-DE',
+			labels: {
+				column_task_name: 'Aufgabe',
+				column_start_time: 'Start',
+				column_duration: 'Dauer',
+			},
+		};
+		const columns = gridColumnDefaults(locale);
+		expect(columns[0]?.header).toBe('Aufgabe');
+		expect(columns[1]?.header).toBe('Start');
+		expect(columns[2]?.header).toBe('Dauer');
+	});
+
+	it('falls back to EN_US_LABELS for missing label keys', () => {
+		const locale: ChartLocale = {
+			code: 'de-DE',
+			labels: {column_task_name: 'Aufgabe'},
+		};
+		const columns = gridColumnDefaults(locale);
+		expect(columns[0]?.header).toBe('Aufgabe');
+		expect(columns[1]?.header).toBe(EN_US_LABELS.column_start_time);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.column_duration);
+	});
+
+	it('actions column has empty header and 28px width', () => {
+		const locale: ChartLocale = {code: 'en-US'};
+		const columns = gridColumnDefaults(locale);
+		expect(columns[3]?.header).toBe('');
+		expect(columns[3]?.width).toBe('28px');
 	});
 });
 

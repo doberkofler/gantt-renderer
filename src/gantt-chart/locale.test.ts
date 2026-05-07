@@ -5,6 +5,7 @@ import {
 	resolveChartLocale,
 	deriveWeekStartsOn,
 	deriveWeekendDays,
+	deriveWeekNumbering,
 	formatWeekNumber,
 	formatLabel,
 	type ChartLocale,
@@ -159,6 +160,36 @@ describe('deriveWeekendDays', () => {
 
 	it('returns Sat/Sun for de-DE', () => {
 		expect(deriveWeekendDays('de-DE')).toEqual([0, 6]);
+	});
+});
+
+describe('deriveWeekNumbering', () => {
+	it('returns "us" for en-US (region table hit)', () => {
+		expect(deriveWeekNumbering('en-US')).toBe('us');
+	});
+
+	it('returns "us" for en-CA (CA in region table)', () => {
+		expect(deriveWeekNumbering('en-CA')).toBe('us');
+	});
+
+	it('returns "us" for ar-SA (SA uses Sunday start → US scheme)', () => {
+		expect(deriveWeekNumbering('ar-SA')).toBe('us');
+	});
+
+	it('returns "us" for ar-AE (AE in region table)', () => {
+		expect(deriveWeekNumbering('ar-AE')).toBe('us');
+	});
+
+	it('returns a valid scheme for European locale de-DE', () => {
+		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('de-DE'));
+	});
+
+	it('returns a valid scheme for unknown region xx-XX (falls to getWeekInfo or default)', () => {
+		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('xx-XX'));
+	});
+
+	it('returns a valid scheme for language-only code', () => {
+		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('en'));
 	});
 });
 

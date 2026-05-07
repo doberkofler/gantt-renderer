@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildTaskIndex, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
+import {buildTaskIndex, toIsoDate, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
 import {type SpecialDay} from '../validation/schemas.ts';
 
 describe('utils', () => {
@@ -19,6 +19,13 @@ describe('utils', () => {
 
 		it('returns empty map for empty array', () => {
 			expect(buildTaskIndex([]).size).toBe(0);
+		});
+	});
+
+	describe('toIsoDate', () => {
+		it('converts Date to YYYY-MM-DD string', () => {
+			expect(toIsoDate(new Date('2026-01-15T14:30:00.000Z'))).toBe('2026-01-15');
+			expect(toIsoDate(new Date('2026-12-31T23:59:59.000Z'))).toBe('2026-12-31');
 		});
 	});
 
