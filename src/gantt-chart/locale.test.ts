@@ -14,28 +14,20 @@ import {
 
 describe('EN_US_LABELS', () => {
 	it('covers all LocaleLabelKey entries', () => {
-		const keys: LocaleLabelKey[] = [
-			'aria_task',
-			'aria_milestone',
-			'add_subtask_title',
-			'column_task_name',
-			'column_start_time',
-			'column_duration',
-			'column_quarter',
-		];
+		const keys: LocaleLabelKey[] = ['ariaTask', 'ariaMilestone', 'addSubtaskTitle', 'columnTaskName', 'columnStartDate', 'columnDuration', 'columnQuarter'];
 		for (const key of keys) {
 			expect(EN_US_LABELS[key]).toBeTypeOf('string');
 		}
 	});
 
 	it('has canonical English defaults', () => {
-		expect(EN_US_LABELS.aria_task).toBe('Task {0}');
-		expect(EN_US_LABELS.aria_milestone).toBe('Milestone {0}');
-		expect(EN_US_LABELS.add_subtask_title).toBe('Add subtask');
-		expect(EN_US_LABELS.column_task_name).toBe('Task name');
-		expect(EN_US_LABELS.column_start_time).toBe('Start time');
-		expect(EN_US_LABELS.column_duration).toBe('Duration');
-		expect(EN_US_LABELS.column_quarter).toBe('Q');
+		expect(EN_US_LABELS.ariaTask).toBe('Task {0}');
+		expect(EN_US_LABELS.ariaMilestone).toBe('Milestone {0}');
+		expect(EN_US_LABELS.addSubtaskTitle).toBe('Add subtask');
+		expect(EN_US_LABELS.columnTaskName).toBe('Task name');
+		expect(EN_US_LABELS.columnStartDate).toBe('Start time');
+		expect(EN_US_LABELS.columnDuration).toBe('Duration');
+		expect(EN_US_LABELS.columnQuarter).toBe('Q');
 	});
 });
 
@@ -87,9 +79,9 @@ describe('resolveChartLocale', () => {
 	});
 
 	it('preserves labels when provided', () => {
-		const input: ChartLocale = {code: 'en-US', labels: {add_subtask_title: 'Add child'}};
+		const input: ChartLocale = {code: 'en-US', labels: {addSubtaskTitle: 'Add child'}};
 		const locale = resolveChartLocale(input);
-		expect(locale.labels?.add_subtask_title).toBe('Add child');
+		expect(locale.labels?.addSubtaskTitle).toBe('Add child');
 	});
 
 	it('does not set labels when not provided', () => {

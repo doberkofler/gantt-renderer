@@ -9,13 +9,8 @@ describe('task interaction', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 		const onTaskEditIntentMock =
-			vi.fn<(payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'double_click'; task: GanttInput['tasks'][number]}) => void>();
-		const onTaskEditIntent = (payload: {
-			id: number;
-			source: 'grid' | 'bar' | 'milestone';
-			trigger: 'double_click';
-			task: GanttInput['tasks'][number];
-		}): void => {
+			vi.fn<(payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: GanttInput['tasks'][number]}) => void>();
+		const onTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: GanttInput['tasks'][number]}): void => {
 			onTaskEditIntentMock(payload);
 		};
 
@@ -36,9 +31,9 @@ describe('task interaction', () => {
 		expect(milestone).not.toBeNull();
 		milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 2}));
 
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 3, source: 'grid', trigger: 'double_click'}));
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 1, source: 'bar', trigger: 'double_click'}));
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 5, source: 'milestone', trigger: 'double_click'}));
+		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 3, source: 'grid', trigger: 'doubleClick'}));
+		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 1, source: 'bar', trigger: 'doubleClick'}));
+		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 5, source: 'milestone', trigger: 'doubleClick'}));
 	});
 
 	it('emits onMove and onResize through drag interactions', () => {

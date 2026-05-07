@@ -6,7 +6,7 @@ import {mockState, mockCallbacks, taskNode, projectNode} from './leftPane.test-u
 describe('renderLeftPane', () => {
 	it('renders rows with default column schema', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'My Task', start_date: '2026-02-01', duration: 8});
+		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', duration: 8});
 		const state = mockState({
 			allRows: [node],
 			startIndex: 0,
@@ -274,7 +274,7 @@ describe('renderLeftPane', () => {
 
 	it('renders custom column schema with different order and widths', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Custom', start_date: '2026-03-15', duration: 3, progress: 0.75});
+		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', duration: 3, progress: 0.75});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 

@@ -48,7 +48,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 			continue;
 		}
 
-		const start = parseDate(task.start_date);
+		const start = parseDate(task.startDate);
 		const x = mapper.toX(start);
 		const y = i * ROW_HEIGHT + BAR_Y_OFFSET;
 		const centerY = i * ROW_HEIGHT + ROW_HEIGHT / 2;
@@ -118,7 +118,7 @@ export function deriveViewport(tasks: TaskNode[], paddingDays = 2): [Date, Date]
 	let maxMs = -Infinity;
 
 	for (const task of tasks) {
-		const start = parseDate(task.start_date);
+		const start = parseDate(task.startDate);
 		const end = addDays(start, task.duration);
 		if (start.getTime() < minMs) {
 			minMs = start.getTime();

@@ -69,12 +69,12 @@ const deLocale: ChartLocale = {
   weekStartsOn: 1,
   weekNumbering: 'iso',
   labels: {
-    column_task_name: 'Aufgabe',
-    column_start_time: 'Start',
-    column_duration: 'Dauer',
-    add_subtask_title: 'Teilaufgabe hinzufügen',
-    aria_task: 'Aufgabe {0}',
-    aria_milestone: 'Meilenstein {0}',
+    columnTaskName: 'Aufgabe',
+    columnStart: 'Start',
+    columnDuration: 'Dauer',
+    addSubtaskTitle: 'Teilaufgabe hinzufügen',
+    ariaTask: 'Aufgabe {0}',
+    ariaMilestone: 'Meilenstein {0}',
   },
 };
 
@@ -88,13 +88,13 @@ When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conve
 
 | Key | Default (en-US) | Used for |
 |---|---|---|
-| `aria_task` | `Task {0}` | Task bar `aria-label` |
-| `aria_milestone` | `Milestone {0}` | Milestone `aria-label` |
-| `add_subtask_title` | `Add subtask` | Add-button `title` attribute |
-| `column_task_name` | `Task name` | Grid column header |
-| `column_start_time` | `Start time` | Grid column header |
-| `column_duration` | `Duration` | Grid column header |
-| `column_quarter` | `Q` | Quarter prefix in time header |
+| `ariaTask` | `Task {0}` | Task bar `aria-label` |
+| `ariaMilestone` | `Milestone {0}` | Milestone `aria-label` |
+| `addSubtaskTitle` | `Add subtask` | Add-button `title` attribute |
+| `columnTaskName` | `Task name` | Grid column header |
+| `columnStart` | `Start time` | Grid column header |
+| `columnDuration` | `Duration` | Grid column header |
+| `columnQuarter` | `Q` | Quarter prefix in time header |
 
 Aria-label templates use `{0}` as the task name placeholder. Only the keys you override in
 `labels` are replaced; missing keys fall back to `EN_US_LABELS`.
@@ -379,7 +379,7 @@ import {GanttChart, type GridColumn} from 'gantt-renderer';
 const columns: GridColumn[] = [
   {id: 'name', header: 'Task', width: '2fr'},
   {id: 'progress', header: 'Progress', width: '70px', align: 'right', field: 'progress', format: (v) => `${Math.round((v as number) * 100)}%`},
-  {id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+  {id: 'start', header: 'Start', width: '90px', field: 'start'},
   {id: 'duration', header: 'Days', width: '60px', field: 'duration'},
 ];
 

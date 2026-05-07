@@ -1,11 +1,4 @@
-export type LocaleLabelKey =
-	| 'aria_task'
-	| 'aria_milestone'
-	| 'add_subtask_title'
-	| 'column_task_name'
-	| 'column_start_time'
-	| 'column_duration'
-	| 'column_quarter';
+export type LocaleLabelKey = 'ariaTask' | 'ariaMilestone' | 'addSubtaskTitle' | 'columnTaskName' | 'columnStartDate' | 'columnDuration' | 'columnQuarter';
 
 export type ChartLocale = {
 	code: string;
@@ -131,13 +124,13 @@ const WEEKEND_REGION: Record<string, number[]> = {
 };
 
 export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
-	aria_task: 'Task {0}',
-	aria_milestone: 'Milestone {0}',
-	add_subtask_title: 'Add subtask',
-	column_task_name: 'Task name',
-	column_start_time: 'Start time',
-	column_duration: 'Duration',
-	column_quarter: 'Q',
+	ariaTask: 'Task {0}',
+	ariaMilestone: 'Milestone {0}',
+	addSubtaskTitle: 'Add subtask',
+	columnTaskName: 'Task name',
+	columnStartDate: 'Start time',
+	columnDuration: 'Duration',
+	columnQuarter: 'Q',
 };
 
 export const CHART_LOCALE_EN_US: ChartLocale = {

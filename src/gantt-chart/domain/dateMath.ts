@@ -105,10 +105,10 @@ export function startOfHour(date: Date): Date {
 }
 
 function resolveQuarterLabel(locale: ChartLocale): string {
-	if (locale.labels?.column_quarter !== undefined) {
-		return locale.labels.column_quarter;
+	if (locale.labels?.columnQuarter !== undefined) {
+		return locale.labels.columnQuarter;
 	}
-	return EN_US_LABELS.column_quarter;
+	return EN_US_LABELS.columnQuarter;
 }
 
 /**

@@ -50,7 +50,7 @@ describe('buildLeftPaneHeader', () => {
 	it('skips hidden columns in header', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '1fr'},
-			{id: 'start_date', header: 'Start time', width: '90px', visible: false},
+			{id: 'startDate', header: 'Start time', width: '90px', visible: false},
 			{id: 'duration', header: 'Duration', width: '68px'},
 		];
 		const header = buildLeftPaneHeader(cols);
@@ -108,7 +108,7 @@ describe('setupColumnResize', () => {
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
 		];
 		const header = buildLeftPaneHeader(columns);
@@ -134,7 +134,7 @@ describe('setupColumnResize', () => {
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
 		];
 		const header = buildLeftPaneHeader(columns);

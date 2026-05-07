@@ -36,7 +36,7 @@ export function mockCallbacks(overrides: Partial<LeftPaneCallbacks> = {}): LeftP
 		onToggle: vi.fn<(id: number) => void>(),
 		onSelect: vi.fn<(id: number) => void>(),
 		onRowClick: vi.fn<(payload: {id: number; task: {id: number} & Record<string, unknown>}) => void>(),
-		onTaskEditIntent: vi.fn<(payload: {id: number; source: 'grid'; trigger: 'double_click'; task: {id: number} & Record<string, unknown>}) => void>(),
+		onTaskEditIntent: vi.fn<(payload: {id: number; source: 'grid'; trigger: 'doubleClick'; task: {id: number} & Record<string, unknown>}) => void>(),
 		onAdd: vi.fn<(id: number) => void>(),
 		...overrides,
 	};
@@ -46,7 +46,7 @@ export function taskNode(overrides: Partial<TaskNode> = {}): TaskNode {
 	return {
 		id: 1,
 		text: 'Task Name',
-		start_date: '2026-01-15',
+		startDate: '2026-01-15',
 		duration: 5,
 		progress: 0.3,
 		type: 'task',
@@ -62,7 +62,7 @@ export function projectNode(overrides: Partial<TaskNode> & {children?: TaskNode[
 	return {
 		id: 1,
 		text: 'Project',
-		start_date: '2026-01-01',
+		startDate: '2026-01-01',
 		duration: 20,
 		progress: 0.5,
 		type: 'project',

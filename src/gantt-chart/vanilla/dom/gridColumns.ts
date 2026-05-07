@@ -20,10 +20,10 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 		width: '1fr',
 	},
 	{
-		id: 'start_date',
+		id: 'startDate',
 		header: 'Start time',
 		width: '90px',
-		field: 'start_date',
+		field: 'startDate',
 		format: (value, _task, _row, locale) => formatDisplayDate(String(value), locale),
 	},
 	{
@@ -51,19 +51,19 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 	return [
 		{
 			id: 'name',
-			header: locale.labels?.column_task_name ?? EN_US_LABELS.column_task_name,
+			header: locale.labels?.columnTaskName ?? EN_US_LABELS.columnTaskName,
 			width: '1fr',
 		},
 		{
-			id: 'start_date',
-			header: locale.labels?.column_start_time ?? EN_US_LABELS.column_start_time,
+			id: 'startDate',
+			header: locale.labels?.columnStartDate ?? EN_US_LABELS.columnStartDate,
 			width: '90px',
-			field: 'start_date',
+			field: 'startDate',
 			format: (value, _task, _row, loc) => formatDisplayDate(String(value), loc),
 		},
 		{
 			id: 'duration',
-			header: locale.labels?.column_duration ?? EN_US_LABELS.column_duration,
+			header: locale.labels?.columnDuration ?? EN_US_LABELS.columnDuration,
 			width: '68px',
 			field: 'duration',
 			format: (value) => ((value as number) > 0 ? String(value) : '—'),

@@ -27,7 +27,7 @@ describe('column resize handles (M14)', () => {
 		mountTracked(container, INPUT, {
 			gridColumns: [
 				{id: 'name', header: 'Name', width: '1fr'},
-				{id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 				{id: 'duration', header: 'Dur', width: '68px', field: 'duration'},
 			],
 			onGridColumnsChange: onColMock,

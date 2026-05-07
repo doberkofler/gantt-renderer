@@ -23,7 +23,7 @@ export type OnTaskMove = (payload: {id: number; startDate: Date}) => void;
 export type OnTaskResize = (payload: {id: number; duration: number}) => void;
 export type OnTaskAdd = (payload: {parentId: number}) => void;
 export type OnTaskDoubleClick = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'}) => void;
-export type OnTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'double_click'; task: Task}) => void;
+export type OnTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
 export type OnLinkCreate = (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 
 export type GanttCallbacks = {
@@ -162,7 +162,7 @@ export class GanttChart implements GanttInstance {
 			},
 			onMove: (payload): void => {
 				const iso = payload.startDate.toISOString().slice(0, 10);
-				this.#patchTask(payload.id, {start_date: iso});
+				this.#patchTask(payload.id, {startDate: iso});
 				opts.onMove?.(payload);
 				this.#scheduleRender();
 			},
@@ -327,7 +327,7 @@ export class GanttChart implements GanttInstance {
 		const prev = this.#lastGridClick;
 		if (prev !== null && prev.id === payload.id && now - prev.atMs <= 350) {
 			this.#lastGridClick = null;
-			this.#cbs.onTaskEditIntent?.({id: payload.id, source: 'grid', trigger: 'double_click', task: payload.task});
+			this.#cbs.onTaskEditIntent?.({id: payload.id, source: 'grid', trigger: 'doubleClick', task: payload.task});
 			return;
 		}
 		this.#lastGridClick = {id: payload.id, atMs: now};

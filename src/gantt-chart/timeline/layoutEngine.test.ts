@@ -7,7 +7,7 @@ const baseRows: TaskNode[] = [
 	{
 		id: 1,
 		text: 'Task 1',
-		start_date: '2026-01-01',
+		startDate: '2026-01-01',
 		duration: 3,
 		progress: 0.5,
 		type: 'task',
@@ -18,7 +18,7 @@ const baseRows: TaskNode[] = [
 	{
 		id: 2,
 		text: 'Milestone',
-		start_date: '2026-01-03',
+		startDate: '2026-01-03',
 		duration: 0,
 		progress: 0,
 		type: 'milestone',
@@ -60,7 +60,7 @@ describe('layoutEngine utilities', () => {
 			{
 				id: 9,
 				text: 'Tiny',
-				start_date: '2026-01-01',
+				startDate: '2026-01-01',
 				duration: 0,
 				progress: 9,
 				type: 'task',

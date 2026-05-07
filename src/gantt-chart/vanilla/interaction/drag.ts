@@ -8,7 +8,7 @@ function toTask(row: TaskNode): Task {
 	return {
 		id: row.id,
 		text: row.text,
-		start_date: row.start_date,
+		startDate: row.startDate,
 		duration: row.duration,
 		progress: row.progress,
 		type: row.type,
@@ -46,7 +46,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		cbs.onSelect?.(task.id);
 
 		const startX = e.clientX;
-		const originDate = parseDate(task.start_date);
+		const originDate = parseDate(task.startDate);
 		const mapper = getMapper(); // snapshot at mousedown
 
 		function onMove(me: PointerEvent): void {
@@ -102,7 +102,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		if (event.detail !== 2) {
 			return;
 		}
-		cbs.onTaskEditIntent?.({id: task.id, source: 'bar', trigger: 'double_click', task: toTask(task)});
+		cbs.onTaskEditIntent?.({id: task.id, source: 'bar', trigger: 'doubleClick', task: toTask(task)});
 	}
 
 	barEl.addEventListener('pointerdown', onBarDown);
@@ -134,7 +134,7 @@ export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs
 			if (task === undefined) {
 				return;
 			}
-			cbs.onTaskEditIntent?.({id: taskId, source: 'milestone', trigger: 'double_click', task});
+			cbs.onTaskEditIntent?.({id: taskId, source: 'milestone', trigger: 'doubleClick', task});
 		}
 	}
 	diamondEl.addEventListener('click', onClick);

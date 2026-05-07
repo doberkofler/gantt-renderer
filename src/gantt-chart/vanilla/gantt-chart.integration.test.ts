@@ -97,7 +97,7 @@ describe('core rendering and viewport', () => {
 			height: 420,
 			gridColumns: [
 				{id: 'name', header: 'Task name', width: '1fr'},
-				{id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 				{id: 'duration', header: 'Days', width: '68px', field: 'duration'},
 				{id: 'progress', header: '%', width: '60px', field: 'progress'},
 				{id: 'actions', header: '', width: '28px'},

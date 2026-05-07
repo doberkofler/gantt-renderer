@@ -14,7 +14,7 @@ export type LeftPaneCallbacks = {
 	onToggle: (id: number) => void;
 	onSelect: (id: number) => void;
 	onRowClick: (payload: {id: number; task: Task}) => void;
-	onTaskEditIntent: (payload: {id: number; source: 'grid'; trigger: 'double_click'; task: Task}) => void;
+	onTaskEditIntent: (payload: {id: number; source: 'grid'; trigger: 'doubleClick'; task: Task}) => void;
 	onAdd: (id: number) => void;
 };
 
@@ -22,7 +22,7 @@ function toTask(row: TaskNode): Task {
 	return {
 		id: row.id,
 		text: row.text,
-		start_date: row.start_date,
+		startDate: row.startDate,
 		duration: row.duration,
 		progress: row.progress,
 		type: row.type,
@@ -121,7 +121,7 @@ function buildAddButton(row: TaskNode, cbs: LeftPaneCallbacks, locale: ChartLoca
 	const btn = el('button');
 	btn.className = 'gantt-add-btn';
 	btn.textContent = '+';
-	btn.title = locale.labels?.add_subtask_title ?? EN_US_LABELS.add_subtask_title;
+	btn.title = locale.labels?.addSubtaskTitle ?? EN_US_LABELS.addSubtaskTitle;
 	css(btn, {
 		background: 'none',
 		border: 'none',

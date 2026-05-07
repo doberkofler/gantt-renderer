@@ -103,7 +103,7 @@ export const init = (): void => {
 				[
 					`selected ${task.text}`,
 					`id=${task.id}`,
-					`start=${task.start_date}`,
+					`start=${task.startDate}`,
 					`duration=${task.duration}d`,
 					`type=${task.type}`,
 					`progress=${Math.round(task.progress * 100)}%`,
@@ -129,7 +129,7 @@ export const init = (): void => {
 					`id=${task.id}`,
 					`source=${payload.source}`,
 					`trigger=${payload.trigger}`,
-					`start=${task.start_date}`,
+					`start=${task.startDate}`,
 					`duration=${task.duration}d`,
 				].join(' | '),
 			);

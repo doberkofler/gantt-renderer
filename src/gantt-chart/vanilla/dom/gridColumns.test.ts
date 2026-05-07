@@ -35,7 +35,7 @@ describe('gridColumns helpers', () => {
 	it('default schema has four columns', () => {
 		expect(DEFAULT_GRID_COLUMNS).toHaveLength(4);
 		expect(DEFAULT_GRID_COLUMNS[0]?.id).toBe('name');
-		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('start_date');
+		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('startDate');
 		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('duration');
 		expect(DEFAULT_GRID_COLUMNS[3]?.id).toBe('actions');
 	});
@@ -47,7 +47,7 @@ describe('gridColumnDefaults', () => {
 		const columns = gridColumnDefaults(locale);
 		expect(columns).toHaveLength(4);
 		expect(columns[0]?.id).toBe('name');
-		expect(columns[1]?.id).toBe('start_date');
+		expect(columns[1]?.id).toBe('startDate');
 		expect(columns[2]?.id).toBe('duration');
 		expect(columns[3]?.id).toBe('actions');
 	});
@@ -55,18 +55,18 @@ describe('gridColumnDefaults', () => {
 	it('uses EN_US_LABELS as fallback when locale has no labels', () => {
 		const locale: ChartLocale = {code: 'en-US'};
 		const columns = gridColumnDefaults(locale);
-		expect(columns[0]?.header).toBe(EN_US_LABELS.column_task_name);
-		expect(columns[1]?.header).toBe(EN_US_LABELS.column_start_time);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.column_duration);
+		expect(columns[0]?.header).toBe(EN_US_LABELS.columnTaskName);
+		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.columnDuration);
 	});
 
 	it('uses locale label overrides when provided', () => {
 		const locale: ChartLocale = {
 			code: 'de-DE',
 			labels: {
-				column_task_name: 'Aufgabe',
-				column_start_time: 'Start',
-				column_duration: 'Dauer',
+				columnTaskName: 'Aufgabe',
+				columnStartDate: 'Start',
+				columnDuration: 'Dauer',
 			},
 		};
 		const columns = gridColumnDefaults(locale);
@@ -78,12 +78,12 @@ describe('gridColumnDefaults', () => {
 	it('falls back to EN_US_LABELS for missing label keys', () => {
 		const locale: ChartLocale = {
 			code: 'de-DE',
-			labels: {column_task_name: 'Aufgabe'},
+			labels: {columnTaskName: 'Aufgabe'},
 		};
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe('Aufgabe');
-		expect(columns[1]?.header).toBe(EN_US_LABELS.column_start_time);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.column_duration);
+		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.columnDuration);
 	});
 
 	it('actions column has empty header and 28px width', () => {
@@ -111,7 +111,7 @@ describe('gridNaturalWidth', () => {
 	it('converts fr units using GRID_COLUMN_FR_MIN_WIDTH', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'start', header: 'Start', width: '90px'},
+			{id: 'startDate', header: 'Start', width: '90px'},
 		];
 		expect(gridNaturalWidth(cols)).toBe(GRID_COLUMN_FR_MIN_WIDTH + 90);
 	});
@@ -146,7 +146,7 @@ describe('gridNaturalWidth', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '2fr'},
 			{id: 'progress', header: 'Progress', width: '70px', field: 'progress'},
-			{id: 'start_date', header: 'Start', width: '90px', field: 'start_date'},
+			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'duration', header: 'Days', width: '60px', field: 'duration'},
 		];
 		expect(gridNaturalWidth(cols)).toBe(2 * GRID_COLUMN_FR_MIN_WIDTH + 220);

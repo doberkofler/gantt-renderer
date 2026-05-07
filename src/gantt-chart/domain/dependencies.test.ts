@@ -3,9 +3,9 @@ import {detectCycles, validateLinkRefs} from './dependencies.ts';
 import {type Link, type Task} from '../validation/schemas.ts';
 
 const tasks: Task[] = [
-	{id: 1, text: 'A', start_date: '2026-01-01', duration: 1, progress: 0, type: 'task', open: true},
-	{id: 2, text: 'B', start_date: '2026-01-02', duration: 1, progress: 0, type: 'task', open: true},
-	{id: 3, text: 'C', start_date: '2026-01-03', duration: 1, progress: 0, type: 'task', open: true},
+	{id: 1, text: 'A', startDate: '2026-01-01', duration: 1, progress: 0, type: 'task', open: true},
+	{id: 2, text: 'B', startDate: '2026-01-02', duration: 1, progress: 0, type: 'task', open: true},
+	{id: 3, text: 'C', startDate: '2026-01-03', duration: 1, progress: 0, type: 'task', open: true},
 ];
 
 describe('dependency utilities', () => {

@@ -65,7 +65,7 @@ export function createRightPaneRefs(): RightPaneRefs {
 	};
 }
 
-function ariaLabel(locale: ChartLocale, key: 'aria_task' | 'aria_milestone', arg: string): string {
+function ariaLabel(locale: ChartLocale, key: 'ariaTask' | 'ariaMilestone', arg: string): string {
 	const template = locale.labels?.[key] ?? EN_US_LABELS[key];
 	return formatLabel(template, arg);
 }
@@ -185,7 +185,7 @@ function renderBar(
 	bar.append(label);
 	bar.tabIndex = 0;
 	bar.setAttribute('role', 'button');
-	bar.setAttribute('aria-label', ariaLabel(state.locale, 'aria_task', task.text));
+	bar.setAttribute('aria-label', ariaLabel(state.locale, 'ariaTask', task.text));
 	bar.setAttribute('aria-pressed', String(selected));
 	bar.dataset['taskId'] = String(task.id);
 	bar.addEventListener('click', () => {
@@ -300,7 +300,7 @@ function renderMilestone(
 	});
 	diamond.tabIndex = 0;
 	diamond.setAttribute('role', 'button');
-	diamond.setAttribute('aria-label', ariaLabel(state.locale, 'aria_milestone', task.text));
+	diamond.setAttribute('aria-label', ariaLabel(state.locale, 'ariaMilestone', task.text));
 	diamond.setAttribute('aria-pressed', String(selected));
 	diamond.dataset['taskId'] = String(task.id);
 	diamond.addEventListener('keydown', (event) => {
