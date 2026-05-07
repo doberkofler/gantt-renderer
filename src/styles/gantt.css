@@ -204,6 +204,31 @@
 	background: var(--gantt-day-custom);
 }
 
+/* ─── Timeline header special-day indicators ────────────────────────────── */
+.gantt-header-cell--weekend::after,
+.gantt-header-cell--holiday::after,
+.gantt-header-cell--custom::after {
+	content: "";
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+}
+
+.gantt-header-cell--weekend::after {
+	background: var(--gantt-day-weekend);
+}
+
+.gantt-header-cell--holiday::after {
+	background: var(--gantt-day-holiday);
+}
+
+.gantt-header-cell--custom::after {
+	background: var(--gantt-day-custom);
+}
+
 /* ─── Splitter handle ───────────────────────────────────────────────────── */
 .gantt-splitter-handle {
 	transition: background 0.15s ease;

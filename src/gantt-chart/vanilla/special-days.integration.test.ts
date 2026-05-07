@@ -141,4 +141,80 @@ describe('special days', () => {
 			});
 		}).toThrow('weekendDays must contain integers in range 0..6');
 	});
+
+	it('renders weekend indicators in header cells at day scale', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		// eslint-disable-next-line no-new
+		new GanttChart(container, INPUT, {
+			scale: 'day',
+			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
+			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
+		});
+
+		expect(container.querySelector('.gantt-header-cell--weekend[data-date="2026-02-07"]')).not.toBeNull();
+		expect(container.querySelector('.gantt-header-cell--weekend[data-date="2026-02-08"]')).not.toBeNull();
+	});
+
+	it('suppresses weekend header indicators when showWeekends is disabled', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		// eslint-disable-next-line no-new
+		new GanttChart(container, INPUT, {
+			scale: 'day',
+			showWeekends: false,
+			viewportStart: new Date('2026-02-06T00:00:00.000Z'),
+			viewportEnd: new Date('2026-02-10T00:00:00.000Z'),
+		});
+
+		expect(container.querySelector('.gantt-header-cell--weekend')).toBeNull();
+	});
+
+	it('renders holiday and custom header indicators with labels and tooltips', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		// eslint-disable-next-line no-new
+		new GanttChart(container, INPUT, {
+			scale: 'day',
+			specialDays: SPECIAL_DAYS,
+			viewportStart: new Date('2026-02-10T00:00:00.000Z'),
+			viewportEnd: new Date('2026-02-13T00:00:00.000Z'),
+		});
+
+		const customCell = container.querySelector<HTMLElement>('.gantt-header-cell--custom[data-date="2026-02-11"]');
+		expect(customCell).not.toBeNull();
+		expect(customCell?.dataset['label']).toBe('Release Freeze');
+		expect(customCell?.title).toBe('Release Freeze');
+
+		const holidayContainer = document.createElement('div');
+		document.body.append(holidayContainer);
+		// eslint-disable-next-line no-new
+		new GanttChart(holidayContainer, INPUT, {
+			scale: 'day',
+			specialDays: SPECIAL_DAYS,
+			viewportStart: new Date('2026-05-24T00:00:00.000Z'),
+			viewportEnd: new Date('2026-05-27T00:00:00.000Z'),
+		});
+		expect(holidayContainer.querySelector('.gantt-header-cell--holiday[data-date="2026-05-25"]')).not.toBeNull();
+	});
+
+	it('does not render header special-day indicators at non-day scales', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		// eslint-disable-next-line no-new
+		new GanttChart(container, INPUT, {
+			scale: 'week',
+			specialDays: SPECIAL_DAYS,
+			viewportStart: new Date('2026-02-01T00:00:00.000Z'),
+			viewportEnd: new Date('2026-03-01T00:00:00.000Z'),
+		});
+
+		expect(container.querySelector('.gantt-header-cell--weekend')).toBeNull();
+		expect(container.querySelector('.gantt-header-cell--holiday')).toBeNull();
+		expect(container.querySelector('.gantt-header-cell--custom')).toBeNull();
+	});
 });

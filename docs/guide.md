@@ -162,6 +162,23 @@ Notes:
 - Special-day rendering applies to `day` scale columns only.
 - Date matching is deterministic across locale/timezone because date keys are normalized in UTC.
 
+### Header special-day indicators
+
+At `day` scale, the lower timeline header row also reflects special-day semantics via a small
+colored dot in each header cell:
+
+| Cell class | Dot color token | Meaning |
+|---|---|---|
+| `.gantt-header-cell--weekend` | `var(--gantt-day-weekend)` | Weekend day (subject to `showWeekends`) |
+| `.gantt-header-cell--holiday` | `var(--gantt-day-holiday)` | Explicit holiday from `specialDays` |
+| `.gantt-header-cell--custom` | `var(--gantt-day-custom)` | Explicit custom day from `specialDays` |
+
+The dot is a 5px `::after` pseudo-element positioned in the top-right corner of the header cell,
+preserving label readability. Header cells for labeled special days also carry `data-date`,
+`data-label`, and a native `title` tooltip matching the body special-day behavior.
+The indicator colors share the same CSS tokens as the day-body backgrounds and respect
+dark-mode overrides. At scales coarser than `day`, no header indicators are rendered.
+
 ## Dependency-link highlight options
 
 `GanttOptions` includes dependency-link selection highlight controls:

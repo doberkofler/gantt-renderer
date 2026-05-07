@@ -1,9 +1,26 @@
 import {el, clearChildren, appendAll} from './helpers.ts';
-import {type GanttState} from '../state.ts';
+import {type GanttState, type ResolvedSpecialDay} from '../state.ts';
 import {nextScaleBoundary, snapToScaleBoundary} from '../../timeline/scale.ts';
-import {formatHeaderLabel, formatUpperLabel} from '../../domain/dateMath.ts';
+import {formatHeaderLabel, formatUpperLabel, startOfDay} from '../../domain/dateMath.ts';
 
 type Cell = {label: string; x: number; width: number};
+
+function specialDayKind(
+	date: Date,
+	specialDaysByDate: Map<string, ResolvedSpecialDay>,
+	showWeekends: boolean,
+	weekendDays: Set<number>,
+): 'weekend' | 'holiday' | 'custom' | null {
+	const dateKey = startOfDay(date).toISOString().slice(0, 10);
+	const specialDay = specialDaysByDate.get(dateKey);
+	if (specialDay !== undefined) {
+		return specialDay.kind;
+	}
+	if (showWeekends && weekendDays.has(date.getUTCDay())) {
+		return 'weekend';
+	}
+	return null;
+}
 
 /**
  * Inline style helper local to this module.
@@ -26,11 +43,11 @@ function css_(elem: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
  * @param state - The current chart state.
  */
 export function renderTimeHeader(container: HTMLElement, state: GanttState): void {
-	const {scale, viewportStart, viewportEnd, mapper, totalWidth, locale} = state;
+	const {scale, viewportStart, viewportEnd, mapper, totalWidth, locale, showWeekends, weekendDays, specialDaysByDate} = state;
 	const weekStartsOn = locale.weekStartsOn ?? 1;
 
 	const upperCells: Cell[] = [];
-	const lowerCells: Cell[] = [];
+	const lowerCells: {label: string; x: number; width: number; date: Date}[] = [];
 
 	let cur = snapToScaleBoundary(viewportStart, scale, weekStartsOn);
 	let prevUpperLabel = '';
@@ -41,7 +58,7 @@ export function renderTimeHeader(container: HTMLElement, state: GanttState): voi
 		const next = nextScaleBoundary(cur, scale);
 		const x = mapper.toX(cur);
 		const w = mapper.toX(next) - x;
-		lowerCells.push({label: formatHeaderLabel(cur, scale, locale), x, width: w});
+		lowerCells.push({label: formatHeaderLabel(cur, scale, locale), x, width: w, date: new Date(cur)});
 
 		const uLabel = formatUpperLabel(cur, scale, locale);
 		if (uLabel !== prevUpperLabel) {
@@ -120,6 +137,21 @@ export function renderTimeHeader(container: HTMLElement, state: GanttState): voi
 			whiteSpace: 'nowrap',
 		});
 		d.textContent = cell.label;
+
+		if (scale === 'day') {
+			const kind = specialDayKind(cell.date, specialDaysByDate, showWeekends, weekendDays);
+			if (kind !== null) {
+				d.classList.add(`gantt-header-cell--${kind}`);
+				const dateKey = startOfDay(cell.date).toISOString().slice(0, 10);
+				d.dataset['date'] = dateKey;
+				const specialDay = specialDaysByDate.get(dateKey);
+				if (specialDay?.label !== undefined) {
+					d.dataset['label'] = specialDay.label;
+					d.title = specialDay.label;
+				}
+			}
+		}
+
 		return d;
 	});
 
