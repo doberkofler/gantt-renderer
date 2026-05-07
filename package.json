@@ -1,6 +1,24 @@
 {
 	"name": "gantt-renderer",
 	"version": "0.1.1",
+	"description": "A TypeScript Gantt chart renderer for precalculated project plans",
+	"keywords": [
+		"chart",
+		"gantt",
+		"project",
+		"renderer",
+		"timeline"
+	],
+	"homepage": "https://doberkofler.github.io/gantt-renderer/",
+	"bugs": {
+		"url": "https://github.com/doberkofler/gantt-renderer/issues"
+	},
+	"license": "MIT",
+	"author": "doberkofler",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/doberkofler/gantt-renderer.git"
+	},
 	"files": [
 		"dist",
 		"CHANGELOG.md"

@@ -6,15 +6,15 @@
 [![Node.js CI](https://github.com/doberkofler/gantt-renderer/actions/workflows/ci.yml/badge.svg)](https://github.com/doberkofler/gantt-renderer/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/doberkofler/gantt-renderer/badge.svg?branch=main)](https://coveralls.io/github/doberkofler/gantt-renderer?branch=main)
 
-![Gantt chart demo](docs/images/gantt-demo.png)
+![Gantt chart demo](https://raw.githubusercontent.com/doberkofler/gantt-renderer/main/docs/images/gantt-demo.png)
 
 **[Live Demo →](https://doberkofler.github.io/gantt-renderer/)**
 &nbsp;|&nbsp;
-**[Usage Guide →](./docs/guide.md)**
+**[Usage Guide →](https://github.com/doberkofler/gantt-renderer/blob/main/docs/guide.md)**
 &nbsp;|&nbsp;
 **[API Docs →](https://doberkofler.github.io/gantt-renderer/docs/api/)**
 &nbsp;|&nbsp;
-**[Contributing →](./CONTRIBUTING.md)**
+**[Contributing →](https://github.com/doberkofler/gantt-renderer/blob/main/CONTRIBUTING.md)**
 
 A TypeScript Gantt chart renderer for **precalculated project plans**.
 
@@ -86,8 +86,8 @@ const instance = new GanttChart(document.getElementById('chart')!, input, {
 
 ## Further Reading
 
-- **[Usage Guide](./docs/guide.md)** — All constructor options: locale, theme, grid schema, CSS tokens,
+- **[Usage Guide](https://github.com/doberkofler/gantt-renderer/blob/main/docs/guide.md)** — All constructor options: locale, theme, grid schema, CSS tokens,
   link creation, special days, density constants, and more.
 - **[API Documentation](https://doberkofler.github.io/gantt-renderer/docs/api/)** — TypeDoc-generated
   API reference.
-- **[Contributing](./CONTRIBUTING.md)** — Dev setup, scripts, demo verification, and code conventions.
+- **[Contributing](https://github.com/doberkofler/gantt-renderer/blob/main/CONTRIBUTING.md)** — Dev setup, scripts, demo verification, and code conventions.
