@@ -42,4 +42,21 @@ describe('density', () => {
 		expect(bar).not.toBeNull();
 		expect(bar?.style.height).toBe(`${DENSITY.barHeight}px`);
 	});
+
+	it('positions first bar below the timeline header', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const chart = new GanttChart(container, {scale: 'day'});
+		chart.update(INPUT);
+
+		const rightPane = container.querySelector<HTMLElement>('[data-pane="right"]');
+		expect(rightPane).not.toBeNull();
+		const bar = rightPane?.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+
+		const barTop = bar?.getBoundingClientRect().top ?? 0;
+		const paneTop = rightPane?.getBoundingClientRect().top ?? 0;
+		expect(barTop - paneTop).toBeGreaterThanOrEqual(52);
+	});
 });

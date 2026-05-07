@@ -50,7 +50,7 @@ export function createRightPaneRefs(): RightPaneRefs {
 	const svgLayer = createDependencyLayer(0, 0);
 
 	css(stripeContainer, {position: 'relative'});
-	css(absoluteLayer, {position: 'absolute', top: '0', left: '0'});
+	css(absoluteLayer, {position: 'absolute', top: '52px', left: '0'});
 
 	scrollContainer.append(stripeContainer);
 	scrollContainer.append(absoluteLayer);
