@@ -35,7 +35,7 @@ body {
 	justify-content: space-between;
 	gap: 12px;
 	padding: 10px 12px;
-	background: #ffffff;
+	background: #fff;
 	border: 1px solid #dde2e6;
 	border-radius: 6px;
 	flex-wrap: wrap;
@@ -101,7 +101,7 @@ body {
 	flex-direction: column;
 	gap: 8px;
 	padding: 10px 12px;
-	background: #ffffff;
+	background: #fff;
 	border: 1px solid #dde2e6;
 	border-radius: 6px;
 }
@@ -231,7 +231,7 @@ body {
 	}
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
 	body {
 		padding: 12px;
 	}

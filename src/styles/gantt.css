@@ -20,7 +20,7 @@
 	--gantt-row-height: 44px;
 	--gantt-bar-height: 28px;
 	--gantt-milestone-size: 20px;
-	--gantt-bg: #ffffff;
+	--gantt-bg: #fff;
 	--gantt-header-bg: #f8f9fa;
 	--gantt-stripe: #fafbfc;
 	--gantt-border: #e9ecef;
@@ -50,7 +50,7 @@
 	/* Text */
 	--gantt-text: #212529;
 	--gantt-text-secondary: #868e96;
-	--gantt-bar-label-color: #ffffff;
+	--gantt-bar-label-color: #fff;
 }
 
 /* ─── Root container framing ─────────────────────────────────────────────── */
