@@ -1,6 +1,6 @@
 // ─── Core types ───────────────────────────────────────────────────────────────
 
-export type {Task, Link, GanttInput, TaskType, LinkType, SpecialDayKind, SpecialDay} from './validation/schemas.ts';
+export type {Task, Link, GanttInput, GanttInputRaw, TaskType, LinkType, SpecialDayKind, SpecialDay} from './validation/schemas.ts';
 export type {TimeScale, ScaleConfig} from './timeline/scale.ts';
 export type {TaskNode} from './domain/tree.ts';
 export type {BarLayout} from './timeline/layoutEngine.ts';

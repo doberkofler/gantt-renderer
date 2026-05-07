@@ -40,6 +40,7 @@ export const GanttInputSchema = z.object({
 	links: z.array(LinkSchema).default([]),
 });
 
+export type GanttInputRaw = z.input<typeof GanttInputSchema>;
 export type LinkType = z.infer<typeof LinkTypeSchema>;
 export type TaskType = z.infer<typeof TaskTypeSchema>;
 export type SpecialDayKind = z.infer<typeof SpecialDayKindSchema>;
@@ -55,7 +56,7 @@ export type GanttInput = z.infer<typeof GanttInputSchema>;
  * @returns The parsed and validated {@link GanttInput}.
  * @throws {import('zod').ZodError} On schema validation failure.
  */
-export function parseGanttInput(raw: unknown): GanttInput {
+export function parseGanttInput(raw: GanttInputRaw): GanttInput {
 	return GanttInputSchema.parse(raw);
 }
 
@@ -65,7 +66,7 @@ export function parseGanttInput(raw: unknown): GanttInput {
  * @param raw - The unvalidated input from the consumer.
  * @returns The parsed {@link GanttInput} or `null` when the input is invalid.
  */
-export function safeParseGanttInput(raw: unknown): GanttInput | null {
+export function safeParseGanttInput(raw: GanttInputRaw): GanttInput | null {
 	const result = GanttInputSchema.safeParse(raw);
 	return result.success ? result.data : null;
 }

@@ -1,5 +1,7 @@
 // demo/data.ts
 
+import {type GanttInputRaw} from '../gantt-chart/index.ts';
+
 /** Raw input matching the screenshots. Validated at runtime via parseGanttInput. */
 export const RAW_INPUT = {
 	tasks: [
@@ -51,4 +53,4 @@ export const RAW_INPUT = {
 		{id: 20, source: 1220, target: 1430, type: 'FF'},
 		{id: 21, source: 1310, target: 1320, type: 'SS'},
 	],
-};
+} as const satisfies GanttInputRaw;
