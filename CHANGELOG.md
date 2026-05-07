@@ -1,3 +1,10 @@
+## [0.1.2](https://github.com/doberkofler/gantt-renderer/compare/v0.1.1...v0.1.2) (2026-05-07)
+
+
+### Bug Fixes
+
+* improve the documentation ([948cbf6](https://github.com/doberkofler/gantt-renderer/commit/948cbf62e25272116eea54ef03bf5d5ef522cfe8))
+
 ## [0.1.1](https://github.com/doberkofler/gantt-renderer/compare/v0.1.0...v0.1.1) (2026-05-07)
 
 

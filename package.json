@@ -1,6 +1,6 @@
 {
 	"name": "gantt-renderer",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "A TypeScript Gantt chart renderer for precalculated project plans",
 	"keywords": [
 		"chart",
