@@ -173,7 +173,7 @@ describe('attachLinkEndpointHandle', () => {
 		// Ghost line should be visible (solid since over valid target)
 		const ghost = svgLayer.querySelector<SVGPathElement>('path.gantt-ghost-line');
 		expect(ghost?.style.display).toBe('');
-		expect(ghost?.getAttribute('stroke-dasharray')).toBe('none');
+		expect(ghost?.hasAttribute('stroke-dasharray')).toBe(false);
 		expect(ghost?.getAttribute('marker-end')).toBe('url(#gantt-arrow)');
 
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
