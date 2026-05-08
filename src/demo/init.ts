@@ -1,4 +1,4 @@
-import {GanttChart, parseGanttInput, type GanttCallbacks, type GanttInstance, type GanttOptions, type ThemeMode, type TimeScale} from 'gantt-renderer';
+import {GanttChart, parseGanttInput, type GanttCallbacks, type GanttInstance, type GanttOptions, type ThemeMode, type TimeScale} from '../lib/index.ts';
 import {RAW_INPUT} from './data.ts';
 import '../styles/gantt.css';
 
@@ -94,7 +94,7 @@ export const init = (): void => {
 			const {task} = payload;
 			appendEventLog(
 				[
-					`selected ${task.text}`,
+					`onTaskSelect ${task.text}`,
 					`id=${task.id}`,
 					`start=${task.startDate}`,
 					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
@@ -103,30 +103,28 @@ export const init = (): void => {
 				].join(' | '),
 			);
 		},
-		onTaskMove(payload): boolean {
-			logControlHook('task-move', 'integrated', payload.task.id.toString());
-			console.info('move', payload.task.id, payload.newStartDate.toISOString().slice(0, 10));
-			return true;
-		},
-		onTaskResize(payload): boolean {
-			logControlHook('task-resize', 'integrated', payload.task.id.toString());
-			console.info('resize', payload.task.id, payload.newDurationHours);
-			return true;
-		},
 		onTaskDoubleClick(payload): void {
 			const {task} = payload;
 			appendEventLog(
-				[`edit intent ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`].join(
+				[`onTaskDoubleClick ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`].join(
 					' | ',
 				),
 			);
 		},
+		onTaskMove(payload): boolean {
+			logControlHook('onTaskMove', payload.task.id.toString());
+			return true;
+		},
+		onTaskResize(payload): boolean {
+			logControlHook('onTaskResize', payload.task.id.toString());
+			return true;
+		},
 		onLeftPaneWidthChange(width): void {
-			logControlHook('pane-splitter', 'integrated', `${width}px`);
+			logControlHook('onLeftPaneWidthChange', `${width}px`);
 		},
 		onGridColumnsChange(columns): void {
 			const widths = columns.filter((c) => c.visible !== false).map((c) => `${c.id}:${c.width}`);
-			logControlHook('grid-columns-resize', 'integrated', widths.join(', '));
+			logControlHook('onGridColumnsChange', widths.join(', '));
 		},
 	};
 
@@ -229,23 +227,21 @@ export const init = (): void => {
 
 	const shell = document.querySelector<HTMLElement>('#demo-shell');
 	const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen-btn');
-	const toggleFullscreen = (): void => {
+	const toggleFullscreen = async (): Promise<void> => {
 		if (shell === null || fullscreenButton === null) {
 			return;
 		}
 		if (document.fullscreenElement !== shell) {
-			// oxlint-disable-next-line typescript-eslint/no-floating-promises
-			shell.requestFullscreen();
+			await shell.requestFullscreen();
 			logControlHook('fullscreen', 'integrated', 'enter');
 			return;
 		}
-		// oxlint-disable-next-line typescript-eslint/no-floating-promises
-		document.exitFullscreen();
+		await document.exitFullscreen();
 		logControlHook('fullscreen', 'integrated', 'exit');
 	};
 	if (fullscreenButton !== null) {
-		fullscreenButton.addEventListener('click', (): void => {
-			toggleFullscreen();
+		fullscreenButton.addEventListener('click', () => {
+			void toggleFullscreen();
 		});
 	}
 
