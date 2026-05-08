@@ -5,7 +5,7 @@ import {type Task} from '../validation/schemas.ts';
 describe('selection', () => {
 	const {mountTracked} = createMountHelpers();
 
-	describe('M2 — stop second-click deselect toggle', () => {
+	describe('m2 — stop second-click deselect toggle', () => {
 		it('does not fire onTaskSelect on repeated click of same grid row', () => {
 			const container = document.createElement('div');
 			document.body.append(container);

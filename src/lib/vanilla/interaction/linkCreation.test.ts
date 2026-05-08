@@ -26,7 +26,7 @@ describe('createEndpointHandle', () => {
 		expect(handle.style.borderRadius).toBe('50%');
 		expect(handle.style.cursor).toBe('crosshair');
 		expect(handle.style.opacity).toBe('0');
-		expect(handle.getAttribute('tabindex')).toBe(null); // set by caller
+		expect(handle.getAttribute('tabindex')).toBeNull(); // set by caller
 	});
 });
 

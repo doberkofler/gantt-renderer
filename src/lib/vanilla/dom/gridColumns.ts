@@ -108,8 +108,8 @@ export function visibleColumns(columns: GridColumn[]): GridColumn[] {
 
 export const GRID_COLUMN_FR_MIN_WIDTH = 120;
 
-const PX_RE = /^(\d+(?:\.\d+)?)px$/;
-const FR_RE = /^(\d+(?:\.\d+)?)fr$/;
+const PX_RE = /^(\d+(?:\.\d+)?)px$/u;
+const FR_RE = /^(\d+(?:\.\d+)?)fr$/u;
 
 function parseColumnMinWidth(width: string): number {
 	const trimmed = width.trim();

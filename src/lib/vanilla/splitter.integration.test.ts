@@ -35,7 +35,7 @@ describe('splitter handle (M13)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: startWidth + 40, pointerId: 50}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 50}));
 
-		expect(onSplitterMock).toHaveBeenCalled();
+		expect(onSplitterMock).toHaveBeenCalledWith(expect.any(Number));
 		const newWidth = onSplitterMock.mock.calls[0]?.[0];
 		expect(newWidth).toBeGreaterThan(startWidth);
 	});
@@ -58,8 +58,7 @@ describe('splitter handle (M13)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: -500, pointerId: 51}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 51}));
 
-		expect(onSplitterMock).toHaveBeenCalled();
-		expect(onSplitterMock.mock.calls[0]?.[0]).toBe(96);
+		expect(onSplitterMock).toHaveBeenCalledWith(96);
 	});
 
 	it('enforces right pane minimum width via max left pane', () => {
@@ -81,7 +80,7 @@ describe('splitter handle (M13)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 1000, pointerId: 52}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 52}));
 
-		expect(onSplitterMock).toHaveBeenCalled();
+		expect(onSplitterMock).toHaveBeenCalledWith(expect.any(Number));
 		// 400 - 220 = 180 max left pane
 		expect(onSplitterMock.mock.calls[0]?.[0]).toBeLessThanOrEqual(180);
 	});

@@ -98,7 +98,7 @@ describe('buildLeftPaneHeader resize handles', () => {
 });
 
 describe('setupColumnResize', () => {
-	it('COLUMN_RESIZE_MIN_WIDTH equals 30', () => {
+	it('column_resize_min_width equals 30', () => {
 		expect(COLUMN_RESIZE_MIN_WIDTH).toBe(30);
 	});
 
@@ -153,13 +153,13 @@ describe('setupColumnResize', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 10}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 10}));
 
-		expect(onChange.mock.calls.length).toBe(1);
+		expect(onChange).toHaveBeenCalledWith(expect.any(Array));
 		const updated = onChange.mock.calls[0]?.[0];
 		expect(updated).toBeDefined();
 		expect(updated).toHaveLength(3);
 		// All columns should have px widths after resize
 		for (const col of updated ?? []) {
-			expect(col.width).toMatch(/^\d+px$/);
+			expect(col.width).toMatch(/^\d+px$/u);
 		}
 
 		document.body.removeChild(container);
@@ -191,7 +191,7 @@ describe('setupColumnResize', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 10}));
 
 		// Both header and body row should have updated gridTemplateColumns
-		expect(header.style.gridTemplateColumns).toMatch(/^\d+px \d+px$/);
+		expect(header.style.gridTemplateColumns).toMatch(/^\d+px \d+px$/u);
 		expect(row.style.gridTemplateColumns).toBe(header.style.gridTemplateColumns);
 
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 10}));

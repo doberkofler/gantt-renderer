@@ -25,7 +25,7 @@ describe('tree utilities', () => {
 	it('flattens only expanded branches', () => {
 		const roots = buildTaskTree(tasks);
 		expect(flattenTree(roots, new Set())).toHaveLength(1);
-		expect(flattenTree(roots, new Set([1])).map((n) => n.id)).toEqual([1, 2, 3]);
+		expect(flattenTree(roots, new Set([1])).map((n) => n.id)).toStrictEqual([1, 2, 3]);
 	});
 
 	it('detects parent nodes', () => {

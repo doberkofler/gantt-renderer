@@ -1,7 +1,7 @@
 import {describe, expect, it, vi} from 'vitest';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
 
-describe('C4 — link-creation endpoint controls', () => {
+describe('c4 — link-creation endpoint controls', () => {
 	const {mountTracked} = createMountHelpers();
 
 	it('does not render endpoint handles when linkCreationEnabled is false (default)', () => {
@@ -91,9 +91,8 @@ describe('C4 — link-creation endpoint controls', () => {
 		);
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 10}));
 
-		expect(onLinkCreateMock).toHaveBeenCalled();
+		expect(onLinkCreateMock).toHaveBeenCalledWith(expect.objectContaining({type: 'FS'}));
 		const call = onLinkCreateMock.mock.calls[0]?.[0];
-		expect(call?.type).toBe('FS');
 		expect(call?.sourceTask.id).toBeGreaterThan(0);
 		expect(call?.targetTask.id).toBeGreaterThan(0);
 		expect(call?.sourceTask.id).not.toBe(call?.targetTask.id);
@@ -177,6 +176,6 @@ describe('C4 — link-creation endpoint controls', () => {
 		const handle = container.querySelector<HTMLElement>('.gantt-link-endpoint');
 		expect(handle?.getAttribute('tabindex')).toBe('0');
 		expect(handle?.getAttribute('role')).toBe('button');
-		expect(handle?.getAttribute('aria-label')).toMatch(/Create link from task \d+/);
+		expect(handle?.getAttribute('aria-label')).toMatch(/Create link from task \d+/u);
 	});
 });
