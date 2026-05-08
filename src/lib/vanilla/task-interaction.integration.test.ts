@@ -137,12 +137,16 @@ describe('task interaction', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 		let calledWithPercent = -1;
+		const selectCalls: number[] = [];
 		const onProgressChange = (payload: {newPercentComplete: number}): boolean => {
 			calledWithPercent = payload.newPercentComplete;
 			return false;
 		};
+		const onTaskSelect = (payload: {task: {id: number; percentComplete?: number}}): void => {
+			selectCalls.push(payload.task.percentComplete ?? -1);
+		};
 
-		mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange});
+		const instance = mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange, onTaskSelect});
 
 		const bar = container.querySelector<HTMLElement>('.gantt-bar[aria-label="Task Customer Portal Release"]');
 		const progressOverlay = bar?.querySelector<HTMLElement>('.gantt-progress-overlay');
@@ -152,6 +156,10 @@ describe('task interaction', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 180, pointerId: 5}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 5}));
 
-		expect(calledWithPercent).toBeGreaterThan(0);
+		expect(calledWithPercent).toBeGreaterThan(40);
+		expect(selectCalls.length).toBeGreaterThanOrEqual(1);
+		expect(selectCalls[0]).toBe(40);
+		instance.select(1);
+		expect(selectCalls.at(-1)).toBe(40);
 	});
 });

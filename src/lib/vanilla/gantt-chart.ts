@@ -315,9 +315,9 @@ export class GanttChart implements GanttInstance {
 		this.#assertAlive();
 		validateLinkRefs(newInput.tasks, newInput.links);
 		detectCycles(newInput.tasks, newInput.links);
-		this.#input = newInput;
-		this.#taskIndex = buildTaskIndex(newInput.tasks);
-		this.#expandedIds = getInitialExpandedIds(newInput.tasks);
+		this.#input = structuredClone(newInput);
+		this.#taskIndex = buildTaskIndex(this.#input.tasks);
+		this.#expandedIds = getInitialExpandedIds(this.#input.tasks);
 		if (this.#rafPending && this.#rafId !== null) {
 			cancelAnimationFrame(this.#rafId);
 			this.#rafId = null;
