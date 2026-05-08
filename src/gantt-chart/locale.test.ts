@@ -183,6 +183,10 @@ describe('deriveWeekNumbering', () => {
 	it('returns a valid scheme for language-only code', () => {
 		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('en'));
 	});
+
+	it('returns "us" for es-EC (EC in WEEK_START_REGION but not in WEEK_NUMBERING_REGION)', () => {
+		expect(deriveWeekNumbering('es-EC')).toBe('us');
+	});
 });
 
 describe('formatWeekNumber', () => {

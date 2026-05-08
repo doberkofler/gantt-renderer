@@ -237,4 +237,18 @@ describe('attachLinkEndpointHandle', () => {
 			window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
 		}).not.toThrow();
 	});
+
+	it('handles keyboard Enter and Space on handle', () => {
+		const handle = document.createElement('div');
+		absoluteLayer.append(handle);
+
+		const cbs = mockCbs(vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>());
+		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
+
+		expect(() => {
+			handle.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+			handle.dispatchEvent(new KeyboardEvent('keydown', {key: ' ', bubbles: true}));
+			handle.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+		}).not.toThrow();
+	});
 });

@@ -1,5 +1,3 @@
-// demo/data.ts
-
 import {type GanttInputRaw} from '../gantt-chart/index.ts';
 
 /** Raw input matching the screenshots. Validated at runtime via parseGanttInput. */

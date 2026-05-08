@@ -1,7 +1,9 @@
 import {describe, expect, it} from 'vitest';
 import {
 	addDays,
+	addHours,
 	diffDays,
+	diffHours,
 	formatDisplayDate,
 	formatHeaderLabel,
 	formatUpperLabel,
@@ -71,5 +73,17 @@ describe('dateMath utilities', () => {
 	it('startOfWeek default (Monday) matches previous behavior', () => {
 		const source = new Date('2026-02-18T15:47:13.000Z');
 		expect(startOfWeek(source).toISOString()).toBe('2026-02-16T00:00:00.000Z');
+	});
+
+	it('adds and diffs hours', () => {
+		const start = parseDate('2026-01-01');
+		expect(addHours(start, 5).toISOString()).toBe('2026-01-01T05:00:00.000Z');
+		expect(diffHours(start, addHours(start, 8))).toBe(8);
+	});
+
+	it('formats quarter label with fallback when no custom columnQuarter label', () => {
+		const localeWithoutQuarter: ChartLocale = {code: 'de-DE', labels: {}};
+		const date = new Date('2026-03-10T09:00:00.000Z');
+		expect(formatHeaderLabel(date, 'quarter', localeWithoutQuarter)).toBe('Q1 2026');
 	});
 });

@@ -41,4 +41,16 @@ describe('dom helper utilities', () => {
 		expect(circle.getAttribute('stroke')).toBe('red');
 		expect(circle.getAttribute('stroke-width')).toBe('2');
 	});
+
+	it('creates SVG element without attrs', () => {
+		const rect = svgEl('rect');
+		expect(rect.namespaceURI).toBe('http://www.w3.org/2000/svg');
+		expect(rect.tagName).toBe('rect');
+	});
+
+	it('css handles nullish style values gracefully', () => {
+		const div = document.createElement('div');
+		css(div, {width: undefined as unknown as string});
+		expect(div.style.width).toBe('');
+	});
 });
