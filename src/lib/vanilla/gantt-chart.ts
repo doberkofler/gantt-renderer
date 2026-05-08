@@ -115,7 +115,7 @@ export class GanttChart implements GanttInstance {
 	#rafPending = false;
 	#rafId: number | null = null;
 	#destroyed = false;
-	readonly #dragOriginals = new Map<number, {startDate: string; durationHours: number}>();
+	readonly #dragOriginals = new Map<number, Task>();
 	#taskIndex: Map<number, number>;
 	#lastGridClick: {id: number; atMs: number} | null = null;
 	#userSplitWidth: number | null = null;
@@ -190,7 +190,7 @@ export class GanttChart implements GanttInstance {
 				if (!this.#dragOriginals.has(payload.id)) {
 					const task = this.#input?.tasks.find((t) => t.id === payload.id);
 					if (task !== undefined) {
-						this.#dragOriginals.set(payload.id, {startDate: task.startDate, durationHours: task.durationHours});
+						this.#dragOriginals.set(payload.id, task);
 					}
 				}
 				const iso = payload.startDate.toISOString().slice(0, 10);
@@ -216,7 +216,7 @@ export class GanttChart implements GanttInstance {
 				if (!this.#dragOriginals.has(payload.id)) {
 					const task = this.#input?.tasks.find((t) => t.id === payload.id);
 					if (task !== undefined) {
-						this.#dragOriginals.set(payload.id, {startDate: task.startDate, durationHours: task.durationHours});
+						this.#dragOriginals.set(payload.id, task);
 					}
 				}
 				this.#patchTask(payload.id, {durationHours: payload.durationHours});
@@ -228,7 +228,7 @@ export class GanttChart implements GanttInstance {
 					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours});
 					if (result === false) {
 						const original = this.#dragOriginals.get(payload.id);
-						if (original !== undefined) {
+						if (original !== undefined && original.kind !== 'milestone') {
 							this.#patchTask(payload.id, {durationHours: original.durationHours});
 						}
 					}
@@ -509,7 +509,7 @@ export class GanttChart implements GanttInstance {
 		if (target === undefined) {
 			return;
 		}
-		this.#input.tasks[index] = {...target, ...patch};
+		this.#input.tasks[index] = {...target, ...patch} as Task;
 	}
 
 	#findTask(id: number): Task | undefined {

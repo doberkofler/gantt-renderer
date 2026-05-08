@@ -3,13 +3,20 @@ import {type ChartLocale, EN_US_LABELS} from '../../locale.ts';
 import {type Task} from '../../validation/schemas.ts';
 import {type TaskNode} from '../../domain/tree.ts';
 
+/**
+ * Union of all field names that can appear on any {@link Task} variant.
+ * Use when referencing task fields in grid column schemas that apply
+ * across a heterogeneous set of task kinds.
+ */
+export type TaskDataField = keyof Task | 'durationHours' | 'percentComplete' | 'open';
+
 export type GridColumn = {
 	id: string;
 	header: string;
 	width: string;
 	align?: 'left' | 'center' | 'right';
 	visible?: boolean;
-	field?: keyof Task;
+	field?: TaskDataField;
 	format?: (value: unknown, task: Task, row: TaskNode, locale: ChartLocale) => string;
 };
 
@@ -31,7 +38,7 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 		header: 'Duration',
 		width: '68px',
 		field: 'durationHours',
-		format: (value) => ((value as number) > 0 ? String(value) : '—'),
+		format: (value) => ((value as number) > 0 ? String(value) : '\u2014'),
 	},
 	{
 		id: 'actions',
@@ -66,7 +73,7 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 			header: locale.labels?.columnDuration ?? EN_US_LABELS.columnDuration,
 			width: '68px',
 			field: 'durationHours',
-			format: (value) => ((value as number) > 0 ? String(value) : '—'),
+			format: (value) => ((value as number) > 0 ? String(value) : '\u2014'),
 		},
 		{
 			id: 'actions',

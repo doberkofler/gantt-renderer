@@ -70,7 +70,7 @@ export function getInitialExpandedIds(tasks: GanttInput['tasks']): Set<number> {
 	const expandableIds = getExpandableTaskIds(tasks);
 	const expandedIds = new Set<number>();
 	for (const task of tasks) {
-		if (task.open && expandableIds.has(task.id)) {
+		if (task.kind === 'project' && task.open && expandableIds.has(task.id)) {
 			expandedIds.add(task.id);
 		}
 	}

@@ -10,8 +10,7 @@ const baseRows: TaskNode[] = [
 		startDate: '2026-01-01',
 		durationHours: 72,
 		percentComplete: 50,
-		type: 'task',
-		open: true,
+		kind: 'task',
 		depth: 0,
 		children: [],
 	},
@@ -19,10 +18,7 @@ const baseRows: TaskNode[] = [
 		id: 2,
 		text: 'Milestone',
 		startDate: '2026-01-03',
-		durationHours: 0,
-		percentComplete: 0,
-		type: 'milestone',
-		open: true,
+		kind: 'milestone',
 		depth: 0,
 		children: [],
 	},
@@ -51,7 +47,7 @@ describe('layoutEngine utilities', () => {
 
 		expect(milestone).toBeDefined();
 		expect(milestone?.width).toBe(0);
-		expect(milestone?.type).toBe('milestone');
+		expect(milestone?.kind).toBe('milestone');
 	});
 
 	it('clamps progress and enforces minimum width for non-milestones', () => {
@@ -61,10 +57,9 @@ describe('layoutEngine utilities', () => {
 				id: 9,
 				text: 'Tiny',
 				startDate: '2026-01-01',
-				durationHours: 0,
+				durationHours: 1,
 				percentComplete: 900,
-				type: 'task',
-				open: true,
+				kind: 'task',
 				depth: 0,
 				children: [],
 			},

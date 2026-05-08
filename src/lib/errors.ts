@@ -1,4 +1,11 @@
-export type GanttErrorCode = 'PARENT_REFERENCE' | 'LINK_REFERENCE' | 'DEPENDENCY_CYCLE' | 'INSTANCE_DESTROYED';
+export type GanttErrorCode =
+	| 'PARENT_REFERENCE'
+	| 'PARENT_CYCLE'
+	| 'LINK_REFERENCE'
+	| 'DEPENDENCY_CYCLE'
+	| 'MILESTONE_LINK_TYPE'
+	| 'DUPLICATE_LINK_PAIR'
+	| 'INSTANCE_DESTROYED';
 
 /**
  * Domain-specific error with a machine-readable {@link GanttErrorCode}.

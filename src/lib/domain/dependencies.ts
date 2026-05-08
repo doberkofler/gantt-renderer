@@ -65,20 +65,40 @@ export function detectCycles(tasks: Task[], links: Link[]): void {
 }
 
 /**
- * Validates that every link references existing task IDs.
+ * Validates that every link references existing task IDs and that no
+ * duplicate (source, target) pairs exist.
  *
  * @param tasks - The task list (used as the reference set of valid IDs).
  * @param links - The dependency links to validate.
- * @throws {GanttError} When any link references a non-existent source or target task.
+ * @throws {GanttError} When any link references a non-existent source or target task,
+ *         when a non-FS link connects to/from a milestone, or when duplicate
+ *         (source, target) pairs exist.
  */
 export function validateLinkRefs(tasks: Task[], links: Link[]): void {
 	const ids = new Set(tasks.map((t) => t.id));
+	const taskById = new Map(tasks.map((t) => [t.id, t]));
+	const pairKeys = new Set<string>();
+
 	for (const link of links) {
 		if (!ids.has(link.source)) {
 			throw new GanttError('LINK_REFERENCE', `Link id=${link.id}: source=${link.source} not found`);
 		}
 		if (!ids.has(link.target)) {
 			throw new GanttError('LINK_REFERENCE', `Link id=${link.id}: target=${link.target} not found`);
+		}
+
+		const pairKey = `${link.source}:${link.target}`;
+		if (pairKeys.has(pairKey)) {
+			throw new GanttError('DUPLICATE_LINK_PAIR', `Link id=${link.id}: duplicate pair source=${link.source} target=${link.target}`);
+		}
+		pairKeys.add(pairKey);
+
+		if (link.type !== 'FS') {
+			const sourceTask = taskById.get(link.source);
+			const targetTask = taskById.get(link.target);
+			if (sourceTask?.kind === 'milestone' || targetTask?.kind === 'milestone') {
+				throw new GanttError('MILESTONE_LINK_TYPE', `Link id=${link.id}: non-FS type '${link.type}' not allowed when connected to a milestone`);
+			}
 		}
 	}
 }

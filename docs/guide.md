@@ -11,15 +11,15 @@ import 'gantt-renderer/styles/gantt.css';
 
 const rawData = {
 	tasks: [
-		{id: 1, text: 'Website Redesign', startDate: '2026-06-01', durationHours: 360, type: 'project', open: true, percentComplete: 40},
-		{id: 2, text: 'Design Phase',     startDate: '2026-06-01', durationHours: 120, parent: 1, type: 'project', open: true, percentComplete: 90},
-		{id: 3, text: 'Wireframes',       startDate: '2026-06-01', durationHours: 40,  parent: 2, type: 'task', percentComplete: 100},
-		{id: 4, text: 'Mockups',          startDate: '2026-06-05', durationHours: 56,  parent: 2, type: 'task', percentComplete: 85},
-		{id: 5, text: 'Design Sign-Off',  startDate: '2026-06-09', durationHours: 0,   parent: 2, type: 'milestone', percentComplete: 0},
-		{id: 6, text: 'Development',      startDate: '2026-06-10', durationHours: 200, parent: 1, type: 'project', open: true, percentComplete: 30},
-		{id: 7, text: 'Frontend Build',   startDate: '2026-06-10', durationHours: 100, parent: 6, type: 'task', percentComplete: 40},
-		{id: 8, text: 'Backend API',      startDate: '2026-06-12', durationHours: 80,  parent: 6, type: 'task', percentComplete: 25},
-		{id: 9, text: 'Launch',           startDate: '2026-06-26', durationHours: 0,   parent: 1, type: 'milestone', percentComplete: 0},
+		{id: 1, text: 'Website Redesign', startDate: '2026-06-01', durationHours: 360, kind: 'project', open: true, percentComplete: 40},
+		{id: 2, text: 'Design Phase',     startDate: '2026-06-01', durationHours: 120, parent: 1, kind: 'project', open: true, percentComplete: 90},
+		{id: 3, text: 'Wireframes',       startDate: '2026-06-01', durationHours: 40,  parent: 2, kind: 'task', percentComplete: 100},
+		{id: 4, text: 'Mockups',          startDate: '2026-06-05', durationHours: 56,  parent: 2, kind: 'task', percentComplete: 85},
+		{id: 5, text: 'Design Sign-Off',  startDate: '2026-06-09', parent: 2, kind: 'milestone'},
+		{id: 6, text: 'Development',      startDate: '2026-06-10', durationHours: 200, parent: 1, kind: 'project', open: true, percentComplete: 30},
+		{id: 7, text: 'Frontend Build',   startDate: '2026-06-10', durationHours: 100, parent: 6, kind: 'task', percentComplete: 40},
+		{id: 8, text: 'Backend API',      startDate: '2026-06-12', durationHours: 80,  parent: 6, kind: 'task', percentComplete: 25},
+		{id: 9, text: 'Launch',           startDate: '2026-06-26', parent: 1, kind: 'milestone'},
 	],
 	links: [
 		{id: 1, source: 3, target: 4, type: 'FS'},
@@ -199,7 +199,7 @@ Return `false` from the callback to abort the resize and revert the task to its 
 
 **Edge cases:**
 
-- Milestone bars (`durationHours: 0`) do not show a resize handle and cannot trigger this callback.
+- Milestone bars do not show a resize handle and cannot trigger this callback.
 - The minimum post-resize duration is 1 hour.
 - The callback does not fire if the pointer returns to the original width before release.
 
@@ -270,10 +270,10 @@ bar. Link creation must be enabled via the `linkCreationEnabled` option.
 
 | Payload field | Type | Description |
 |---|---|---|
-| `type` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
+| `kind` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
 | `sourceTask` | `Task` | The full predecessor task. |
 | `targetTask` | `Task` | The full successor task. |
-| `type` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
+| `kind` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
 
 **Behavior:**
 
@@ -404,8 +404,7 @@ export type GanttInput = {
 ```
 
 Pass your raw data through `parseGanttInput(yourData)` to validate against the `zod` schemas
-and get back a fully typed `GanttInput` with defaults applied. Use `safeParseGanttInput(yourData)`
-if you prefer a `null` return on failure instead of throwing.
+and get back a fully typed `GanttInput` with defaults applied.
 
 #### `Task`
 
@@ -420,20 +419,18 @@ or a zero-duration milestone.
 | `durationHours` | `number` | **yes** | — | Duration in hours; `0` = milestone. |
 | `parent` | `number` | no | — | `id` of the parent task. When set, this task becomes a child in the tree hierarchy. |
 | `percentComplete` | `number` | no | `0` | Completion percentage from `0` to `100` (integer). Rendered as a darker fill inside the task bar. |
-| `type` | `TaskType` | no | `'task'` | Row type (see below). |
-| `open` | `boolean` | no | `true` | Initial tree expand/collapse state. Only relevant for tasks with children. |
-| `color` | `string` | no | — | Optional CSS color override for the task bar. |
+| `kind` | `TaskKind` | no | `'task'` | Row variant (see below). |
 
-##### Task type values (`TaskType`)
+##### Task kind values (`TaskKind`)
 
 | Value | Description |
 |---|---|
 | `'task'` | A regular task with a colored bar. |
 | `'project'` | A summary / group row with a colored bar. Same visual as `'task'`. |
-| `'milestone'` | A zero-duration marker rendered as a diamond. Must have `durationHours: 0`. |
+| `'milestone'` | A zero-duration marker rendered as a diamond (no `durationHours` field). |
 
 Tasks with `type: 'project'` typically have children. The chart uses the `parent` field —
-not the `type` — to build the tree hierarchy.
+not the `kind` — to build the tree hierarchy.
 
 #### `Link`
 
@@ -444,7 +441,7 @@ Each `Link` object defines a dependency arrow between two tasks.
 | `id` | `number` | **yes** | — | Unique positive integer identifier for the link. |
 | `source` | `number` | **yes** | — | The `id` of the predecessor task. |
 | `target` | `number` | **yes** | — | The `id` of the successor task. |
-| `type` | `LinkType` | no | `'FS'` | Dependency constraint type (see below). |
+| `kind` | `LinkType` | no | `'FS'` | Dependency constraint type (see below). |
 
 ##### Link type values (`LinkType`)
 
@@ -881,6 +878,6 @@ The primary entrypoint is `src/lib/index.ts`, which exports:
 
 - Core input and domain types (`Task`, `Link`, `GanttInput`, `TaskNode`, and related types).
 - Locale types and utilities (`ChartLocale`, `LocaleLabelKey`, `resolveChartLocale`, `deriveWeekendDays`, etc.).
-- Validation helpers (`parseGanttInput`, `safeParseGanttInput`, and schemas).
+- Validation helpers (`parseGanttInput` and schemas).
 - Timeline/domain utilities (`computeLayout`, `createPixelMapper`, `routeLinks`, and others).
 - Vanilla chart class (`GanttChart`) and instance/callback types.

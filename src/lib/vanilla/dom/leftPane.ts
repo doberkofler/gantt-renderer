@@ -18,18 +18,55 @@ export type LeftPaneCallbacks = {
 	onTaskAdd: (id: number) => void;
 };
 
-function toTask(row: TaskNode): Task {
-	return {
-		id: row.id,
-		text: row.text,
-		startDate: row.startDate,
-		durationHours: row.durationHours,
-		percentComplete: row.percentComplete,
-		type: row.type,
-		open: row.open,
-		...(row.parent === undefined ? {} : {parent: row.parent}),
-		...(row.color === undefined ? {} : {color: row.color}),
+export function toTask(node: TaskNode): Task {
+	const base = {
+		id: node.id,
+		text: node.text,
+		startDate: node.startDate,
+		...(node.parent === undefined ? {} : {parent: node.parent}),
+		...(node.color === undefined ? {} : {color: node.color}),
+		...(node.data === undefined ? {} : {data: node.data}),
 	};
+
+	switch (node.kind) {
+		case 'task': {
+			return {
+				...base,
+				kind: 'task',
+				durationHours: node.durationHours,
+				percentComplete: node.percentComplete,
+			};
+		}
+		case 'project': {
+			return {
+				...base,
+				kind: 'project',
+				durationHours: node.durationHours,
+				percentComplete: node.percentComplete,
+				open: node.open,
+			};
+		}
+		case 'milestone': {
+			return {...base, kind: 'milestone'};
+		}
+	}
+}
+
+function getTaskField(task: Task, field: string): unknown {
+	switch (field) {
+		case 'durationHours': {
+			return task.kind !== 'milestone' ? task.durationHours : undefined;
+		}
+		case 'percentComplete': {
+			return task.kind !== 'milestone' ? task.percentComplete : undefined;
+		}
+		case 'open': {
+			return task.kind === 'project' ? task.open : undefined;
+		}
+		default: {
+			return (task as Record<string, unknown>)[field];
+		}
+	}
 }
 
 function buildTreeNameCell(row: TaskNode, expandedIds: Set<number>, cbs: LeftPaneCallbacks): HTMLElement {
@@ -48,7 +85,7 @@ function buildTreeNameCell(row: TaskNode, expandedIds: Set<number>, cbs: LeftPan
 	if (hasChildren) {
 		const btn = el('button');
 		btn.className = 'gantt-toggle';
-		btn.textContent = expanded ? '▾' : '▸';
+		btn.textContent = expanded ? '\u25BE' : '\u25B8';
 		css(btn, {
 			width: '16px',
 			height: '16px',
@@ -77,7 +114,7 @@ function buildTreeNameCell(row: TaskNode, expandedIds: Set<number>, cbs: LeftPan
 	const label = el('span');
 	css(label, {
 		fontSize: 'var(--gantt-font-size-md)',
-		fontWeight: row.type === 'project' ? 'var(--gantt-font-weight-bold)' : 'var(--gantt-font-weight-normal)',
+		fontWeight: row.kind === 'project' ? 'var(--gantt-font-weight-bold)' : 'var(--gantt-font-weight-normal)',
 		color: 'var(--gantt-text)',
 		overflow: 'hidden',
 		textOverflow: 'ellipsis',
@@ -106,11 +143,16 @@ function buildDataCell(row: TaskNode, column: GridColumn, locale: ChartLocale): 
 
 	const task = toTask(row);
 	if (column.field !== undefined) {
-		const rawValue = task[column.field];
+		const rawValue = getTaskField(task, column.field);
 		if (column.format !== undefined) {
 			cell.textContent = column.format(rawValue, task, row, locale);
 		} else {
-			cell.textContent = rawValue !== null && rawValue !== undefined ? String(rawValue) : '';
+			cell.textContent =
+				rawValue !== null && rawValue !== undefined
+					? typeof rawValue === 'object'
+						? JSON.stringify(rawValue)
+						: String(rawValue as string | number | boolean)
+					: '';
 		}
 	}
 

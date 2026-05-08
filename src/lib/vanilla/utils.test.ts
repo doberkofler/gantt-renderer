@@ -1,14 +1,14 @@
 import {describe, expect, it} from 'vitest';
 import {buildTaskIndex, toIsoDate, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
-import {type SpecialDay} from '../validation/schemas.ts';
+import {type SpecialDay, type Task} from '../validation/schemas.ts';
 
 describe('utils', () => {
 	describe('buildTaskIndex', () => {
 		it('maps task ids to array indices', () => {
-			const tasks = [
-				{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, type: 'task' as const, open: true},
-				{id: 5, text: 'B', startDate: '2026-01-02', durationHours: 48, percentComplete: 0, type: 'task' as const, open: true},
-				{id: 3, text: 'C', startDate: '2026-01-03', durationHours: 72, percentComplete: 0, type: 'task' as const, open: true},
+			const tasks: Task[] = [
+				{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'},
+				{id: 5, text: 'B', startDate: '2026-01-02', durationHours: 48, percentComplete: 0, kind: 'task'},
+				{id: 3, text: 'C', startDate: '2026-01-03', durationHours: 72, percentComplete: 0, kind: 'task'},
 			];
 			const index = buildTaskIndex(tasks);
 			expect(index.get(1)).toBe(0);
@@ -64,10 +64,10 @@ describe('utils', () => {
 
 	describe('getExpandableTaskIds', () => {
 		it('returns ids of tasks with children', () => {
-			const tasks = [
-				{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, type: 'project' as const, open: true},
-				{id: 2, text: 'Child', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, type: 'task' as const, parent: 1, open: true},
-				{id: 3, text: 'Leaf', startDate: '2026-01-01', durationHours: 48, percentComplete: 0, type: 'task' as const, open: true},
+			const tasks: Task[] = [
+				{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, kind: 'project', open: true},
+				{id: 2, text: 'Child', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, kind: 'task', parent: 1},
+				{id: 3, text: 'Leaf', startDate: '2026-01-01', durationHours: 48, percentComplete: 0, kind: 'task'},
 			];
 			const ids = getExpandableTaskIds(tasks);
 			expect(ids.has(1)).toBe(true);
@@ -76,18 +76,18 @@ describe('utils', () => {
 		});
 
 		it('returns empty set when no tasks have children', () => {
-			const tasks = [{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, type: 'task' as const, open: true}];
+			const tasks: Task[] = [{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'}];
 			expect(getExpandableTaskIds(tasks).size).toBe(0);
 		});
 	});
 
 	describe('getInitialExpandedIds', () => {
 		it('returns ids of tasks marked open that have children', () => {
-			const tasks = [
-				{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, type: 'project' as const, open: true},
-				{id: 2, text: 'Child', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, type: 'task' as const, parent: 1, open: true},
-				{id: 3, text: 'Closed', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, type: 'project' as const, open: false},
-				{id: 4, text: 'Child2', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, type: 'task' as const, parent: 3, open: true},
+			const tasks: Task[] = [
+				{id: 1, text: 'Root', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, kind: 'project', open: true},
+				{id: 2, text: 'Child', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, kind: 'task', parent: 1},
+				{id: 3, text: 'Closed', startDate: '2026-01-01', durationHours: 120, percentComplete: 0, kind: 'project', open: false},
+				{id: 4, text: 'Child2', startDate: '2026-01-01', durationHours: 72, percentComplete: 0, kind: 'task', parent: 3},
 			];
 			const ids = getInitialExpandedIds(tasks);
 			expect(ids.has(1)).toBe(true);

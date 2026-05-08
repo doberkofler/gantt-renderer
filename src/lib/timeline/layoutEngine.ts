@@ -24,7 +24,7 @@ export type BarLayout = {
 	width: number;
 	height: number;
 	progressWidth: number;
-	type: 'task' | 'project' | 'milestone';
+	kind: 'task' | 'project' | 'milestone';
 	rowIndex: number;
 	/** Center x; identical to x + width/2 or x for milestones */
 	centerX: number;
@@ -53,9 +53,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 		const y = i * ROW_HEIGHT + BAR_Y_OFFSET;
 		const centerY = i * ROW_HEIGHT + ROW_HEIGHT / 2;
 
-		const type = task.type ?? 'task';
-
-		if (type === 'milestone') {
+		if (task.kind === 'milestone') {
 			result.set(task.id, {
 				taskId: task.id,
 				x,
@@ -63,7 +61,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 				width: 0,
 				height: BAR_HEIGHT,
 				progressWidth: 0,
-				type: 'milestone',
+				kind: 'milestone',
 				rowIndex: i,
 				centerX: x,
 				centerY,
@@ -81,7 +79,7 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 			width,
 			height: BAR_HEIGHT,
 			progressWidth,
-			type,
+			kind: task.kind,
 			rowIndex: i,
 			centerX: x + width / 2,
 			centerY,
@@ -119,12 +117,16 @@ export function deriveViewport(tasks: TaskNode[], paddingHours = 48): [Date, Dat
 
 	for (const task of tasks) {
 		const start = parseDate(task.startDate);
-		const end = addHours(start, task.durationHours);
 		if (start.getTime() < minMs) {
 			minMs = start.getTime();
 		}
-		if (end.getTime() > maxMs) {
-			maxMs = end.getTime();
+		if (task.kind !== 'milestone') {
+			const end = addHours(start, task.durationHours);
+			if (end.getTime() > maxMs) {
+				maxMs = end.getTime();
+			}
+		} else if (start.getTime() > maxMs) {
+			maxMs = start.getTime();
 		}
 	}
 

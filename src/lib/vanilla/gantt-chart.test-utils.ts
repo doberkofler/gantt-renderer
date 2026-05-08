@@ -4,11 +4,11 @@ import {type GanttInput} from '../validation/schemas.ts';
 
 export const INPUT: GanttInput = {
 	tasks: [
-		{id: 1, text: 'Customer Portal Release', startDate: '2026-02-01', durationHours: 288, percentComplete: 40, type: 'project', open: true},
-		{id: 2, text: 'Discovery Sprint', startDate: '2026-02-01', durationHours: 72, percentComplete: 90, type: 'task', parent: 1, open: true},
-		{id: 3, text: 'API Implementation', startDate: '2026-02-04', durationHours: 120, percentComplete: 45, type: 'task', parent: 1, open: true},
-		{id: 4, text: 'Frontend Implementation', startDate: '2026-02-05', durationHours: 120, percentComplete: 30, type: 'task', parent: 1, open: true},
-		{id: 5, text: 'UAT Exit Milestone', startDate: '2026-02-12', durationHours: 0, percentComplete: 0, type: 'milestone', parent: 1, open: true},
+		{id: 1, text: 'Customer Portal Release', startDate: '2026-02-01', durationHours: 288, percentComplete: 40, kind: 'project', open: true},
+		{id: 2, text: 'Discovery Sprint', startDate: '2026-02-01', durationHours: 72, percentComplete: 90, kind: 'task', parent: 1},
+		{id: 3, text: 'API Implementation', startDate: '2026-02-04', durationHours: 120, percentComplete: 45, kind: 'task', parent: 1},
+		{id: 4, text: 'Frontend Implementation', startDate: '2026-02-05', durationHours: 120, percentComplete: 30, kind: 'task', parent: 1},
+		{id: 5, text: 'UAT Exit Milestone', startDate: '2026-02-12', kind: 'milestone', parent: 1},
 	],
 	links: [
 		{id: 1, source: 2, target: 3, type: 'FS'},

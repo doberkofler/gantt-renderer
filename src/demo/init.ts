@@ -97,9 +97,9 @@ export const init = (): void => {
 					`selected ${task.text}`,
 					`id=${task.id}`,
 					`start=${task.startDate}`,
-					`durationHours=${task.durationHours}h`,
-					`type=${task.type}`,
-					`percentComplete=${task.percentComplete}%`,
+					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
+					`kind=${task.kind}`,
+					`percentComplete=${task.kind !== 'milestone' ? task.percentComplete : 0}%`,
 				].join(' | '),
 			);
 		},
@@ -115,7 +115,11 @@ export const init = (): void => {
 		},
 		onTaskDoubleClick(payload): void {
 			const {task} = payload;
-			appendEventLog([`edit intent ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.durationHours}h`].join(' | '));
+			appendEventLog(
+				[`edit intent ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`].join(
+					' | ',
+				),
+			);
 		},
 		onLeftPaneWidthChange(width): void {
 			logControlHook('pane-splitter', 'integrated', `${width}px`);

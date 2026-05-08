@@ -1,6 +1,18 @@
 // ─── Core types ───────────────────────────────────────────────────────────────
 
-export type {Task, Link, GanttInput, GanttInputRaw, TaskType, LinkType, SpecialDayKind, SpecialDay} from './validation/schemas.ts';
+export type {
+	Task,
+	TaskLeaf,
+	TaskProject,
+	TaskMilestone,
+	Link,
+	GanttInput,
+	GanttInputRaw,
+	TaskKind,
+	LinkType,
+	SpecialDayKind,
+	SpecialDay,
+} from './validation/schemas.ts';
 export type {TimeScale, ScaleConfig} from './timeline/scale.ts';
 export type {TaskNode} from './domain/tree.ts';
 export type {BarLayout} from './timeline/layoutEngine.ts';
@@ -14,11 +26,10 @@ export {
 	TaskSchema,
 	LinkSchema,
 	LinkTypeSchema,
-	TaskTypeSchema,
+	TaskKindSchema,
 	SpecialDayKindSchema,
 	SpecialDaySchema,
 	parseGanttInput,
-	safeParseGanttInput,
 } from './validation/schemas.ts';
 
 // ─── Domain ───────────────────────────────────────────────────────────────────
@@ -62,5 +73,6 @@ export {
 	gridNaturalWidth,
 	GRID_COLUMN_FR_MIN_WIDTH,
 } from './vanilla/dom/gridColumns.ts';
+export type {TaskDataField} from './vanilla/dom/gridColumns.ts';
 export {GanttError} from './errors.ts';
 export type {GanttErrorCode} from './errors.ts';

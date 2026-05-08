@@ -49,12 +49,11 @@ export function taskNode(overrides: Partial<TaskNode> = {}): TaskNode {
 		startDate: '2026-01-15',
 		durationHours: 120,
 		percentComplete: 30,
-		type: 'task',
-		open: true,
+		kind: 'task' as const,
 		children: [],
 		depth: 0,
 		...overrides,
-	};
+	} as TaskNode;
 }
 
 export function projectNode(overrides: Partial<TaskNode> & {children?: TaskNode[]} = {}): TaskNode {
@@ -65,10 +64,10 @@ export function projectNode(overrides: Partial<TaskNode> & {children?: TaskNode[
 		startDate: '2026-01-01',
 		durationHours: 480,
 		percentComplete: 50,
-		type: 'project',
+		kind: 'project' as const,
 		open: true,
 		children,
 		depth: 0,
 		...overrides,
-	};
+	} as TaskNode;
 }

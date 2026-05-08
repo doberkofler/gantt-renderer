@@ -12,18 +12,38 @@ type InternalCallbacks = {
 	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
 };
 
-function toTask(row: TaskNode): Task {
-	return {
-		id: row.id,
-		text: row.text,
-		startDate: row.startDate,
-		durationHours: row.durationHours,
-		percentComplete: row.percentComplete,
-		type: row.type,
-		open: row.open,
-		...(row.parent === undefined ? {} : {parent: row.parent}),
-		...(row.color === undefined ? {} : {color: row.color}),
+function toTask(node: TaskNode): Task {
+	const base = {
+		id: node.id,
+		text: node.text,
+		startDate: node.startDate,
+		...(node.parent === undefined ? {} : {parent: node.parent}),
+		...(node.color === undefined ? {} : {color: node.color}),
+		...(node.data === undefined ? {} : {data: node.data}),
 	};
+
+	switch (node.kind) {
+		case 'task': {
+			return {
+				...base,
+				kind: 'task',
+				durationHours: node.durationHours,
+				percentComplete: node.percentComplete,
+			};
+		}
+		case 'project': {
+			return {
+				...base,
+				kind: 'project',
+				durationHours: node.durationHours,
+				percentComplete: node.percentComplete,
+				open: node.open,
+			};
+		}
+		case 'milestone': {
+			return {...base, kind: 'milestone'};
+		}
+	}
 }
 
 /**
@@ -89,7 +109,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		}
 
 		const startX = e.clientX;
-		const origDur = task.durationHours;
+		const origDur = task.kind !== 'milestone' ? task.durationHours : 0;
 		const mapper = getMapper();
 
 		let lastDuration = origDur;

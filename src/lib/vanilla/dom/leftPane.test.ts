@@ -46,7 +46,7 @@ describe('renderLeftPane', () => {
 
 	it('renders zero-duration as em dash in duration column', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Milestone', durationHours: 0, type: 'milestone'});
+		const node = taskNode({id: 1, text: 'Milestone', kind: 'milestone'});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 

@@ -143,7 +143,7 @@ function renderBar(
 	cbs: RightPaneCallbacks,
 ): void {
 	const selected = task.id === selectedId;
-	const color = BAR_COLOR[layout.type] ?? BAR_COLOR['task'];
+	const color = BAR_COLOR[layout.kind] ?? BAR_COLOR['task'];
 
 	const bar = el('div');
 	bar.className = `gantt-bar${selected ? ' gantt-bar--selected gantt-shape--selected' : ''}`;
@@ -154,7 +154,7 @@ function renderBar(
 		width: `${layout.width}px`,
 		height: `${layout.height}px`,
 		...(color === undefined ? {} : {background: color}),
-		borderRadius: layout.type === 'project' ? '3px' : '4px',
+		borderRadius: layout.kind === 'project' ? '3px' : '4px',
 		cursor: 'grab',
 		userSelect: 'none',
 		overflow: 'hidden',
@@ -521,7 +521,7 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Rig
 			continue;
 		}
 
-		if (layout.type === 'milestone') {
+		if (layout.kind === 'milestone') {
 			renderMilestone(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, cbs, state);
 		} else {
 			renderBar(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, state, cbs);

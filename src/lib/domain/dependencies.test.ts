@@ -3,9 +3,9 @@ import {detectCycles, validateLinkRefs} from './dependencies.ts';
 import {type Link, type Task} from '../validation/schemas.ts';
 
 const tasks: Task[] = [
-	{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, type: 'task', open: true},
-	{id: 2, text: 'B', startDate: '2026-01-02', durationHours: 24, percentComplete: 0, type: 'task', open: true},
-	{id: 3, text: 'C', startDate: '2026-01-03', durationHours: 24, percentComplete: 0, type: 'task', open: true},
+	{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'},
+	{id: 2, text: 'B', startDate: '2026-01-02', durationHours: 24, percentComplete: 0, kind: 'task'},
+	{id: 3, text: 'C', startDate: '2026-01-03', durationHours: 24, percentComplete: 0, kind: 'task'},
 ];
 
 describe('dependency utilities', () => {
@@ -31,14 +31,23 @@ describe('dependency utilities', () => {
 		}).toThrow('target=99 not found');
 	});
 
-	it('throws when cycle is detected', () => {
-		const links: Link[] = [
-			{id: 1, source: 1, target: 2, type: 'FS'},
-			{id: 2, source: 2, target: 3, type: 'FS'},
-			{id: 3, source: 3, target: 1, type: 'FS'},
+	it('throws when non-FS link connects to a milestone', () => {
+		const milestoneTasks: Task[] = [
+			{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'},
+			{id: 2, text: 'M', startDate: '2026-01-02', kind: 'milestone'},
 		];
 		expect(() => {
-			detectCycles(tasks, links);
-		}).toThrow('Circular dependency detected');
+			validateLinkRefs(milestoneTasks, [{id: 1, source: 1, target: 2, type: 'SS'}] as Link[]);
+		}).toThrow("non-FS type 'SS'");
+	});
+
+	it('throws on duplicate link pairs', () => {
+		const links: Link[] = [
+			{id: 1, source: 1, target: 2, type: 'FS'},
+			{id: 2, source: 1, target: 2, type: 'FS'},
+		];
+		expect(() => {
+			validateLinkRefs(tasks, links);
+		}).toThrow('duplicate pair');
 	});
 });

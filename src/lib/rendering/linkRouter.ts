@@ -97,10 +97,10 @@ function isExitRight(type: Link['type']): boolean {
  * @throws {Error} if the link type is not handled (exhaustiveness guard).
  */
 function getAnchors(type: Link['type'], src: BarLayout, tgt: BarLayout): {sx: number; tx: number} {
-	const srcRight = src.type === 'milestone' ? src.x + MILESTONE_HALF : src.x + src.width;
-	const srcLeft = src.type === 'milestone' ? src.x - MILESTONE_HALF : src.x;
-	const tgtRight = tgt.type === 'milestone' ? tgt.x + MILESTONE_HALF : tgt.x + tgt.width;
-	const tgtLeft = tgt.type === 'milestone' ? tgt.x - MILESTONE_HALF : tgt.x;
+	const srcRight = src.kind === 'milestone' ? src.x + MILESTONE_HALF : src.x + src.width;
+	const srcLeft = src.kind === 'milestone' ? src.x - MILESTONE_HALF : src.x;
+	const tgtRight = tgt.kind === 'milestone' ? tgt.x + MILESTONE_HALF : tgt.x + tgt.width;
+	const tgtLeft = tgt.kind === 'milestone' ? tgt.x - MILESTONE_HALF : tgt.x;
 
 	switch (type) {
 		case 'FS': {

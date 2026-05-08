@@ -3,7 +3,7 @@ import {routeLinks, type Point} from './linkRouter.ts';
 import {type BarLayout} from '../timeline/layoutEngine.ts';
 import {type Link} from '../validation/schemas.ts';
 
-function bar(taskId: number, x: number, y: number, width: number, type: 'task' | 'project' | 'milestone' = 'task'): BarLayout {
+function bar(taskId: number, x: number, y: number, width: number, kind: 'task' | 'project' | 'milestone' = 'task'): BarLayout {
 	return {
 		taskId,
 		x,
@@ -11,9 +11,9 @@ function bar(taskId: number, x: number, y: number, width: number, type: 'task' |
 		width,
 		height: 28,
 		progressWidth: 0,
-		type,
+		kind,
 		rowIndex: 0,
-		centerX: type === 'milestone' ? x : x + width / 2,
+		centerX: kind === 'milestone' ? x : x + width / 2,
 		centerY: y,
 	};
 }
