@@ -5,6 +5,11 @@ const NS = 'http://www.w3.org/2000/svg';
 const ARROW_PATH = 'M 0 1 L 10 5 L 0 9 Z';
 const ARROW_SIZE = 6;
 
+type DependencyCallbacks = {
+	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+};
+
 /**
  * Creates the SVG overlay element. Call once; pass to updateDependencyLayer on each render.
  * Also creates a hidden ghost-line path used during link-creation drags.
@@ -121,6 +126,7 @@ export function hideGhostLine(svg: SVGSVGElement): void {
  * @param totalHeight - The total pixel height of the SVG viewport.
  * @param selectedTaskId - The currently selected task ID, or `null`.
  * @param highlightLinkedDependenciesOnSelect - When `true`, links connected to the selected task use highlight styling.
+ * @param cbs - Optional callbacks for link click and double-click events.
  */
 export function updateDependencyLayer(
 	svg: SVGSVGElement,
@@ -129,6 +135,7 @@ export function updateDependencyLayer(
 	totalHeight: number,
 	selectedTaskId: number | null,
 	highlightLinkedDependenciesOnSelect: boolean,
+	cbs?: DependencyCallbacks,
 ): void {
 	setAttrs(svg, {width: totalWidth, height: totalHeight});
 
@@ -161,6 +168,28 @@ export function updateDependencyLayer(
 			'marker-end': isRelated ? 'url(#gantt-arrow-hi)' : 'url(#gantt-arrow)',
 			'data-link-id': String(link.linkId),
 		});
+		path.style.pointerEvents = 'visibleStroke';
+		path.style.cursor = 'pointer';
+
+		path.addEventListener('click', (event) => {
+			if (event.detail === 1) {
+				cbs?.onLinkClick?.({
+					id: link.linkId,
+					source: link.sourceTaskId,
+					target: link.targetTaskId,
+					type: link.type,
+				});
+			}
+		});
+		path.addEventListener('dblclick', (_event) => {
+			cbs?.onLinkDblClick?.({
+				id: link.linkId,
+				source: link.sourceTaskId,
+				target: link.targetTaskId,
+				type: link.type,
+			});
+		});
+
 		if (ghost !== null) {
 			svg.insertBefore(path, ghost);
 		} else {

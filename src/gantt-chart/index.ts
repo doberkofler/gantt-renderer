@@ -52,7 +52,7 @@ export {
 
 export {GanttChart} from './vanilla/gantt-chart.ts';
 export type {GanttInstance, GanttOptions, GanttCallbacks, ThemeMode} from './vanilla/gantt-chart.ts';
-export type {OnTaskSelect, OnTaskMove, OnTaskResize, OnTaskAdd, OnTaskDoubleClick, OnTaskEditIntent, OnLinkCreate} from './vanilla/gantt-chart.ts';
+export type {OnTaskSelect, OnTaskMove, OnTaskResize, OnTaskAdd, OnTaskDoubleClick, OnLinkCreate, OnLinkClick, OnLinkDblClick} from './vanilla/gantt-chart.ts';
 export type {GridColumn} from './vanilla/dom/gridColumns.ts';
 export {
 	DEFAULT_GRID_COLUMNS,

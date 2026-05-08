@@ -1,4 +1,4 @@
-import {type GanttInput, type SpecialDay, type Task} from '../validation/schemas.ts';
+import {type GanttInput, type SpecialDay, type Task, type Link} from '../validation/schemas.ts';
 import {validateLinkRefs, detectCycles} from '../domain/dependencies.ts';
 import {buildTaskTree, flattenTree} from '../domain/tree.ts';
 import {createPixelMapper} from '../timeline/pixelMapper.ts';
@@ -18,22 +18,39 @@ import {attachSplitter} from './splitter.ts';
 import {computeLeftPaneWidth, MOBILE_BREAKPOINT, MOBILE_LEFT_PANE_MIN_WIDTH, MOBILE_LEFT_PANE_MAX_RATIO, TIMELINE_MIN_WIDTH} from './responsive.ts';
 import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 
-export type OnTaskSelect = (taskId: number | null) => void;
-export type OnTaskMove = (payload: {id: number; startDate: Date}) => void;
-export type OnTaskResize = (payload: {id: number; durationHours: number}) => void;
-export type OnTaskAdd = (payload: {parentId: number}) => void;
-export type OnTaskDoubleClick = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'}) => void;
-export type OnTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
-export type OnLinkCreate = (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+export type OnTaskSelect = (payload: {task: Task}) => void;
+export type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
+export type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
+export type OnTaskAdd = (payload: {parentTask: Task}) => boolean;
+export type OnTaskDoubleClick = (payload: {task: Task}) => void;
+export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
+export type OnLinkClick = (payload: {link: Link}) => void;
+export type OnLinkDblClick = (payload: {link: Link}) => void;
 
 export type GanttCallbacks = {
-	onSelect?: OnTaskSelect;
-	onMove?: OnTaskMove;
-	onResize?: OnTaskResize;
-	onAdd?: OnTaskAdd;
+	onTaskSelect?: OnTaskSelect;
+	onTaskMove?: OnTaskMove;
+	onTaskResize?: OnTaskResize;
+	onTaskAdd?: OnTaskAdd;
 	onTaskDoubleClick?: OnTaskDoubleClick;
-	onTaskEditIntent?: OnTaskEditIntent;
 	onLinkCreate?: OnLinkCreate;
+	onLinkClick?: OnLinkClick;
+	onLinkDblClick?: OnLinkDblClick;
+	onLeftPaneWidthChange?: (width: number) => void;
+	onGridColumnsChange?: (columns: GridColumn[]) => void;
+};
+
+type InternalCallbacks = {
+	onTaskSelect?: (id: number) => void;
+	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
+	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	onTaskAdd?: (parentId: number) => void;
+	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
+	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onLeftPaneWidthChange?: (width: number) => void;
 	onGridColumnsChange?: (columns: GridColumn[]) => void;
 };
@@ -96,6 +113,7 @@ export class GanttChart implements GanttInstance {
 	#rafPending = false;
 	#rafId: number | null = null;
 	#destroyed = false;
+	readonly #dragOriginals = new Map<number, {startDate: string; durationHours: number}>();
 	#taskIndex: Map<number, number>;
 	#lastGridClick: {id: number; atMs: number} | null = null;
 	#userSplitWidth: number | null = null;
@@ -118,7 +136,7 @@ export class GanttChart implements GanttInstance {
 	#rightPane!: HTMLElement;
 	#rightHeader!: HTMLElement;
 	#rightPaneRefs!: RightPaneRefs;
-	readonly #cbs: GanttCallbacks;
+	readonly #cbs: InternalCallbacks;
 
 	#resizeObserver: ResizeObserver | null = null;
 	#columnResizeCleanup!: () => void;
@@ -146,31 +164,80 @@ export class GanttChart implements GanttInstance {
 		this.#expandedIds = new Set();
 
 		this.#cbs = {
-			onSelect: (id): void => {
+			onTaskSelect: (id): void => {
 				if (this.#selectedId === id) {
 					return;
 				}
 				this.#selectedId = id;
-				this.#opts.onSelect?.(this.#selectedId);
+				const task = this.#input?.tasks.find((t) => t.id === id);
+				if (task !== undefined) {
+					this.#opts.onTaskSelect?.({task});
+				}
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				this.#opts.onTaskDoubleClick?.(payload);
+				this.#opts.onTaskDoubleClick?.({task: payload.task});
 			},
-			onTaskEditIntent: (payload): void => {
-				this.#opts.onTaskEditIntent?.(payload);
-				this.#opts.onTaskDoubleClick?.({id: payload.id, source: payload.source});
-			},
-			onMove: (payload): void => {
+			onTaskMove: (payload): void => {
+				if (!this.#dragOriginals.has(payload.id)) {
+					const task = this.#input?.tasks.find((t) => t.id === payload.id);
+					if (task !== undefined) {
+						this.#dragOriginals.set(payload.id, {startDate: task.startDate, durationHours: task.durationHours});
+					}
+				}
 				const iso = payload.startDate.toISOString().slice(0, 10);
 				this.#patchTask(payload.id, {startDate: iso});
-				this.#opts.onMove?.(payload);
 				this.#scheduleRender();
 			},
-			onResize: (payload): void => {
-				this.#patchTask(payload.id, {durationHours: payload.durationHours});
-				this.#opts.onResize?.(payload);
+			_onTaskMoveFinal: (payload): boolean => {
+				const task = this.#input?.tasks.find((t) => t.id === payload.id);
+				if (task === undefined) {
+					this.#dragOriginals.clear();
+					return true;
+				}
+				const result = this.#opts.onTaskMove?.({task, newStartDate: payload.startDate}) !== false;
+				if (!result) {
+					const original = this.#dragOriginals.get(payload.id);
+					if (original !== undefined) {
+						this.#patchTask(payload.id, {startDate: original.startDate});
+					}
+				}
+				this.#dragOriginals.clear();
 				this.#scheduleRender();
+				return result;
+			},
+			onTaskResize: (payload): void => {
+				if (!this.#dragOriginals.has(payload.id)) {
+					const task = this.#input?.tasks.find((t) => t.id === payload.id);
+					if (task !== undefined) {
+						this.#dragOriginals.set(payload.id, {startDate: task.startDate, durationHours: task.durationHours});
+					}
+				}
+				this.#patchTask(payload.id, {durationHours: payload.durationHours});
+				this.#scheduleRender();
+			},
+			_onTaskResizeFinal: (payload): boolean => {
+				const task = this.#input?.tasks.find((t) => t.id === payload.id);
+				if (task === undefined) {
+					this.#dragOriginals.clear();
+					return true;
+				}
+				const result = this.#opts.onTaskResize?.({task, newDurationHours: payload.durationHours}) !== false;
+				if (!result) {
+					const original = this.#dragOriginals.get(payload.id);
+					if (original !== undefined) {
+						this.#patchTask(payload.id, {durationHours: original.durationHours});
+					}
+				}
+				this.#dragOriginals.clear();
+				this.#scheduleRender();
+				return result;
+			},
+			onTaskAdd: (parentId): void => {
+				const parentTask = this.#input?.tasks.find((t) => t.id === parentId);
+				if (parentTask !== undefined) {
+					this.#opts.onTaskAdd?.({parentTask});
+				}
 			},
 			onLeftPaneWidthChange: (width): void => {
 				this.#opts.onLeftPaneWidthChange?.(width);
@@ -179,7 +246,19 @@ export class GanttChart implements GanttInstance {
 				this.#opts.onGridColumnsChange?.(updatedColumns);
 			},
 			onLinkCreate: (payload): void => {
-				this.#opts.onLinkCreate?.(payload);
+				const sourceTask = this.#input?.tasks.find((t) => t.id === payload.sourceTaskId);
+				const targetTask = this.#input?.tasks.find((t) => t.id === payload.targetTaskId);
+				if (sourceTask !== undefined && targetTask !== undefined) {
+					this.#opts.onLinkCreate?.({type: payload.type, sourceTask, targetTask});
+				}
+			},
+			onLinkClick: (payload): void => {
+				const link: Link = {id: payload.id, source: payload.source, target: payload.target, type: payload.type as Link['type']};
+				this.#opts.onLinkClick?.({link});
+			},
+			onLinkDblClick: (payload): void => {
+				const link: Link = {id: payload.id, source: payload.source, target: payload.target, type: payload.type as Link['type']};
+				this.#opts.onLinkDblClick?.({link});
 			},
 		};
 
@@ -336,8 +415,15 @@ export class GanttChart implements GanttInstance {
 	 */
 	public select(id: number | null): void {
 		this.#assertAlive();
-		this.#selectedId = id;
-		this.#opts.onSelect?.(id);
+		if (id === null) {
+			this.#selectedId = null;
+		} else {
+			const task = this.#input?.tasks.find((t) => t.id === id);
+			if (task !== undefined) {
+				this.#opts.onTaskSelect?.({task});
+			}
+			this.#selectedId = id;
+		}
 		if (this.#rafPending && this.#rafId !== null) {
 			cancelAnimationFrame(this.#rafId);
 			this.#rafId = null;
@@ -429,11 +515,11 @@ export class GanttChart implements GanttInstance {
 		const prev = this.#lastGridClick;
 		if (prev !== null && prev.id === payload.id && now - prev.atMs <= 350) {
 			this.#lastGridClick = null;
-			this.#cbs.onTaskEditIntent?.({id: payload.id, source: 'grid', trigger: 'doubleClick', task: payload.task});
+			this.#cbs.onTaskDoubleClick?.({id: payload.id, task: payload.task});
 			return;
 		}
 		this.#lastGridClick = {id: payload.id, atMs: now};
-		this.#cbs.onSelect?.(payload.id);
+		this.#cbs.onTaskSelect?.(payload.id);
 	};
 
 	readonly #onScroll = (): void => {
@@ -540,12 +626,12 @@ export class GanttChart implements GanttInstance {
 					}
 					this.#scheduleRender();
 				},
-				onSelect: (id) => this.#cbs.onSelect?.(id),
+				onTaskSelect: (id) => this.#cbs.onTaskSelect?.(id),
 				onRowClick: (payload) => {
 					this.#handleGridClick(payload);
 				},
-				onTaskEditIntent: (payload) => this.#cbs.onTaskEditIntent?.(payload),
-				onAdd: (id) => this.#cbs.onAdd?.({parentId: id}),
+				onTaskDoubleClick: (payload) => this.#cbs.onTaskDoubleClick?.(payload),
+				onTaskAdd: (id) => this.#cbs.onTaskAdd?.(id),
 			},
 			this.#columns,
 		);
@@ -679,13 +765,15 @@ export class GanttChart implements GanttInstance {
 			if (target.closest('.gantt-bar, .gantt-milestone, .gantt-resize-handle')) {
 				return;
 			}
-			this.#cbs.onSelect?.(null);
+			this.#selectedId = null;
+			this.#scheduleRender();
 		});
 
 		this.#root.addEventListener('keydown', (event) => {
 			if (event.key === 'Escape' && this.#selectedId !== null) {
 				event.preventDefault();
-				this.#cbs.onSelect?.(null);
+				this.#selectedId = null;
+				this.#scheduleRender();
 			}
 		});
 

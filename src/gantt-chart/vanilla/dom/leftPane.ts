@@ -12,10 +12,10 @@ const COLUMN_MIN_WIDTH = 30;
 
 export type LeftPaneCallbacks = {
 	onToggle: (id: number) => void;
-	onSelect: (id: number) => void;
+	onTaskSelect: (id: number) => void;
 	onRowClick: (payload: {id: number; task: Task}) => void;
-	onTaskEditIntent: (payload: {id: number; source: 'grid'; trigger: 'doubleClick'; task: Task}) => void;
-	onAdd: (id: number) => void;
+	onTaskDoubleClick: (payload: {id: number; task: Task}) => void;
+	onTaskAdd: (id: number) => void;
 };
 
 function toTask(row: TaskNode): Task {
@@ -132,7 +132,7 @@ function buildAddButton(row: TaskNode, cbs: LeftPaneCallbacks, locale: ChartLoca
 	});
 	btn.addEventListener('click', (event) => {
 		event.stopPropagation();
-		cbs.onAdd(row.id);
+		cbs.onTaskAdd(row.id);
 	});
 
 	return btn;
@@ -186,7 +186,7 @@ function buildRow(
 	wrapper.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onSelect(row.id);
+			cbs.onTaskSelect(row.id);
 		}
 	});
 

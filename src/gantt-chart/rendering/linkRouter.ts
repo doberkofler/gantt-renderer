@@ -1,4 +1,4 @@
-import {type Link} from '../validation/schemas.ts';
+import {type Link, type LinkType} from '../validation/schemas.ts';
 import {type BarLayout} from '../timeline/layoutEngine.ts';
 import {MILESTONE_HALF} from '../timeline/layoutEngine.ts';
 
@@ -8,6 +8,7 @@ export type RoutedLink = {
 	linkId: number;
 	sourceTaskId: number;
 	targetTaskId: number;
+	type: LinkType;
 	/** Ordered vertices of the orthogonal polyline (source → target). */
 	points: Point[];
 };
@@ -342,6 +343,7 @@ export function routeLinks(links: Link[], layouts: Map<number, BarLayout>): Rout
 				linkId: link.id,
 				sourceTaskId: link.source,
 				targetTaskId: link.target,
+				type: link.type,
 				points: route(link.type, src, tgt),
 			};
 		})

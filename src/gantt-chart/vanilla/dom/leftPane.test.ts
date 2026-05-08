@@ -202,7 +202,7 @@ describe('renderLeftPane', () => {
 		}
 		addBtn.click();
 
-		expect(cbs.onAdd).toHaveBeenCalledWith(5);
+		expect(cbs.onTaskAdd).toHaveBeenCalledWith(5);
 		expect(cbs.onRowClick).not.toHaveBeenCalled(); // stopPropagation
 	});
 

@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {attachLinkEndpointHandle, createEndpointHandle} from './linkCreation.ts';
 import {hideGhostLine, createDependencyLayer} from '../dom/dependencyLayer.ts';
-import {type GanttCallbacks} from '../gantt-chart.ts';
 
 function makeLayer(): [SVGSVGElement, HTMLElement] {
 	const absoluteLayer = document.createElement('div');
@@ -44,6 +43,12 @@ describe('attachLinkEndpointHandle', () => {
 		hideGhostLine(svgLayer);
 	});
 
+	function mockCbs(onLinkCreate: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void): {
+		onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+	} {
+		return {onLinkCreate} as {onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void};
+	}
+
 	it('fires onLinkCreate when drag ends on a valid target bar', () => {
 		const handle = document.createElement('div');
 		absoluteLayer.append(handle);
@@ -54,7 +59,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(targetBar);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
@@ -75,7 +80,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(sourceBar);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
@@ -91,7 +96,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(handle);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
@@ -111,7 +116,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(plainDiv);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
@@ -131,7 +136,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(targetBar);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		const cleanup = attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 		cleanup();
@@ -147,7 +152,7 @@ describe('attachLinkEndpointHandle', () => {
 		const handle = document.createElement('div');
 		absoluteLayer.append(handle);
 
-		const cbs: GanttCallbacks = {};
+		const cbs = mockCbs(vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>());
 		attachLinkEndpointHandle(handle, 42, 50, 54, svgLayer, absoluteLayer, cbs);
 
 		expect(handle.getAttribute('tabindex')).toBe('0');
@@ -164,13 +169,12 @@ describe('attachLinkEndpointHandle', () => {
 		targetBar.style.cssText = 'position:absolute;left:200px;top:40px;width:100px;height:28px;';
 		absoluteLayer.append(targetBar);
 
-		const cbs: GanttCallbacks = {};
+		const cbs = mockCbs(vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>());
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
 		handle.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 50, clientY: 54, pointerId: 1}));
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 250, clientY: 54, pointerId: 1}));
 
-		// Ghost line should be visible (solid since over valid target)
 		const ghost = svgLayer.querySelector<SVGPathElement>('path.gantt-ghost-line');
 		expect(ghost?.style.display).toBe('');
 		expect(ghost?.hasAttribute('stroke-dasharray')).toBe(false);
@@ -186,7 +190,7 @@ describe('attachLinkEndpointHandle', () => {
 		const handle = document.createElement('div');
 		absoluteLayer.append(handle);
 
-		const cbs: GanttCallbacks = {};
+		const cbs = mockCbs(vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>());
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
 		handle.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 50, clientY: 54, pointerId: 1}));
@@ -204,7 +208,7 @@ describe('attachLinkEndpointHandle', () => {
 		absoluteLayer.append(handle);
 
 		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
-		const cbs: GanttCallbacks = {onLinkCreate: onLinkCreateMock};
+		const cbs = mockCbs(onLinkCreateMock);
 
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
@@ -224,12 +228,11 @@ describe('attachLinkEndpointHandle', () => {
 		targetBar.style.cssText = 'position:absolute;left:200px;top:40px;width:100px;height:28px;';
 		absoluteLayer.append(targetBar);
 
-		const cbs: GanttCallbacks = {};
+		const cbs = {};
 		attachLinkEndpointHandle(handle, 1, 50, 54, svgLayer, absoluteLayer, cbs);
 
 		handle.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 50, clientY: 54, pointerId: 1}));
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 250, clientY: 54, pointerId: 1}));
-		// Should not throw
 		expect(() => {
 			window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
 		}).not.toThrow();

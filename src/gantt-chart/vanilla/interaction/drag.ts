@@ -2,7 +2,15 @@ import {type TaskNode} from '../../domain/tree.ts';
 import {type PixelMapper} from '../../timeline/pixelMapper.ts';
 import {parseDate, addHours} from '../../domain/dateMath.ts';
 import {type Task} from '../../validation/schemas.ts';
-import {type GanttCallbacks} from '../gantt-chart.ts';
+
+type InternalCallbacks = {
+	onTaskSelect?: (id: number) => void;
+	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
+	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
+	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+};
 
 function toTask(row: TaskNode): Task {
 	return {
@@ -31,8 +39,7 @@ function toTask(row: TaskNode): Task {
  * @param cbs - The chart callbacks.
  * @returns A cleanup function that removes all listeners.
  */
-export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task: TaskNode, getMapper: () => PixelMapper, cbs: GanttCallbacks): () => void {
-	// ── Move ───────────────────────────────────────────────────────────────
+export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task: TaskNode, getMapper: () => PixelMapper, cbs: InternalCallbacks): () => void {
 	function onBarDown(e: PointerEvent): void {
 		if (e.button !== 0) {
 			return;
@@ -43,22 +50,25 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		} catch {
 			// Browsers/tests may reject synthetic pointer ids.
 		}
-		cbs.onSelect?.(task.id);
+		cbs.onTaskSelect?.(task.id);
 
 		const startX = e.clientX;
 		const originDate = parseDate(task.startDate);
-		const mapper = getMapper(); // snapshot at mousedown
+		const mapper = getMapper();
+
+		let lastHours = 0;
 
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
-			const hours = Math.round(mapper.widthToDuration(dx));
-			cbs.onMove?.({id: task.id, startDate: addHours(originDate, hours)});
+			lastHours = Math.round(mapper.widthToDuration(dx));
+			cbs.onTaskMove?.({id: task.id, startDate: addHours(originDate, lastHours)});
 		}
 
 		function onUp(): void {
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
 			barEl.style.cursor = 'grab';
+			cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
 		}
 
 		barEl.style.cursor = 'grabbing';
@@ -66,7 +76,6 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		window.addEventListener('pointerup', onUp);
 	}
 
-	// ── Resize ─────────────────────────────────────────────────────────────
 	function onResizeDown(e: PointerEvent): void {
 		if (e.button !== 0) {
 			return;
@@ -83,15 +92,19 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		const origDur = task.durationHours;
 		const mapper = getMapper();
 
+		let lastDuration = origDur;
+
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
 			const hoursDelta = Math.round(mapper.widthToDuration(dx));
-			cbs.onResize?.({id: task.id, durationHours: Math.max(1, origDur + hoursDelta)});
+			lastDuration = Math.max(1, origDur + hoursDelta);
+			cbs.onTaskResize?.({id: task.id, durationHours: lastDuration});
 		}
 
 		function onUp(): void {
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
+			cbs._onTaskResizeFinal?.({id: task.id, durationHours: lastDuration});
 		}
 
 		window.addEventListener('pointermove', onMove);
@@ -102,7 +115,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		if (event.detail !== 2) {
 			return;
 		}
-		cbs.onTaskEditIntent?.({id: task.id, source: 'bar', trigger: 'doubleClick', task: toTask(task)});
+		cbs.onTaskDoubleClick?.({id: task.id, task: toTask(task)});
 	}
 
 	barEl.addEventListener('pointerdown', onBarDown);
@@ -124,9 +137,9 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
  * @param cbs - The chart callbacks.
  * @returns A cleanup function that removes all listeners.
  */
-export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs: GanttCallbacks): () => void {
+export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs: InternalCallbacks): () => void {
 	function onClick(): void {
-		cbs.onSelect?.(taskId);
+		cbs.onTaskSelect?.(taskId);
 	}
 	function onDoubleClick(event: MouseEvent): void {
 		if (event.detail === 2) {
@@ -134,7 +147,7 @@ export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs
 			if (task === undefined) {
 				return;
 			}
-			cbs.onTaskEditIntent?.({id: taskId, source: 'milestone', trigger: 'doubleClick', task});
+			cbs.onTaskDoubleClick?.({id: taskId, task});
 		}
 	}
 	diamondEl.addEventListener('click', onClick);

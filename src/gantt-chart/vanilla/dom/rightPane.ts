@@ -7,9 +7,22 @@ import {type TaskNode} from '../../domain/tree.ts';
 import {type BarLayout} from '../../timeline/layoutEngine.ts';
 import {ROW_HEIGHT, MILESTONE_HALF, totalContentHeight} from '../../timeline/layoutEngine.ts';
 import {nextScaleBoundary, snapToScaleBoundary} from '../../timeline/scale.ts';
-import {type GanttCallbacks} from '../gantt-chart.ts';
 import {startOfDay} from '../../domain/dateMath.ts';
 import {type ChartLocale, EN_US_LABELS, formatLabel} from '../../locale.ts';
+import {type Task} from '../../validation/schemas.ts';
+
+type RightPaneCallbacks = {
+	onTaskSelect?: (id: number) => void;
+	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
+	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
+	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
+	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
+	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+};
 
 const BAR_COLOR: Record<string, string> = {
 	task: 'var(--gantt-task)',
@@ -127,7 +140,7 @@ function renderBar(
 	selectedId: number | null,
 	registry: RightPaneRefs['barRegistry'],
 	state: GanttState,
-	cbs: GanttCallbacks,
+	cbs: RightPaneCallbacks,
 ): void {
 	const selected = task.id === selectedId;
 	const color = BAR_COLOR[layout.type] ?? BAR_COLOR['task'];
@@ -189,12 +202,12 @@ function renderBar(
 	bar.setAttribute('aria-pressed', String(selected));
 	bar.dataset['taskId'] = String(task.id);
 	bar.addEventListener('click', () => {
-		cbs.onSelect?.(task.id);
+		cbs.onTaskSelect?.(task.id);
 	});
 	bar.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onSelect?.(task.id);
+			cbs.onTaskSelect?.(task.id);
 		}
 	});
 
@@ -279,7 +292,7 @@ function renderMilestone(
 	layout: BarLayout,
 	selectedId: number | null,
 	registry: RightPaneRefs['barRegistry'],
-	cbs: GanttCallbacks,
+	cbs: RightPaneCallbacks,
 	state: GanttState,
 ): void {
 	const selected = task.id === selectedId;
@@ -306,7 +319,7 @@ function renderMilestone(
 	diamond.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onSelect?.(task.id);
+			cbs.onTaskSelect?.(task.id);
 		}
 	});
 	const labelEl = el('span');
@@ -382,7 +395,7 @@ function renderMilestone(
  * @param state - The current chart state.
  * @param cbs - The chart callbacks.
  */
-export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: GanttCallbacks): void {
+export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: RightPaneCallbacks): void {
 	const {
 		allRows,
 		layouts,
@@ -517,5 +530,5 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Gan
 
 	// SVG dependency overlay (visible rows only)
 	const visibleLinks = links.filter((link) => visibleTaskIds.has(link.sourceTaskId) && visibleTaskIds.has(link.targetTaskId));
-	updateDependencyLayer(svgLayer, visibleLinks, totalWidth, contentHeight, selectedId, highlightLinkedDependenciesOnSelect);
+	updateDependencyLayer(svgLayer, visibleLinks, totalWidth, contentHeight, selectedId, highlightLinkedDependenciesOnSelect, cbs);
 }

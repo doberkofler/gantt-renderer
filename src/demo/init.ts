@@ -90,15 +90,8 @@ export const init = (): void => {
 	};
 
 	const callbacks: GanttCallbacks = {
-		onSelect(id: number | null): void {
-			if (id === null) {
-				appendEventLog('selection cleared');
-				return;
-			}
-			const task = initialInput.tasks.find((t) => t.id === id);
-			if (task === undefined) {
-				return;
-			}
+		onTaskSelect(payload): void {
+			const {task} = payload;
 			appendEventLog(
 				[
 					`selected ${task.text}`,
@@ -110,29 +103,19 @@ export const init = (): void => {
 				].join(' | '),
 			);
 		},
-		onMove(payload): void {
-			logControlHook('task-move', 'integrated', payload.id.toString());
-			console.info('move', payload.id, payload.startDate.toISOString().slice(0, 10));
+		onTaskMove(payload): boolean {
+			logControlHook('task-move', 'integrated', payload.task.id.toString());
+			console.info('move', payload.task.id, payload.newStartDate.toISOString().slice(0, 10));
+			return true;
 		},
-		onResize(payload): void {
-			logControlHook('task-resize', 'integrated', payload.id.toString());
-			console.info('resize', payload.id, payload.durationHours);
+		onTaskResize(payload): boolean {
+			logControlHook('task-resize', 'integrated', payload.task.id.toString());
+			console.info('resize', payload.task.id, payload.newDurationHours);
+			return true;
 		},
-		onTaskEditIntent(payload): void {
-			const task = initialInput.tasks.find((t) => t.id === payload.id);
-			if (task === undefined) {
-				return;
-			}
-			appendEventLog(
-				[
-					`edit intent ${task.text}`,
-					`id=${task.id}`,
-					`source=${payload.source}`,
-					`trigger=${payload.trigger}`,
-					`start=${task.startDate}`,
-					`durationHours=${task.durationHours}h`,
-				].join(' | '),
-			);
+		onTaskDoubleClick(payload): void {
+			const {task} = payload;
+			appendEventLog([`edit intent ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.durationHours}h`].join(' | '));
 		},
 		onLeftPaneWidthChange(width): void {
 			logControlHook('pane-splitter', 'integrated', `${width}px`);

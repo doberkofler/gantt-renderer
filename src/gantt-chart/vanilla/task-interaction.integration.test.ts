@@ -1,20 +1,18 @@
 import {describe, expect, it, vi} from 'vitest';
-import {type GanttInput} from '../validation/schemas.ts';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
 
 describe('task interaction', () => {
 	const {mountTracked} = createMountHelpers();
 
-	it('fires onTaskEditIntent from grid, bar, and milestone', () => {
+	it('fires onTaskDoubleClick from grid, bar, and milestone', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onTaskEditIntentMock =
-			vi.fn<(payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: GanttInput['tasks'][number]}) => void>();
-		const onTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: GanttInput['tasks'][number]}): void => {
-			onTaskEditIntentMock(payload);
+		const onTaskDoubleClickMock = vi.fn<(payload: {task: {id: number}}) => void>();
+		const onTaskDoubleClick = (payload: {task: {id: number}}): void => {
+			onTaskDoubleClickMock(payload);
 		};
 
-		mountTracked(container, INPUT, {onTaskEditIntent});
+		mountTracked(container, INPUT, {onTaskDoubleClick});
 
 		const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 		expect(rowLabel).toBeDefined();
@@ -31,52 +29,54 @@ describe('task interaction', () => {
 		expect(milestone).not.toBeNull();
 		milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 2}));
 
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 3, source: 'grid', trigger: 'doubleClick'}));
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 1, source: 'bar', trigger: 'doubleClick'}));
-		expect(onTaskEditIntentMock).toHaveBeenCalledWith(expect.objectContaining({id: 5, source: 'milestone', trigger: 'doubleClick'}));
+		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 3})}));
+		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 5})}));
 	});
 
-	it('emits onMove and onResize through drag interactions', () => {
+	it('emits onTaskMove and onTaskResize through drag interactions only on pointerup', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onMoveMock = vi.fn<(payload: {id: number; startDate: Date}) => void>();
-		const onResizeMock = vi.fn<(payload: {id: number; durationHours: number}) => void>();
-		const onMove = (payload: {id: number; startDate: Date}): void => {
-			onMoveMock(payload);
+		const onTaskMoveMock = vi.fn<(payload: {task: {id: number}; newStartDate: Date}) => boolean>();
+		const onTaskResizeMock = vi.fn<(payload: {task: {id: number}; newDurationHours: number}) => boolean>();
+		const onTaskMove = (payload: {task: {id: number}; newStartDate: Date}): boolean => {
+			onTaskMoveMock(payload);
+			return true;
 		};
-		const onResize = (payload: {id: number; durationHours: number}): void => {
-			onResizeMock(payload);
+		const onTaskResize = (payload: {task: {id: number}; newDurationHours: number}): boolean => {
+			onTaskResizeMock(payload);
+			return true;
 		};
 
-		mountTracked(container, INPUT, {onMove, onResize});
+		mountTracked(container, INPUT, {onTaskMove, onTaskResize});
 
 		const bar = container.querySelector('.gantt-bar');
 		expect(bar).not.toBeNull();
 		bar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 1}));
-		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 180, pointerId: 1}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 1}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
 
-		expect(onMoveMock).toHaveBeenCalled();
-		const [firstMoveCall] = onMoveMock.mock.calls;
+		expect(onTaskMoveMock).toHaveBeenCalled();
+		const [firstMoveCall] = onTaskMoveMock.mock.calls;
 		expect(firstMoveCall).toBeDefined();
 		if (firstMoveCall === undefined) {
 			throw new Error('Expected first move callback call');
 		}
-		expect(firstMoveCall[0]).toMatchObject({id: 1});
+		expect(firstMoveCall[0]).toMatchObject({task: expect.objectContaining({id: 1})});
 
 		const handle = container.querySelector('.gantt-resize-handle');
 		expect(handle).not.toBeNull();
 		handle?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 140, pointerId: 2}));
-		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 200, pointerId: 2}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 160, pointerId: 2}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 2}));
 
-		expect(onResizeMock).toHaveBeenCalled();
-		const [firstResizeCall] = onResizeMock.mock.calls;
+		expect(onTaskResizeMock).toHaveBeenCalled();
+		const [firstResizeCall] = onTaskResizeMock.mock.calls;
 		expect(firstResizeCall).toBeDefined();
 		if (firstResizeCall === undefined) {
 			throw new Error('Expected first resize callback call');
 		}
-		expect(firstResizeCall[0]).toMatchObject({id: 1});
-		expect(firstResizeCall[0].durationHours).toBeGreaterThanOrEqual(1);
+		expect(firstResizeCall[0]).toMatchObject({task: expect.objectContaining({id: 1})});
+		expect(firstResizeCall[0].newDurationHours).toBeGreaterThanOrEqual(1);
 	});
 });

@@ -1,5 +1,8 @@
-import {type GanttCallbacks} from '../gantt-chart.ts';
 import {showGhostLine, hideGhostLine} from '../dom/dependencyLayer.ts';
+
+type LinkCreationCallbacks = {
+	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+};
 
 /**
  * Attaches a link-creation drag listener to an endpoint handle.
@@ -20,7 +23,7 @@ export function attachLinkEndpointHandle(
 	anchorY: number,
 	svgLayer: SVGSVGElement,
 	absoluteLayer: HTMLElement,
-	cbs: GanttCallbacks,
+	cbs: LinkCreationCallbacks,
 ): () => void {
 	function onPointerDown(e: PointerEvent): void {
 		if (e.button !== 0) {

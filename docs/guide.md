@@ -52,7 +52,7 @@ The essential API surface: how to create, drive, and interact with the chart.
 
 - `update(input)` — Replaces the full dataset, validates link references and cycles, and re-renders.
 - `setOptions(opts)` — Merges a partial `GanttOptions` into the current configuration and re-renders only the affected panes. Only properties present in `opts` are updated; missing keys keep their previous values. Left-pane-only changes (e.g. `gridColumns`) skip timeline rendering, right-pane-only changes (e.g. `scale`, `showWeekends`) skip grid rendering, and callback-only changes trigger no DOM re-render.
-- `select(id | null)` — Programmatically selects a task id or clears selection with `null`. Fires the `onSelect` callback when the selection actually changes.
+- `select(id | null)` — Programmatically selects a task id or clears selection with `null`. Fires the `onTaskSelect` callback when the selection actually changes.
 - `collapseAll()` — Collapses all expandable groups in the task tree. Idempotent.
 - `expandAll()` — Expands all expandable groups in the task tree. Idempotent.
 - `destroy()` — Removes chart DOM and internal listeners. Subsequent calls to any public method throw.
@@ -90,13 +90,14 @@ All callbacks are optional. See [GanttCallbacks Reference](#ganttcallbacks-refer
 
 | Callback | Fires when… |
 |---|---|
-| `onSelect` | A task is selected or deselected. |
-| `onMove` | A task bar is dragged to a new position on the timeline. |
-| `onResize` | A task bar's resize handle is dragged to change its duration. |
-| `onAdd` | The add-subtask button in the actions column is clicked. |
+| `onTaskSelect` | A task is selected or deselected. |
+| `onTaskMove` | A task bar is dragged to a new position on the timeline (once on release). |
+| `onTaskResize` | A task bar's resize handle is dragged to change its duration (once on release). |
+| `onTaskAdd` | The add-subtask button in the actions column is clicked. |
 | `onTaskDoubleClick` | A task is double-clicked (grid row, task bar, or milestone). |
-| `onTaskEditIntent` | A task is double-clicked; includes the full `Task` object. |
 | `onLinkCreate` | A dependency link drag completes over a valid target task. |
+| `onLinkClick` | A dependency link is clicked in the timeline. |
+| `onLinkDblClick` | A dependency link is double-clicked in the timeline. |
 | `onLeftPaneWidthChange` | The user finishes dragging the vertical splitter. |
 | `onGridColumnsChange` | The user finishes dragging a column resize handle. |
 
@@ -106,94 +107,95 @@ All callbacks are optional. Provide them as top-level keys of the `GanttOptions`
 the `GanttChart` constructor or to `instance.setOptions()`.
 
 ```ts
-export type OnTaskSelect = (taskId: number | null) => void;
-export type OnTaskMove = (payload: {id: number; startDate: Date}) => void;
-export type OnTaskResize = (payload: {id: number; durationHours: number}) => void;
-export type OnTaskAdd = (payload: {parentId: number}) => void;
-export type OnTaskDoubleClick = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'}) => void;
-export type OnTaskEditIntent = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
-export type OnLinkCreate = (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+export type OnTaskSelect = (payload: {task: Task}) => void;
+export type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
+export type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
+export type OnTaskAdd = (payload: {parentTask: Task}) => boolean;
+export type OnTaskDoubleClick = (payload: {task: Task}) => void;
+export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
+export type OnLinkClick = (payload: {link: Link}) => void;
+export type OnLinkDblClick = (payload: {link: Link}) => void;
 
 // Pane-resize hooks (untyped in the type alias but included in GanttCallbacks):
 // onLeftPaneWidthChange?: (width: number) => void;
 // onGridColumnsChange?: (columns: GridColumn[]) => void;
 ```
 
-#### `onSelect`
+#### `onTaskSelect`
 
 ```ts
-type OnTaskSelect = (taskId: number | null) => void;
+type OnTaskSelect = (payload: {task: Task}) => void;
 ```
 
-Fires when the selection changes. The chart uses a strict single-selection model:
+Fires when a task is selected. The chart uses a strict single-selection model:
 
-- **Click a task** (grid row, bar, or milestone) to select it — fires with the task's `id`.
+- **Click a task** (grid row, bar, or milestone) to select it — fires with the full `Task` object.
 - **Click the same task again** — no-op; the callback does not fire again.
-- **Click a different task** — switches selection; fires with the new `id`.
-- **Click empty space** in the timeline pane — deselects; fires with `null`.
-- **Press Escape** — deselects; fires with `null`.
-- **`instance.select(null)`** — programmatic deselection; fires with `null`.
+- **Click a different task** — switches selection; fires with the new `Task`.
+- **Click empty space** in the timeline pane — deselects visually; does **not** fire the callback.
+- **Press Escape** — deselects visually; does **not** fire the callback.
+- **`instance.select(null)`** — programmatic deselection; does **not** fire the callback.
 
-The callback fires only on actual selection changes. Repeated selection of the same task is silently
-ignored.
+The callback fires only on actual selection changes to a **task**. Repeated selection of the same task
+is silently ignored.
 
 ```ts
 import type {OnTaskSelect} from 'gantt-renderer';
 
-const onSelect: OnTaskSelect = (taskId) => {
-	if (taskId === null) {
-		console.log('Selection cleared');
-	} else {
-		console.log('Selected task', taskId);
-	}
+const onTaskSelect: OnTaskSelect = (payload) => {
+	console.log('Selected task', payload.task.text, 'id:', payload.task.id);
 };
 ```
 
-#### `onMove`
+#### `onTaskMove`
 
 ```ts
-type OnTaskMove = (payload: {id: number; startDate: Date}) => void;
+type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
 ```
 
-Fires after the user drags a task bar to a new position on the timeline. The chart patches its
-internal state automatically to provide immediate visual feedback — the bar snaps to the new
-position before the callback runs. Consumers must persist the change and call `instance.update()`
-if the underlying data should reflect the new position.
+Fires once after the user releases a task bar drag to a new position on the timeline. The chart
+patches its internal state to provide immediate visual feedback during the drag, but the callback
+only fires on release. Consumers must persist the change and call `instance.update()` if the
+underlying data should reflect the new position.
+
+Return `false` from the callback to abort the move and revert the task to its original position.
 
 | Payload field | Type | Description |
 |---|---|---|
-| `id` | `number` | The task that was moved. |
-| `startDate` | `Date` | The new start date derived from the drop position on the timeline. |
+| `task` | `Task` | The full task that was moved. |
+| `newStartDate` | `Date` | The new start date derived from the drop position on the timeline. |
 
 **Edge cases:**
 
 - Dragging a parent task does not move child tasks; only the dragged task is repositioned.
-- Dragging a milestone sets a new `startDate` but duration remains `0`.
+- Dragging a milestone sets a new `newStartDate` but duration remains `0`.
 - The callback does not fire if the pointer returns to the original position before release.
 
 ```ts
 import type {OnTaskMove} from 'gantt-renderer';
 
-const onMove: OnTaskMove = ({id, startDate}) => {
+const onTaskMove: OnTaskMove = ({task, newStartDate}) => {
 	// Persist the new start date to your data model, then call instance.update(...)
 };
 ```
 
-#### `onResize`
+#### `onTaskResize`
 
 ```ts
-type OnTaskResize = (payload: {id: number; durationHours: number}) => void;
+type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
 ```
 
-Fires after the user drags a task bar's resize handle (right edge) to change its duration. The
+Fires once after the user drags a task bar's resize handle (right edge) to change its duration. The
 chart patches its internal state automatically for immediate visual feedback — the bar widens or
 narrows before the callback runs. Consumers must persist the change and call `instance.update()`
 if the underlying data should reflect the new duration.
 
+Return `false` from the callback to abort the resize and revert the task to its original duration.
+
 | Payload field | Type | Description |
 |---|---|---|
-| `id` | `number` | The task that was resized. |
-| `durationHours` | `number` | The new duration in hours. Never falls below 1 for task bars; milestones cannot be resized. |
+| `task` | `Task` | The full task that was resized. |
+| `newDurationHours` | `number` | The new duration in hours. Never falls below 1 for task bars; milestones cannot be resized. |
 
 **Edge cases:**
 
@@ -204,12 +206,12 @@ if the underlying data should reflect the new duration.
 ```ts
 import type {OnTaskResize} from 'gantt-renderer';
 
-const onResize: OnTaskResize = ({id, durationHours}) => {
+const onTaskResize: OnTaskResize = ({task, newDurationHours}) => {
 	// Persist the new duration, then call instance.update(...)
 };
 ```
 
-#### `onAdd`
+#### `onTaskAdd`
 
 ```ts
 type OnTaskAdd = (payload: {parentId: number}) => void;
@@ -220,6 +222,8 @@ The button is rendered in the `actions` column (which must be present in the `gr
 — it is included in the default 4-column layout). The callback receives the parent task's `id`;
 consumers are expected to create a new subtask and call `instance.update()`.
 
+Return `false` from the callback to abort the add operation.
+
 | Payload field | Type | Description |
 |---|---|---|
 | `parentId` | `number` | The `id` of the task whose `+` button was clicked. |
@@ -227,7 +231,7 @@ consumers are expected to create a new subtask and call `instance.update()`.
 ```ts
 import type {OnTaskAdd} from 'gantt-renderer';
 
-const onAdd: OnTaskAdd = ({parentId}) => {
+const onTaskAdd: OnTaskAdd = ({parentId}) => {
 	// Open a dialog or form to create a subtask under parentId,
 	// then add the new task to your data model and call instance.update(...)
 };
@@ -236,54 +240,29 @@ const onAdd: OnTaskAdd = ({parentId}) => {
 #### `onTaskDoubleClick`
 
 ```ts
-type OnTaskDoubleClick = (payload: {id: number; source: 'grid' | 'bar' | 'milestone'}) => void;
+type OnTaskDoubleClick = (payload: {task: Task}) => void;
 ```
 
 Fires when the user double-clicks a task row (in the left grid pane), a task bar (in the timeline),
-or a milestone diamond (in the timeline). The `source` field tells you which surface was
-double-clicked so you can tailor your response (e.g. open different editors for the grid vs. the
-timeline).
+or a milestone diamond (in the timeline). The payload carries the full `Task` object so you can
+access any field directly without a lookup.
 
 | Payload field | Type | Description |
 |---|---|---|
-| `id` | `number` | The task that was double-clicked. |
-| `source` | `'grid' \| 'bar' \| 'milestone'` | The chart surface the user double-clicked. |
-
-#### `onTaskEditIntent`
+| `task` | `Task` | The full task that was double-clicked. |
 
 ```ts
-type OnTaskEditIntent = (payload: {
-	id: number;
-	source: 'grid' | 'bar' | 'milestone';
-	trigger: 'doubleClick';
-	task: Task;
-}) => void;
-```
+import type {OnTaskDoubleClick} from 'gantt-renderer';
 
-Fires together with `onTaskDoubleClick` on the same double-click gesture. Identical to
-`onTaskDoubleClick` except it also includes the full `Task` object for convenience, saving you
-from having to look up the task by `id` in your data model. Both callbacks fire; `onTaskEditIntent`
-fires before `onTaskDoubleClick`.
-
-| Payload field | Type | Description |
-|---|---|---|
-| `id` | `number` | The task that was double-clicked. |
-| `source` | `'grid' \| 'bar' \| 'milestone'` | The chart surface the user double-clicked. |
-| `trigger` | `'doubleClick'` | Always `'doubleClick'`. Reserved for future trigger types. |
-| `task` | `Task` | The full `Task` object (flat shape, not `TaskNode`). |
-
-```ts
-import type {OnTaskDoubleClick, OnTaskEditIntent} from 'gantt-renderer';
-
-const onTaskEditIntent: OnTaskEditIntent = ({id, source, task}) => {
-	console.log(`Editing task "${task.text}" via ${source}`);
+const onTaskDoubleClick: OnTaskDoubleClick = ({task}) => {
+	console.log(`Editing task "${task.text}"`);
 };
 ```
 
 #### `onLinkCreate`
 
 ```ts
-type OnLinkCreate = (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
+type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
 ```
 
 Fires when the user completes a link-creation drag by releasing the pointer over a different task
@@ -291,8 +270,9 @@ bar. Link creation must be enabled via the `linkCreationEnabled` option.
 
 | Payload field | Type | Description |
 |---|---|---|
-| `sourceTaskId` | `number` | The task from which the drag started. |
-| `targetTaskId` | `number` | The task over which the drag was released. |
+| `type` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
+| `sourceTask` | `Task` | The full predecessor task. |
+| `targetTask` | `Task` | The full successor task. |
 | `type` | `'FS'` | Dependency type. Always `'FS'` (finish-to-start). |
 
 **Behavior:**
@@ -304,11 +284,55 @@ bar. Link creation must be enabled via the `linkCreationEnabled` option.
 - The callback does not modify the chart's link data; consumers must add the link to their data
   model and call `instance.update()`.
 
+Return `false` from the callback to abort the link creation.
+
 ```ts
 import type {OnLinkCreate} from 'gantt-renderer';
 
 const onLinkCreate: OnLinkCreate = (payload) => {
 	// Add the link to your data model and call instance.update(...)
+};
+```
+
+#### `onLinkClick`
+
+```ts
+type OnLinkClick = (payload: {link: Link}) => void;
+```
+
+Fires when the user clicks a dependency link arrow or path in the timeline. The payload includes
+the full `Link` object.
+
+| Payload field | Type | Description |
+|---|---|---|
+| `link` | `Link` | The link that was clicked. |
+
+```ts
+import type {OnLinkClick} from 'gantt-renderer';
+
+const onLinkClick: OnLinkClick = ({link}) => {
+	console.log(`Link ${link.id} (${link.source} → ${link.target}, ${link.type}) clicked`);
+};
+```
+
+#### `onLinkDblClick`
+
+```ts
+type OnLinkDblClick = (payload: {link: Link}) => void;
+```
+
+Fires when the user double-clicks a dependency link arrow or path in the timeline. The payload
+is identical to `onLinkClick`.
+
+| Payload field | Type | Description |
+|---|---|---|
+| `link` | `Link` | The link that was double-clicked. |
+
+```ts
+import type {OnLinkDblClick} from 'gantt-renderer';
+
+const onLinkDblClick: OnLinkDblClick = ({link}) => {
+	console.log(`Link ${link.id} (${link.source} → ${link.target}, ${link.type}) double-clicked`);
 };
 ```
 
@@ -444,7 +468,7 @@ public API to detect dangling references at runtime.
 | `depth` | `number` | Nesting depth. `0` = root-level task. |
 
 Consumers don't create `TaskNode` directly; it is only used internally for virtualized row
-rendering and timeline layout. The `GanttCallbacks` (e.g., `onTaskSelect`, `onTaskEditIntent`)
+rendering and timeline layout. The `GanttCallbacks` (e.g., `onTaskSelect`, `onTaskDoubleClick`)
 return the flat `Task` shape, not `TaskNode`.
 
 ### Time scale
@@ -496,7 +520,7 @@ The chart uses a strict single-selection model:
 - **Press Escape** — deselects when a task is selected.
 - **`instance.select(null)`** — programmatic deselection.
 
-The `onSelect` callback fires only on actual selection changes; repeated clicks on the same task do not emit duplicate events. See [`onSelect`](#onselect) for the callback signature.
+The `onTaskSelect` callback fires only on actual selection changes; repeated clicks on the same task do not emit duplicate events. See [`onTaskSelect`](#ontaskselect) for the callback signature.
 
 #### Selection visual style
 

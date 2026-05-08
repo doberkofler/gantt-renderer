@@ -48,7 +48,7 @@ describe('C4 — link-creation endpoint controls', () => {
 	it('fires onLinkCreate when endpoint drag ends on a different task bar', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
+		const onLinkCreateMock = vi.fn<(payload: {type: 'FS'; sourceTask: {id: number}; targetTask: {id: number}}) => boolean>();
 
 		mountTracked(container, INPUT, {
 			height: 420,
@@ -59,14 +59,12 @@ describe('C4 — link-creation endpoint controls', () => {
 		const handles = container.querySelectorAll<HTMLElement>('.gantt-link-endpoint');
 		expect(handles.length).toBeGreaterThanOrEqual(2);
 
-		// Use second handle (first bar's right endpoint)
 		const [, handle] = handles;
 		expect(handle).toBeDefined();
 		if (handle === undefined) {
 			return;
 		}
 
-		// Find the target bar (task 3)
 		const targetBar = container.querySelector<HTMLElement>('[data-task-id="3"]');
 		expect(targetBar).not.toBeNull();
 		if (targetBar === null) {
@@ -90,15 +88,15 @@ describe('C4 — link-creation endpoint controls', () => {
 		expect(onLinkCreateMock).toHaveBeenCalled();
 		const call = onLinkCreateMock.mock.calls[0]?.[0];
 		expect(call?.type).toBe('FS');
-		expect(call?.sourceTaskId).toBeGreaterThan(0);
-		expect(call?.targetTaskId).toBeGreaterThan(0);
-		expect(call?.sourceTaskId).not.toBe(call?.targetTaskId);
+		expect(call?.sourceTask.id).toBeGreaterThan(0);
+		expect(call?.targetTask.id).toBeGreaterThan(0);
+		expect(call?.sourceTask.id).not.toBe(call?.targetTask.id);
 	});
 
 	it('does not fire onLinkCreate when endpoint drag ends on same task', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onLinkCreateMock = vi.fn<(payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void>();
+		const onLinkCreateMock = vi.fn<(payload: {type: 'FS'; sourceTask: {id: number}; targetTask: {id: number}}) => boolean>();
 
 		mountTracked(container, INPUT, {
 			height: 420,
