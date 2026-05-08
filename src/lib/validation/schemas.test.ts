@@ -15,7 +15,7 @@ describe('schema utilities', () => {
 	});
 
 	it('returns empty links array when links omitted', () => {
-		expect(parseGanttInput({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', durationHours: 24, kind: 'task'}]}).links).toEqual([]);
+		expect(parseGanttInput({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', durationHours: 24, kind: 'task'}]}).links).toStrictEqual([]);
 	});
 
 	it('rejects invalid task fields', () => {
@@ -114,6 +114,6 @@ describe('schema utilities', () => {
 		};
 		const parsed = parseGanttInput(raw);
 		expect(parsed.tasks[0]?.text).toBe('Typed');
-		expect(parsed.links).toEqual([]);
+		expect(parsed.links).toStrictEqual([]);
 	});
 });

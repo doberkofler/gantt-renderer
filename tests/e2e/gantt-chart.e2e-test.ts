@@ -44,13 +44,13 @@ test.describe('gantt chart UX regressions', () => {
 	test('keeps selection on repeated click', async ({page}) => {
 		const eventLog = page.locator('#event-log');
 		const taskRow = page.locator('.gantt-root [role="row"][data-task-id="1341"]');
-		await expect(eventLog).toHaveValue(/demo initialized/);
+		await expect(eventLog).toHaveValue(/demo initialized/u);
 
 		await taskRow.click();
-		await expect(eventLog).toHaveValue(/selected Billing Connector/);
+		await expect(eventLog).toHaveValue(/selected Billing Connector/u);
 
 		await taskRow.click();
-		await expect(eventLog).not.toHaveValue(/selection cleared/);
+		await expect(eventLog).not.toHaveValue(/selection cleared/u);
 	});
 
 	test('logs edit intent on double click in timeline bar', async ({page}) => {
@@ -59,10 +59,10 @@ test.describe('gantt chart UX regressions', () => {
 
 		await taskBar.dblclick();
 		await taskBar.dblclick();
-		await expect(eventLog).toHaveValue(/edit intent Stakeholder Interviews/);
+		await expect(eventLog).toHaveValue(/edit intent Stakeholder Interviews/u);
 
 		const logValue = await eventLog.inputValue();
-		const selectedMatches = logValue.match(/selected Stakeholder Interviews/g) ?? [];
+		const selectedMatches = logValue.match(/selected Stakeholder Interviews/gu) ?? [];
 		expect(selectedMatches).toHaveLength(1);
 	});
 
@@ -88,14 +88,14 @@ test.describe('gantt chart UX regressions', () => {
 
 		await collapseAll.click();
 		await expect(rows).toHaveCount(1);
-		await expect(eventLog).toHaveValue(/control-collapse-all \| integrated/);
+		await expect(eventLog).toHaveValue(/control-collapse-all \| integrated/u);
 
 		await collapseAll.click();
 		await expect(rows).toHaveCount(1);
 
 		await expandAll.click();
 		await expect(rows).toHaveCount(16);
-		await expect(eventLog).toHaveValue(/control-expand-all \| integrated/);
+		await expect(eventLog).toHaveValue(/control-expand-all \| integrated/u);
 
 		await expandAll.click();
 		await expect(rows).toHaveCount(16);
@@ -108,15 +108,15 @@ test.describe('gantt chart UX regressions', () => {
 		await expect(scaleSelect).toHaveValue('day');
 		await scaleSelect.selectOption('month');
 		await expect(scaleSelect).toHaveValue('month');
-		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=month/);
+		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=month/u);
 
 		await scaleSelect.selectOption('quarter');
 		await expect(scaleSelect).toHaveValue('quarter');
-		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=quarter/);
+		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=quarter/u);
 
 		await scaleSelect.selectOption('year');
 		await expect(scaleSelect).toHaveValue('year');
-		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=year/);
+		await expect(eventLog).toHaveValue(/scale-select \| integrated \| value=year/u);
 	});
 
 	test('toggles gantt options and logs changes', async ({page}) => {
@@ -127,11 +127,11 @@ test.describe('gantt chart UX regressions', () => {
 		await expect(weekendsToggle).toBeChecked();
 		await weekendsToggle.uncheck();
 		await expect(weekendsToggle).not.toBeChecked();
-		await expect(eventLog).toHaveValue(/toggle-show-weekends \| toggled \| value=off/);
+		await expect(eventLog).toHaveValue(/toggle-show-weekends \| toggled \| value=off/u);
 
 		await highlightToggle.check();
 		await expect(highlightToggle).toBeChecked();
-		await expect(eventLog).toHaveValue(/toggle-highlight-deps \| toggled \| value=on/);
+		await expect(eventLog).toHaveValue(/toggle-highlight-deps \| toggled \| value=on/u);
 	});
 
 	test('does not highlight dependency links for selected task by default', async ({page}) => {

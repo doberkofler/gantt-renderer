@@ -75,7 +75,7 @@ describe('resolveChartLocale', () => {
 		const input: ChartLocale = {code: 'de-DE', weekStartsOn: 0, weekendDays: [5, 6]};
 		const locale = resolveChartLocale(input);
 		expect(locale.weekStartsOn).toBe(0);
-		expect(locale.weekendDays).toEqual([5, 6]);
+		expect(locale.weekendDays).toStrictEqual([5, 6]);
 	});
 
 	it('preserves labels when provided', () => {
@@ -123,35 +123,35 @@ describe('deriveWeekStartsOn', () => {
 
 describe('deriveWeekendDays', () => {
 	it('returns weekend days in sorted order', () => {
-		expect(deriveWeekendDays('en-US')).toEqual([0, 6]);
+		expect(deriveWeekendDays('en-US')).toStrictEqual([0, 6]);
 	});
 
 	it('returns Fri/Sat for ar-SA', () => {
-		expect(deriveWeekendDays('ar-SA')).toEqual([5, 6]);
+		expect(deriveWeekendDays('ar-SA')).toStrictEqual([5, 6]);
 	});
 
 	it('returns Fri/Sat for ar-AE', () => {
-		expect(deriveWeekendDays('ar-AE')).toEqual([5, 6]);
+		expect(deriveWeekendDays('ar-AE')).toStrictEqual([5, 6]);
 	});
 
 	it('returns Fri/Sun for ms-BN', () => {
-		expect(deriveWeekendDays('ms-BN')).toEqual([0, 5]);
+		expect(deriveWeekendDays('ms-BN')).toStrictEqual([0, 5]);
 	});
 
 	it('returns Sunday only for en-IN', () => {
-		expect(deriveWeekendDays('en-IN')).toEqual([0]);
+		expect(deriveWeekendDays('en-IN')).toStrictEqual([0]);
 	});
 
 	it('returns Friday only for fa-IR', () => {
-		expect(deriveWeekendDays('fa-IR')).toEqual([5]);
+		expect(deriveWeekendDays('fa-IR')).toStrictEqual([5]);
 	});
 
 	it('returns Sat/Sun for unknown locale', () => {
-		expect(deriveWeekendDays('xx-XX')).toEqual([0, 6]);
+		expect(deriveWeekendDays('xx-XX')).toStrictEqual([0, 6]);
 	});
 
 	it('returns Sat/Sun for de-DE', () => {
-		expect(deriveWeekendDays('de-DE')).toEqual([0, 6]);
+		expect(deriveWeekendDays('de-DE')).toStrictEqual([0, 6]);
 	});
 });
 

@@ -49,7 +49,7 @@ describe('linkRouter utilities', () => {
 	it('skips links missing source or target layout', () => {
 		const links: Link[] = [{id: 1, source: 1, target: 2, type: 'FS'}];
 		const layouts = new Map<number, BarLayout>([[1, bar(1, 0, 20, 100)]]);
-		expect(routeLinks(links, layouts)).toEqual([]);
+		expect(routeLinks(links, layouts)).toStrictEqual([]);
 	});
 
 	describe('same-row routing', () => {
@@ -62,8 +62,8 @@ describe('linkRouter utilities', () => {
 			const routed = routeLinks(links, layouts);
 			const p = pts(routed);
 			expect(p).toHaveLength(2);
-			expect(p[0]).toEqual({x: 100, y: 20});
-			expect(p[1]).toEqual({x: 180, y: 20});
+			expect(p[0]).toStrictEqual({x: 100, y: 20});
+			expect(p[1]).toStrictEqual({x: 180, y: 20});
 			expect(lastSegmentDir(p)).toBe(1); // arrow → RIGHT
 		});
 

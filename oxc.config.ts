@@ -153,6 +153,7 @@ export const linter = defineConfig({
 		'unicorn/no-array-sort': 'off', // TODO: consider enabling
 		'unicorn/no-hex-escape': 'off',
 		'unicorn/no-immediate-mutation': 'off',
+		'unicorn/no-negated-condition': 'off',
 		'unicorn/no-nested-ternary': 'off',
 		'unicorn/no-null': 'off', // TODO: consider enabling
 		'unicorn/no-process-exit': 'off', // TODO: consider enabling
@@ -169,12 +170,14 @@ export const linter = defineConfig({
 		'react/jsx-filename-extension': ['error', {extensions: ['.tsx']}],
 		'react/jsx-max-depth': ['error', {max: 5}],
 		'react/react-in-jsx-scope': 'off',
+		'vitest/require-to-throw-message': 'off',
 		'vitest/max-expects': 'off',
 		'vitest/no-conditional-in-test': 'off',
 		'vitest/no-hooks': 'off',
 		'vitest/no-importing-vitest-globals': 'off',
 		'vitest/prefer-describe-function-title': 'off',
 		'vitest/prefer-expect-assertions': 'off',
+		'vitest/prefer-lowercase-title': 'off',
 		'vitest/prefer-to-be-falsy': 'off', // NOTE: Pick strictness: keep prefer-strict-boolean-matchers, disable truthy/falsy rules.
 		'vitest/prefer-to-be-truthy': 'off', // NOTE: Pick strictness: keep prefer-strict-boolean-matchers, disable truthy/falsy rules.
 		'vitest/require-test-timeout': 'off',

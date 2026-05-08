@@ -643,7 +643,7 @@ export class GanttChart implements GanttInstance {
 		renderRightPane(this.#rightPaneRefs, state, this.#cbs);
 	};
 
-	#renderGrid = (): void => {
+	readonly #renderGrid = (): void => {
 		this.#rafPending = false;
 		const input = this.#input;
 		if (input === null) {
@@ -676,7 +676,7 @@ export class GanttChart implements GanttInstance {
 		);
 	}
 
-	#renderTimeline = (): void => {
+	readonly #renderTimeline = (): void => {
 		this.#rafPending = false;
 		const input = this.#input;
 		if (input === null) {

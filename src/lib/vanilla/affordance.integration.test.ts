@@ -124,7 +124,7 @@ describe('add/toggle affordance visibility', () => {
 		});
 
 		const addBtns = container.querySelectorAll('.gantt-add-btn');
-		expect(addBtns.length).toBe(0);
+		expect(addBtns).toHaveLength(0);
 	});
 
 	it('toggle buttons are present even when actions column is omitted', () => {

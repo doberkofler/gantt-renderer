@@ -47,18 +47,18 @@ describe('utils', () => {
 
 	describe('normalizeWeekendDays', () => {
 		it('returns default [0, 6] when undefined', () => {
-			expect(normalizeWeekendDays(undefined)).toEqual(new Set([0, 6]));
+			expect(normalizeWeekendDays(undefined)).toStrictEqual(new Set([0, 6]));
 		});
 
 		it('normalizes custom weekend days', () => {
-			expect(normalizeWeekendDays([5, 6])).toEqual(new Set([5, 6]));
-			expect(normalizeWeekendDays([0])).toEqual(new Set([0]));
+			expect(normalizeWeekendDays([5, 6])).toStrictEqual(new Set([5, 6]));
+			expect(normalizeWeekendDays([0])).toStrictEqual(new Set([0]));
 		});
 
 		it('throws on invalid day values', () => {
-			expect(() => normalizeWeekendDays([7])).toThrow();
-			expect(() => normalizeWeekendDays([-1])).toThrow();
-			expect(() => normalizeWeekendDays([1.5])).toThrow();
+			expect(() => normalizeWeekendDays([7])).toThrow('weekendDays must contain integers in range 0..6');
+			expect(() => normalizeWeekendDays([-1])).toThrow('weekendDays must contain integers in range 0..6');
+			expect(() => normalizeWeekendDays([1.5])).toThrow('weekendDays must contain integers in range 0..6');
 		});
 	});
 

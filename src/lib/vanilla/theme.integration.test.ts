@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
 
-describe('M15 — dark mode theme support', () => {
+describe('m15 — dark mode theme support', () => {
 	const {mountTracked} = createMountHelpers();
 
 	it('sets data-theme="dark" on container when theme is "dark"', () => {

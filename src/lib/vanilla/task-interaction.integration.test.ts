@@ -56,13 +56,7 @@ describe('task interaction', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 1}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
 
-		expect(onTaskMoveMock).toHaveBeenCalled();
-		const [firstMoveCall] = onTaskMoveMock.mock.calls;
-		expect(firstMoveCall).toBeDefined();
-		if (firstMoveCall === undefined) {
-			throw new Error('Expected first move callback call');
-		}
-		expect(firstMoveCall[0]).toMatchObject({task: expect.objectContaining({id: 1})});
+		expect(onTaskMoveMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
 
 		const handle = container.querySelector('.gantt-resize-handle');
 		expect(handle).not.toBeNull();
@@ -70,14 +64,11 @@ describe('task interaction', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 160, pointerId: 2}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 2}));
 
-		expect(onTaskResizeMock).toHaveBeenCalled();
-		const [firstResizeCall] = onTaskResizeMock.mock.calls;
-		expect(firstResizeCall).toBeDefined();
-		if (firstResizeCall === undefined) {
-			throw new Error('Expected first resize callback call');
+		expect(onTaskResizeMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1}), newDurationHours: expect.any(Number)}));
+		{
+			const [firstResizeCall] = onTaskResizeMock.mock.calls;
+			expect(firstResizeCall?.[0]?.newDurationHours).toBeGreaterThanOrEqual(1);
 		}
-		expect(firstResizeCall[0]).toMatchObject({task: expect.objectContaining({id: 1})});
-		expect(firstResizeCall[0].newDurationHours).toBeGreaterThanOrEqual(1);
 	});
 
 	it('emits onProgressChange on progress overlay drag', () => {
@@ -100,15 +91,14 @@ describe('task interaction', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 130, pointerId: 3}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 3}));
 
-		expect(onProgressChangeMock).toHaveBeenCalled();
-		const [firstCall] = onProgressChangeMock.mock.calls;
-		expect(firstCall).toBeDefined();
-		if (firstCall === undefined) {
-			throw new Error('Expected first progress change callback call');
+		expect(onProgressChangeMock).toHaveBeenCalledWith(
+			expect.objectContaining({task: expect.objectContaining({id: 1}), newPercentComplete: expect.any(Number)}),
+		);
+		{
+			const [firstCall] = onProgressChangeMock.mock.calls;
+			expect(firstCall?.[0]?.newPercentComplete).toBeGreaterThanOrEqual(0);
+			expect(firstCall?.[0]?.newPercentComplete).toBeLessThanOrEqual(100);
 		}
-		expect(firstCall[0]).toMatchObject({task: expect.objectContaining({id: 1})});
-		expect(firstCall[0].newPercentComplete).toBeGreaterThanOrEqual(0);
-		expect(firstCall[0].newPercentComplete).toBeLessThanOrEqual(100);
 	});
 
 	it('does not emit onProgressChange on right-click of progress overlay', () => {

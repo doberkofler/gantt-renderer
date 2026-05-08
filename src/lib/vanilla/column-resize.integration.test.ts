@@ -46,12 +46,12 @@ describe('column resize handles (M14)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 60}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 60}));
 
-		expect(onColMock).toHaveBeenCalled();
+		expect(onColMock).toHaveBeenCalledWith(expect.any(Array));
 		const updated = onColMock.mock.calls[0]?.[0];
 		expect(updated).toBeDefined();
 		expect(updated).toHaveLength(3);
 		for (const col of updated ?? []) {
-			expect(col.width).toMatch(/^\d+px$/);
+			expect(col.width).toMatch(/^\d+px$/u);
 		}
 	});
 
@@ -78,7 +78,7 @@ describe('column resize handles (M14)', () => {
 
 		// Header template should be updated to px values
 		const afterMove = headerEl?.style.gridTemplateColumns;
-		expect(afterMove).toMatch(/^\d+px \d+px$/);
+		expect(afterMove).toMatch(/^\d+px \d+px$/u);
 		expect(afterMove).not.toBe(initialTemplate);
 
 		// Body rows should match header
