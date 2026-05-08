@@ -9,12 +9,12 @@ describe('api lifecycle', () => {
 
 		const instance = new GanttChart(container);
 		instance.update(INPUT);
-		instance.setScale('year');
-		instance.setScale('quarter');
-		instance.setScale('month');
-		instance.setScale('week');
-		instance.setScale('day');
-		instance.setScale('hour');
+		instance.setOptions({scale: 'year'});
+		instance.setOptions({scale: 'quarter'});
+		instance.setOptions({scale: 'month'});
+		instance.setOptions({scale: 'week'});
+		instance.setOptions({scale: 'day'});
+		instance.setOptions({scale: 'hour'});
 		instance.select(2);
 		instance.select(null);
 		instance.collapseAll();

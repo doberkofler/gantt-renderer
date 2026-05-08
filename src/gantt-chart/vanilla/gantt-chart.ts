@@ -63,7 +63,7 @@ export type GanttOptions = {
 
 export type GanttInstance = {
 	update: (input: GanttInput) => void;
-	setScale: (scale: TimeScale) => void;
+	setOptions: (opts: Partial<GanttOptions>) => void;
 	select: (id: number | null) => void;
 	collapseAll: () => void;
 	expandAll: () => void;
@@ -100,19 +100,20 @@ export class GanttChart implements GanttInstance {
 	#lastGridClick: {id: number; atMs: number} | null = null;
 	#userSplitWidth: number | null = null;
 
-	readonly #height: number;
-	readonly #locale: ChartLocale;
-	readonly #timelineMinWidth: number;
-	readonly #columns: GridColumn[];
-	readonly #leftPaneDefaultWidth: number;
-	readonly #weekendDays: Set<number>;
-	readonly #specialDaysByDate: Map<string, ResolvedSpecialDay>;
+	#height: number;
+	#locale: ChartLocale;
+	#timelineMinWidth: number;
+	#columns: GridColumn[];
+	#leftPaneDefaultWidth: number;
+	#weekendDays: Set<number>;
+	#specialDaysByDate: Map<string, ResolvedSpecialDay>;
 	#expandedIds: Set<number>;
 
 	// oxlint-disable typescript-eslint(prefer-readonly)
 	#root!: HTMLElement;
 	#scrollEl!: HTMLElement;
 	#leftPane!: HTMLElement;
+	#leftHeader!: HTMLElement;
 	#leftBody!: HTMLElement;
 	#rightPane!: HTMLElement;
 	#rightHeader!: HTMLElement;
@@ -150,35 +151,35 @@ export class GanttChart implements GanttInstance {
 					return;
 				}
 				this.#selectedId = id;
-				opts.onSelect?.(this.#selectedId);
+				this.#opts.onSelect?.(this.#selectedId);
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				opts.onTaskDoubleClick?.(payload);
+				this.#opts.onTaskDoubleClick?.(payload);
 			},
 			onTaskEditIntent: (payload): void => {
-				opts.onTaskEditIntent?.(payload);
-				opts.onTaskDoubleClick?.({id: payload.id, source: payload.source});
+				this.#opts.onTaskEditIntent?.(payload);
+				this.#opts.onTaskDoubleClick?.({id: payload.id, source: payload.source});
 			},
 			onMove: (payload): void => {
 				const iso = payload.startDate.toISOString().slice(0, 10);
 				this.#patchTask(payload.id, {startDate: iso});
-				opts.onMove?.(payload);
+				this.#opts.onMove?.(payload);
 				this.#scheduleRender();
 			},
 			onResize: (payload): void => {
 				this.#patchTask(payload.id, {durationHours: payload.durationHours});
-				opts.onResize?.(payload);
+				this.#opts.onResize?.(payload);
 				this.#scheduleRender();
 			},
 			onLeftPaneWidthChange: (width): void => {
-				opts.onLeftPaneWidthChange?.(width);
+				this.#opts.onLeftPaneWidthChange?.(width);
 			},
 			onGridColumnsChange: (updatedColumns): void => {
-				opts.onGridColumnsChange?.(updatedColumns);
+				this.#opts.onGridColumnsChange?.(updatedColumns);
 			},
 			onLinkCreate: (payload): void => {
-				opts.onLinkCreate?.(payload);
+				this.#opts.onLinkCreate?.(payload);
 			},
 		};
 
@@ -215,15 +216,116 @@ export class GanttChart implements GanttInstance {
 	}
 
 	/**
-	 * Switches the time scale and re-renders.
+	 * Merges the supplied options into the current configuration and re-renders
+	 * only the panes affected by the changed options.
 	 *
-	 * @param scale - The new {@link TimeScale} to display.
+	 * @param opts - A partial {@link GanttOptions} object. Only the keys present
+	 *               in this parameter are updated; missing keys keep their
+	 *               previous values.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public setScale(scale: TimeScale): void {
+	public setOptions(opts: Partial<GanttOptions>): void {
 		this.#assertAlive();
-		this.#scale = scale;
-		this.#scheduleRender();
+
+		Object.assign(this.#opts, opts);
+
+		this.#scale = this.#opts.scale ?? 'day';
+
+		let columnsChanged = false;
+
+		if (opts.locale !== undefined) {
+			this.#locale = resolveChartLocale(opts.locale);
+			if (this.#opts.gridColumns === undefined) {
+				this.#columns = gridColumnDefaults(this.#locale);
+				this.#leftPaneDefaultWidth = gridNaturalWidth(this.#columns);
+				columnsChanged = true;
+			}
+			if (this.#opts.weekendDays === undefined) {
+				this.#weekendDays = normalizeWeekendDays(this.#locale.weekendDays);
+			}
+		}
+
+		if (opts.gridColumns !== undefined) {
+			this.#columns = opts.gridColumns;
+			this.#leftPaneDefaultWidth = this.#opts.leftPaneWidth ?? gridNaturalWidth(this.#columns);
+			columnsChanged = true;
+		}
+
+		if (columnsChanged && this.#input !== null) {
+			this.#rebuildLeftPaneHeader();
+		}
+
+		if (opts.leftPaneWidth !== undefined) {
+			this.#leftPaneDefaultWidth = opts.leftPaneWidth;
+		}
+
+		if (opts.height !== undefined) {
+			this.#height = opts.height;
+			this.#root.style.height = `${this.#height}px`;
+		}
+
+		if (opts.timelineMinWidth !== undefined) {
+			this.#timelineMinWidth = opts.timelineMinWidth;
+			this.#rightPane.style.minWidth = `${this.#timelineMinWidth}px`;
+		}
+
+		if (opts.weekendDays !== undefined) {
+			this.#weekendDays = normalizeWeekendDays(opts.weekendDays);
+		}
+
+		if (opts.specialDays !== undefined) {
+			this.#specialDaysByDate = buildSpecialDayIndex(opts.specialDays);
+		}
+
+		if (opts.theme !== undefined) {
+			this.#applyTheme();
+		}
+
+		const hasLayoutChange =
+			opts.leftPaneWidth !== undefined ||
+			opts.responsiveSplitPane !== undefined ||
+			opts.mobileBreakpoint !== undefined ||
+			opts.mobileLeftPaneMinWidth !== undefined ||
+			opts.mobileLeftPaneMaxRatio !== undefined ||
+			opts.timelineMinWidth !== undefined;
+
+		if (hasLayoutChange) {
+			this.#applyResponsivePaneStyles();
+		}
+
+		const hasLeftPaneChange = columnsChanged || opts.locale !== undefined;
+
+		const hasRightPaneChange =
+			opts.scale !== undefined ||
+			opts.showWeekends !== undefined ||
+			opts.weekendDays !== undefined ||
+			opts.specialDays !== undefined ||
+			opts.highlightLinkedDependenciesOnSelect !== undefined ||
+			opts.linkCreationEnabled !== undefined ||
+			opts.viewportStart !== undefined ||
+			opts.viewportEnd !== undefined ||
+			opts.locale !== undefined ||
+			opts.timelineMinWidth !== undefined;
+
+		const hasVisualChange = hasLeftPaneChange || hasRightPaneChange || hasLayoutChange;
+
+		if (!hasVisualChange) {
+			return;
+		}
+
+		if (this.#rafPending && this.#rafId !== null) {
+			cancelAnimationFrame(this.#rafId);
+			this.#rafId = null;
+			this.#rafPending = false;
+		}
+
+		if (hasLeftPaneChange && !hasRightPaneChange) {
+			this.#renderGrid();
+		} else if (!hasLeftPaneChange && hasRightPaneChange) {
+			this.#renderTimeline();
+		} else {
+			this.#render();
+		}
 	}
 
 	/**
@@ -412,6 +514,20 @@ export class GanttChart implements GanttInstance {
 		const state = this.#computeState(input);
 
 		renderTimeHeader(this.#rightHeader, state);
+		this.#renderGridInternal(state);
+		renderRightPane(this.#rightPaneRefs, state, this.#cbs);
+	};
+
+	#renderGrid = (): void => {
+		this.#rafPending = false;
+		const input = this.#input;
+		if (input === null) {
+			return;
+		}
+		this.#renderGridInternal(this.#computeState(input));
+	};
+
+	#renderGridInternal(state: GanttState): void {
 		renderLeftPane(
 			this.#leftBody,
 			state,
@@ -433,8 +549,29 @@ export class GanttChart implements GanttInstance {
 			},
 			this.#columns,
 		);
+	}
+
+	#renderTimeline = (): void => {
+		this.#rafPending = false;
+		const input = this.#input;
+		if (input === null) {
+			return;
+		}
+		const state = this.#computeState(input);
+
+		renderTimeHeader(this.#rightHeader, state);
 		renderRightPane(this.#rightPaneRefs, state, this.#cbs);
 	};
+
+	#rebuildLeftPaneHeader(): void {
+		this.#columnResizeCleanup();
+		clearChildren(this.#leftHeader);
+		const headerEl = buildLeftPaneHeader(this.#columns);
+		this.#leftHeader.append(headerEl);
+		this.#columnResizeCleanup = setupColumnResize(headerEl, this.#leftBody, this.#columns, (updated) => {
+			this.#cbs.onGridColumnsChange?.(updated);
+		});
+	}
 
 	#scheduleRender(): void {
 		if (this.#rafPending || this.#destroyed) {
@@ -491,6 +628,7 @@ export class GanttChart implements GanttInstance {
 		const headerEl = buildLeftPaneHeader(this.#columns);
 		leftHeader.append(headerEl);
 		leftPane.append(leftHeader);
+		this.#leftHeader = leftHeader;
 
 		const leftBody = el('div');
 		leftPane.append(leftBody);

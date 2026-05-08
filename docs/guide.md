@@ -517,7 +517,7 @@ Notes:
 `new GanttChart(container, options)` returns a `GanttInstance` with these methods:
 
 - `update(input)` - Replaces the full dataset and rerenders after validation.
-- `setScale(scale)` - Switches between `hour|day|week|month|quarter|year` without remounting.
+- `setOptions(opts)` - Merges a partial {@link GanttOptions} into the current configuration and re-renders. Only properties present in `opts` are updated; missing keys keep their previous values. Re-rendering is optimized per-pane: left-pane-only changes (e.g. `gridColumns`) skip timeline rendering, right-pane-only changes (e.g. `scale`, `showWeekends`) skip grid rendering, and callback-only changes (e.g. `onSelect`, `onMove`) trigger no DOM re-render at all.
 - `select(id | null)` - Programmatically selects a task id or clears selection with `null`.
 - `collapseAll()` - Collapses all expandable groups in the task tree.
 - `expandAll()` - Expands all expandable groups in the task tree.

@@ -189,7 +189,7 @@ export const init = (): void => {
 		clearControlFeedback();
 		state.currentScale = supported;
 		state.zoomLevel = ZOOM_LEVELS.indexOf(supported);
-		instance.setScale(supported);
+		instance.setOptions({scale: supported});
 		logControlHook('scale-select', 'integrated', supported);
 	});
 
