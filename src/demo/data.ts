@@ -1,4 +1,4 @@
-import {type GanttInputRaw} from '../gantt-chart/index.ts';
+import {type GanttInputRaw} from '../lib/index.ts';
 
 /** Raw input matching the screenshots. Validated at runtime via parseGanttInput. */
 export const RAW_INPUT = {

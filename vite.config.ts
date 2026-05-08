@@ -7,7 +7,7 @@ export default defineConfig({
 	build: {target: 'es2022', sourcemap: true, outDir: 'dist-demo', emptyOutDir: true},
 	resolve: {
 		alias: {
-			'gantt-renderer': path.resolve('./src/gantt-chart'),
+			'gantt-renderer': path.resolve('./src/lib'),
 		},
 	},
 	test: {

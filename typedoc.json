@@ -1,5 +1,5 @@
 {
-	"entryPoints": ["src/gantt-chart/index.ts"],
+	"entryPoints": ["src/lib/index.ts"],
 	"out": "docs/api",
 	"exclude": ["**/*.test.ts", "**/*.integration.test.ts", "src/demo/**"],
 	"excludeInternal": true,

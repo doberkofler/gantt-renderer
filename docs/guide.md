@@ -877,7 +877,7 @@ instance.update(input);
 
 ## Package API
 
-The primary entrypoint is `src/gantt-chart/index.ts`, which exports:
+The primary entrypoint is `src/lib/index.ts`, which exports:
 
 - Core input and domain types (`Task`, `Link`, `GanttInput`, `TaskNode`, and related types).
 - Locale types and utilities (`ChartLocale`, `LocaleLabelKey`, `resolveChartLocale`, `deriveWeekendDays`, etc.).

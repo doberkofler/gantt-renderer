@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {parseGanttInput} from '../gantt-chart/index.ts';
+import {parseGanttInput} from '../lib/index.ts';
 import {RAW_INPUT} from './data.ts';
 
 describe('demo data scenario', () => {

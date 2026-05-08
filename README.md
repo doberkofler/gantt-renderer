@@ -30,7 +30,7 @@ optimize timelines, resolve resource constraints, or perform planning logic itse
 
 ## Scope
 
-The library is designed as a core chart component (`src/gantt-chart/**/*`) that your product can
+The library is designed as a core chart component (`src/lib/**/*`) that your product can
 embed. Outer-page/demo concerns (export toolbars, fullscreen shell controls, demo-only control
 rows) are intentionally outside the core scope.
 

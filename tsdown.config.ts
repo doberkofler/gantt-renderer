@@ -1,7 +1,7 @@
 import {defineConfig} from 'tsdown';
 
 export default defineConfig({
-	entry: ['src/gantt-chart/index.ts'],
+	entry: ['src/lib/index.ts'],
 	format: ['esm'],
 	dts: true,
 	fixedExtension: true,

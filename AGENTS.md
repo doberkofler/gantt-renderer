@@ -131,7 +131,7 @@ The `pnpm run ci` command is the source of truth for repository health. Always e
 
 ## Core Change Testing Requirement
 
-- Every core chart change (`src/gantt-chart/**/*`) must be paired with appropriate automated test coverage.
+- Every core chart change (`src/lib/**/*`) must be paired with appropriate automated test coverage.
 - Add or update unit tests and/or integration tests based on the change scope.
 - Do not consider core work complete unless the related tests are included and passing.
 
