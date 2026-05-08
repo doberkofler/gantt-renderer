@@ -819,6 +819,8 @@ These tokens ensure row alignment, bar centering, and hit areas stay consistent 
 - `mobileLeftPaneMaxRatio?: number` - Max left-pane share of viewport in mobile mode (default `0.45`).
 - `timelineMinWidth?: number` - Minimum timeline pane width; if needed, horizontal scrolling is used (default `220`).
 
+The chart automatically detects container size changes using a `ResizeObserver` (with a `window.resize` fallback). When the container resizes — whether from a window resize, sidebar toggle, or layout change — the left/right pane widths are recalculated on the fly. No manual call is needed; as long as the container element is sized responsively (e.g. `width: 100%` in a flex or grid layout), the chart adapts automatically.
+
 This keeps the timeline visible at narrow widths (for example `375px`) while preserving desktop behavior.
 On desktop, the pane width is clamped between `viewportWidth * 0.25` and `viewportWidth * 0.4`, with the natural width computed from the active column schema as the initial value.
 
