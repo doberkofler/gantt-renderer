@@ -1,3 +1,17 @@
+# [0.3.0](https://github.com/doberkofler/gantt-renderer/compare/v0.2.0...v0.3.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* correct link routing geometry and dependency layer rendering ([d00de8a](https://github.com/doberkofler/gantt-renderer/commit/d00de8a8b51d69b7b50ec4c6bf0ce6dd3657e1a8))
+* **interaction:** deep-clone input in update() to prevent drag mutations leaking to consumer data ([ce814a0](https://github.com/doberkofler/gantt-renderer/commit/ce814a02bb87230108635ae663f165497f522f7e)), closes [#patchTask](https://github.com/doberkofler/gantt-renderer/issues/patchTask)
+* **rendering:** offset multi-row link midpoint to avoid bar center slicing ([1fe09fa](https://github.com/doberkofler/gantt-renderer/commit/1fe09fa3d736cf948035c4f1619f398fa374464d))
+
+
+### Features
+
+* **interaction:** add progress bar drag with progressDragEnabled option ([77833b5](https://github.com/doberkofler/gantt-renderer/commit/77833b50b5984158bd9a2ab3ddcc744d05ccb18f))
+
 # [0.2.0](https://github.com/doberkofler/gantt-renderer/compare/v0.1.3...v0.2.0) (2026-05-07)
 
 
