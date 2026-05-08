@@ -21,6 +21,7 @@ export type GanttState = {
 	scale: TimeScale;
 	highlightLinkedDependenciesOnSelect: boolean;
 	linkCreationEnabled: boolean;
+	progressDragEnabled: boolean;
 	expandedIds: Set<number>;
 	selectedId: number | null;
 	scrollTop: number;

@@ -1,18 +1,6 @@
 // ─── Core types ───────────────────────────────────────────────────────────────
 
-export type {
-	Task,
-	TaskLeaf,
-	TaskProject,
-	TaskMilestone,
-	Link,
-	GanttInput,
-	GanttInputRaw,
-	TaskKind,
-	LinkType,
-	SpecialDayKind,
-	SpecialDay,
-} from './validation/schemas.ts';
+export type {Task, Link, GanttInput, GanttInputRaw, TaskKind, LinkType, SpecialDayKind, SpecialDay} from './validation/schemas.ts';
 export type {TimeScale, ScaleConfig} from './timeline/scale.ts';
 export type {TaskNode} from './domain/tree.ts';
 export type {BarLayout} from './timeline/layoutEngine.ts';
@@ -63,7 +51,17 @@ export {
 
 export {GanttChart} from './vanilla/gantt-chart.ts';
 export type {GanttInstance, GanttOptions, GanttCallbacks, ThemeMode} from './vanilla/gantt-chart.ts';
-export type {OnTaskSelect, OnTaskMove, OnTaskResize, OnTaskAdd, OnTaskDoubleClick, OnLinkCreate, OnLinkClick, OnLinkDblClick} from './vanilla/gantt-chart.ts';
+export type {
+	OnTaskSelect,
+	OnTaskMove,
+	OnTaskResize,
+	OnTaskAdd,
+	OnTaskDoubleClick,
+	OnLinkCreate,
+	OnLinkClick,
+	OnLinkDblClick,
+	OnProgressChange,
+} from './vanilla/gantt-chart.ts';
 export type {GridColumn} from './vanilla/dom/gridColumns.ts';
 export {
 	DEFAULT_GRID_COLUMNS,

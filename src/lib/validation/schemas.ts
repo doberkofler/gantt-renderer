@@ -27,6 +27,7 @@ const taskBase = {
 	data: z.record(z.string(), z.unknown()).optional(),
 };
 
+/** @internal */
 export const TaskLeafSchema = z.object({
 	...taskBase,
 	kind: z.literal('task'),
@@ -36,6 +37,7 @@ export const TaskLeafSchema = z.object({
 	percentComplete: z.number().int().min(0).max(100).default(0),
 });
 
+/** @internal */
 export const TaskProjectSchema = z.object({
 	...taskBase,
 	kind: z.literal('project'),
@@ -52,6 +54,7 @@ export const TaskProjectSchema = z.object({
 	open: z.boolean().default(true),
 });
 
+/** @internal */
 export const TaskMilestoneSchema = z.object({
 	...taskBase,
 	kind: z.literal('milestone'),
@@ -162,10 +165,11 @@ export type SpecialDay = z.infer<typeof SpecialDaySchema>;
  */
 export type Task = z.infer<typeof TaskSchema>;
 /** Convenience alias for the leaf-task variant of {@link Task}. */
+/** @internal */
 export type TaskLeaf = z.infer<typeof TaskLeafSchema>;
-/** Convenience alias for the project variant of {@link Task}. */
+/** @internal */
 export type TaskProject = z.infer<typeof TaskProjectSchema>;
-/** Convenience alias for the milestone variant of {@link Task}. */
+/** @internal */
 export type TaskMilestone = z.infer<typeof TaskMilestoneSchema>;
 /**
  * A dependency link between two tasks. The `type` determines the scheduling constraint

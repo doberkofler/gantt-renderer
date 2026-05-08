@@ -10,6 +10,8 @@ type InternalCallbacks = {
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
 	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
 	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
 };
 
 function toTask(node: TaskNode): Task {
@@ -146,6 +148,68 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		barEl.removeEventListener('pointerdown', onBarDown);
 		barEl.removeEventListener('click', onBarClick);
 		resizeHandleEl.removeEventListener('pointerdown', onResizeDown);
+	};
+}
+
+/**
+ * Attaches drag-to-change-progress listeners to a progress overlay element.
+ *
+ * @param progressEl - The progress overlay DOM element.
+ * @param barEl - The bar DOM element (for width measurement).
+ * @param task - The {@link TaskNode} for this bar.
+ * @param _getMapper - A function returning the current {@link PixelMapper} (unused, kept for API symmetry).
+ * @param cbs - The chart callbacks.
+ * @returns A cleanup function that removes all listeners.
+ */
+export function attachProgressDrag(
+	progressEl: HTMLElement,
+	barEl: HTMLElement,
+	task: TaskNode,
+	_getMapper: () => PixelMapper,
+	cbs: InternalCallbacks,
+): () => void {
+	function onProgressDown(e: PointerEvent): void {
+		if (e.button !== 0) {
+			return;
+		}
+		e.preventDefault();
+		e.stopPropagation();
+		cbs.onTaskSelect?.(task.id);
+		try {
+			progressEl.setPointerCapture(e.pointerId);
+		} catch {
+			// Browsers/tests may reject synthetic pointer ids.
+		}
+
+		const startX = e.clientX;
+		const barWidth = barEl.getBoundingClientRect().width;
+		const origPercent = task.kind !== 'milestone' ? (task.percentComplete ?? 0) : 0;
+
+		let lastPercent = origPercent;
+
+		function onMove(me: PointerEvent): void {
+			const dx = me.clientX - startX;
+			const percentDelta = barWidth > 0 ? (dx / barWidth) * 100 : 0;
+			lastPercent = Math.max(0, Math.min(100, Math.round(origPercent + percentDelta)));
+			cbs.onTaskProgressDrag?.({id: task.id, percentComplete: lastPercent});
+		}
+
+		function onUp(): void {
+			window.removeEventListener('pointermove', onMove);
+			window.removeEventListener('pointerup', onUp);
+			progressEl.style.cursor = 'ew-resize';
+			cbs._onTaskProgressDragFinal?.({id: task.id, percentComplete: lastPercent});
+		}
+
+		progressEl.style.cursor = 'ew-resize';
+		window.addEventListener('pointermove', onMove);
+		window.addEventListener('pointerup', onUp);
+	}
+
+	progressEl.addEventListener('pointerdown', onProgressDown);
+
+	return () => {
+		progressEl.removeEventListener('pointerdown', onProgressDown);
 	};
 }
 

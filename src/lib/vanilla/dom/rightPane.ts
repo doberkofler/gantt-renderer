@@ -1,6 +1,6 @@
 import {el, css, clearChildren} from './helpers.ts';
 import {createDependencyLayer, updateDependencyLayer, hideGhostLine} from './dependencyLayer.ts';
-import {attachDrag, attachMilestoneClick, bindMilestoneTask} from '../interaction/drag.ts';
+import {attachDrag, attachMilestoneClick, bindMilestoneTask, attachProgressDrag} from '../interaction/drag.ts';
 import {attachLinkEndpointHandle, createEndpointHandle} from '../interaction/linkCreation.ts';
 import {type GanttState} from '../state.ts';
 import {type TaskNode} from '../../domain/tree.ts';
@@ -22,6 +22,8 @@ type RightPaneCallbacks = {
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
 	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
 };
 
 const BAR_COLOR: Record<string, string> = {
@@ -47,6 +49,7 @@ export type RightPaneRefs = {
 			resizeHandle: HTMLElement;
 			cleanupDrag: () => void;
 			cleanupLinkHandles?: () => void;
+			cleanupProgressDrag?: () => void;
 		}
 	>;
 };
@@ -163,8 +166,10 @@ function renderBar(
 	});
 
 	// Progress overlay
+	let cleanupProgressDrag: (() => void) | undefined;
 	if (layout.progressWidth > 0) {
 		const prog = el('div');
+		const progressEnabled = state.progressDragEnabled;
 		css(prog, {
 			position: 'absolute',
 			left: '0',
@@ -172,8 +177,12 @@ function renderBar(
 			width: `${layout.progressWidth}px`,
 			height: '100%',
 			background: 'rgba(0,0,0,0.18)',
-			pointerEvents: 'none',
+			...(progressEnabled ? {cursor: 'ew-resize', touchAction: 'none'} : {pointerEvents: 'none'}),
 		});
+		if (progressEnabled) {
+			prog.className = 'gantt-progress-overlay';
+			cleanupProgressDrag = attachProgressDrag(prog, bar, task, () => state.mapper, cbs);
+		}
 		bar.append(prog);
 	}
 
@@ -276,9 +285,13 @@ function renderBar(
 		resizeHandle: HTMLElement;
 		cleanupDrag: () => void;
 		cleanupLinkHandles?: () => void;
+		cleanupProgressDrag?: () => void;
 	} = {bar, resizeHandle: handle, cleanupDrag};
 	if (cleanupLinkHandles !== undefined) {
 		entry.cleanupLinkHandles = cleanupLinkHandles;
+	}
+	if (cleanupProgressDrag !== undefined) {
+		entry.cleanupProgressDrag = cleanupProgressDrag;
 	}
 	registry.set(task.id, entry);
 }
@@ -379,6 +392,7 @@ function renderMilestone(
 		resizeHandle: HTMLElement;
 		cleanupDrag: () => void;
 		cleanupLinkHandles?: () => void;
+		cleanupProgressDrag?: () => void;
 	} = {bar: diamond, resizeHandle: dummy, cleanupDrag};
 	if (cleanupLinkHandles !== undefined) {
 		entry.cleanupLinkHandles = cleanupLinkHandles;
@@ -464,9 +478,10 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Rig
 	hideGhostLine(svgLayer);
 
 	// Clean up previous drag listeners
-	for (const {cleanupDrag, cleanupLinkHandles} of barRegistry.values()) {
+	for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag} of barRegistry.values()) {
 		cleanupDrag();
 		cleanupLinkHandles?.();
+		cleanupProgressDrag?.();
 	}
 	barRegistry.clear();
 

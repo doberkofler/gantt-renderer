@@ -83,6 +83,7 @@ All constructor options with their types, defaults, and descriptions.
 | `specialDays` | `SpecialDay[]` | `[]` | Explicit date-only special days rendered in the timeline background. |
 | `highlightLinkedDependenciesOnSelect` | `boolean` | `false` | When `true`, links connected to the selected task use highlight styling. |
 | `linkCreationEnabled` | `boolean` | `false` | Enables per-task endpoint handles and drag-to-create-link interactions. |
+| `progressDragEnabled` | `boolean` | `false` | Enables dragging the percent-complete fill inside a task bar to change `percentComplete`. |
 
 #### Callback options
 
@@ -93,6 +94,7 @@ All callbacks are optional. See [GanttCallbacks Reference](#ganttcallbacks-refer
 | `onTaskSelect` | A task is selected or deselected. |
 | `onTaskMove` | A task bar is dragged to a new position on the timeline (once on release). |
 | `onTaskResize` | A task bar's resize handle is dragged to change its duration (once on release). |
+| `onProgressChange` | A task bar's progress fill is dragged to change its percent complete (once on release). |
 | `onTaskAdd` | The add-subtask button in the actions column is clicked. |
 | `onTaskDoubleClick` | A task is double-clicked (grid row, task bar, or milestone). |
 | `onLinkCreate` | A dependency link drag completes over a valid target task. |
@@ -110,6 +112,7 @@ All callbacks are optional. Provide them as the third argument to the
 export type OnTaskSelect = (payload: {task: Task}) => void;
 export type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
 export type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
+export type OnProgressChange = (payload: {task: Task; newPercentComplete: number}) => boolean;
 export type OnTaskAdd = (payload: {parentTask: Task}) => boolean;
 export type OnTaskDoubleClick = (payload: {task: Task}) => void;
 export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
@@ -208,6 +211,39 @@ import type {OnTaskResize} from 'gantt-renderer';
 
 const onTaskResize: OnTaskResize = ({task, newDurationHours}) => {
 	// Persist the new duration, then call instance.update(...)
+};
+```
+
+#### `onProgressChange`
+
+```ts
+type OnProgressChange = (payload: {task: Task; newPercentComplete: number}) => boolean;
+```
+
+Fires once after the user drags a task bar's progress fill to change its `percentComplete`.
+The chart patches its internal state automatically for immediate visual feedback — the progress
+bar widens or narrows before the callback runs. Progress dragging must be enabled via the
+`progressDragEnabled` option.
+
+Return `false` from the callback to abort the change and revert the task to its original
+`percentComplete`.
+
+| Payload field | Type | Description |
+|---|---|---|
+| `task` | `Task` | The full task whose progress was changed. |
+| `newPercentComplete` | `number` | The new completion percentage (`0`–`100`, integer). |
+
+**Edge cases:**
+
+- Milestone tasks do not have a progress overlay and cannot trigger this callback.
+- The value is clamped to `0`–`100` and rounded to an integer.
+- The callback does not fire if the pointer returns to the original position before release.
+
+```ts
+import type {OnProgressChange} from 'gantt-renderer';
+
+const onProgressChange: OnProgressChange = ({task, newPercentComplete}) => {
+	// Persist the new percent, then call instance.update(...)
 };
 ```
 

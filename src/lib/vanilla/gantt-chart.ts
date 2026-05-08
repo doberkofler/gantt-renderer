@@ -26,6 +26,7 @@ export type OnTaskDoubleClick = (payload: {task: Task}) => void;
 export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
 export type OnLinkClick = (payload: {link: Link}) => void;
 export type OnLinkDblClick = (payload: {link: Link}) => void;
+export type OnProgressChange = (payload: {task: Task; newPercentComplete: number}) => boolean;
 
 export type GanttCallbacks = {
 	onTaskSelect?: OnTaskSelect;
@@ -36,6 +37,7 @@ export type GanttCallbacks = {
 	onLinkCreate?: OnLinkCreate;
 	onLinkClick?: OnLinkClick;
 	onLinkDblClick?: OnLinkDblClick;
+	onProgressChange?: OnProgressChange;
 	onLeftPaneWidthChange?: (width: number) => void;
 	onGridColumnsChange?: (columns: GridColumn[]) => void;
 };
@@ -52,6 +54,8 @@ type InternalCallbacks = {
 	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
+	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
 	onLeftPaneWidthChange?: (width: number) => void;
 	onGridColumnsChange?: (columns: GridColumn[]) => void;
 };
@@ -62,6 +66,7 @@ export type GanttOptions = {
 	scale?: TimeScale;
 	highlightLinkedDependenciesOnSelect?: boolean;
 	linkCreationEnabled?: boolean;
+	progressDragEnabled?: boolean;
 	leftPaneWidth?: number;
 	responsiveSplitPane?: boolean;
 	mobileBreakpoint?: number;
@@ -237,6 +242,31 @@ export class GanttChart implements GanttInstance {
 				this.#scheduleRender();
 				return true;
 			},
+			onTaskProgressDrag: (payload): void => {
+				if (!this.#dragOriginals.has(payload.id)) {
+					const task = this.#input?.tasks.find((t) => t.id === payload.id);
+					if (task !== undefined) {
+						this.#dragOriginals.set(payload.id, task);
+					}
+				}
+				this.#patchTask(payload.id, {percentComplete: payload.percentComplete});
+				this.#scheduleRender();
+			},
+			_onTaskProgressDragFinal: (payload): boolean => {
+				const task = this.#findTask(payload.id);
+				if (task !== undefined) {
+					const result = this.#callbacks.onProgressChange?.({task, newPercentComplete: payload.percentComplete});
+					if (result === false) {
+						const original = this.#dragOriginals.get(payload.id);
+						if (original !== undefined && original.kind !== 'milestone') {
+							this.#patchTask(payload.id, {percentComplete: original.percentComplete});
+						}
+					}
+				}
+				this.#dragOriginals.clear();
+				this.#scheduleRender();
+				return true;
+			},
 			onTaskAdd: (parentId): void => {
 				const parentTask = this.#findTask(parentId);
 				if (parentTask !== undefined) {
@@ -383,6 +413,7 @@ export class GanttChart implements GanttInstance {
 			opts.specialDays !== undefined ||
 			opts.highlightLinkedDependenciesOnSelect !== undefined ||
 			opts.linkCreationEnabled !== undefined ||
+			opts.progressDragEnabled !== undefined ||
 			opts.viewportStart !== undefined ||
 			opts.viewportEnd !== undefined ||
 			opts.locale !== undefined ||
@@ -490,9 +521,10 @@ export class GanttChart implements GanttInstance {
 			cancelAnimationFrame(this.#rafId);
 		}
 		this.#columnResizeCleanup();
-		for (const {cleanupDrag, cleanupLinkHandles} of this.#rightPaneRefs.barRegistry.values()) {
+		for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag} of this.#rightPaneRefs.barRegistry.values()) {
 			cleanupDrag();
 			cleanupLinkHandles?.();
+			cleanupProgressDrag?.();
 		}
 		clearChildren(this.#container);
 	}
@@ -576,6 +608,7 @@ export class GanttChart implements GanttInstance {
 			scale: this.#scale,
 			highlightLinkedDependenciesOnSelect: this.#opts.highlightLinkedDependenciesOnSelect ?? false,
 			linkCreationEnabled: this.#opts.linkCreationEnabled ?? false,
+			progressDragEnabled: this.#opts.progressDragEnabled ?? false,
 			expandedIds: this.#expandedIds,
 			selectedId: this.#selectedId,
 			scrollTop: this.#scrollTop,
