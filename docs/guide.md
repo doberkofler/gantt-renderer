@@ -48,10 +48,10 @@ The essential API surface: how to create, drive, and interact with the chart.
 
 ### Instance API
 
-`new GanttChart(container, options)` returns a `GanttInstance` with these methods:
+`new GanttChart(container, options, callbacks?)` returns a `GanttInstance` with these methods:
 
 - `update(input)` — Replaces the full dataset, validates link references and cycles, and re-renders.
-- `setOptions(opts)` — Merges a partial `GanttOptions` into the current configuration and re-renders only the affected panes. Only properties present in `opts` are updated; missing keys keep their previous values. Left-pane-only changes (e.g. `gridColumns`) skip timeline rendering, right-pane-only changes (e.g. `scale`, `showWeekends`) skip grid rendering, and callback-only changes trigger no DOM re-render.
+- `setOptions(opts)` — Merges a partial `GanttOptions` into the current configuration and re-renders only the affected panes. Only properties present in `opts` are updated; missing keys keep their previous values. Left-pane-only changes (e.g. `gridColumns`) skip timeline rendering, right-pane-only changes (e.g. `scale`, `showWeekends`) skip grid rendering.
 - `select(id | null)` — Programmatically selects a task id or clears selection with `null`. Fires the `onTaskSelect` callback when the selection actually changes.
 - `collapseAll()` — Collapses all expandable groups in the task tree. Idempotent.
 - `expandAll()` — Expands all expandable groups in the task tree. Idempotent.
@@ -103,8 +103,8 @@ All callbacks are optional. See [GanttCallbacks Reference](#ganttcallbacks-refer
 
 ### GanttCallbacks Reference
 
-All callbacks are optional. Provide them as top-level keys of the `GanttOptions` object passed to
-the `GanttChart` constructor or to `instance.setOptions()`.
+All callbacks are optional. Provide them as the third argument to the
+`GanttChart` constructor (or omit it entirely).
 
 ```ts
 export type OnTaskSelect = (payload: {task: Task}) => void;
@@ -356,6 +356,7 @@ Use this to persist the user's preferred pane width and restore it on the next m
 ```ts
 const instance = new GanttChart(container, {
 	leftPaneWidth: savedWidth, // restore from localStorage
+}, {
 	onLeftPaneWidthChange: (width) => {
 		localStorage.setItem('gantt-left-pane-width', String(width));
 	},
@@ -383,6 +384,7 @@ Use this to persist the user's column widths and restore them on the next mount 
 ```ts
 const instance = new GanttChart(container, {
 	gridColumns: savedColumns, // restore from localStorage
+}, {
 	onGridColumnsChange: (columns) => {
 		localStorage.setItem('gantt-grid-columns', JSON.stringify(columns));
 	},
@@ -865,6 +867,7 @@ const onLinkCreate: OnLinkCreate = (payload) => {
 
 const instance = new GanttChart(container, {
 	linkCreationEnabled: true,
+}, {
 	onLinkCreate,
 });
 instance.update(input);

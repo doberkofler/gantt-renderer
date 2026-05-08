@@ -50,11 +50,17 @@ describe('C4 — link-creation endpoint controls', () => {
 		document.body.append(container);
 		const onLinkCreateMock = vi.fn<(payload: {type: 'FS'; sourceTask: {id: number}; targetTask: {id: number}}) => boolean>();
 
-		mountTracked(container, INPUT, {
-			height: 420,
-			linkCreationEnabled: true,
-			onLinkCreate: onLinkCreateMock,
-		});
+		mountTracked(
+			container,
+			INPUT,
+			{
+				height: 420,
+				linkCreationEnabled: true,
+			},
+			{
+				onLinkCreate: onLinkCreateMock,
+			},
+		);
 
 		const handles = container.querySelectorAll<HTMLElement>('.gantt-link-endpoint');
 		expect(handles.length).toBeGreaterThanOrEqual(2);
@@ -98,11 +104,17 @@ describe('C4 — link-creation endpoint controls', () => {
 		document.body.append(container);
 		const onLinkCreateMock = vi.fn<(payload: {type: 'FS'; sourceTask: {id: number}; targetTask: {id: number}}) => boolean>();
 
-		mountTracked(container, INPUT, {
-			height: 420,
-			linkCreationEnabled: true,
-			onLinkCreate: onLinkCreateMock,
-		});
+		mountTracked(
+			container,
+			INPUT,
+			{
+				height: 420,
+				linkCreationEnabled: true,
+			},
+			{
+				onLinkCreate: onLinkCreateMock,
+			},
+		);
 
 		const handle = container.querySelector<HTMLElement>('.gantt-link-endpoint');
 		expect(handle).not.toBeNull();

@@ -47,6 +47,7 @@ type InternalCallbacks = {
 	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
 	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
 	onTaskAdd?: (parentId: number) => void;
+	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
 	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
@@ -76,7 +77,7 @@ export type GanttOptions = {
 	specialDays?: SpecialDay[];
 	gridColumns?: GridColumn[];
 	theme?: ThemeMode;
-} & GanttCallbacks;
+};
 
 export type GanttInstance = {
 	update: (input: GanttInput) => void;
@@ -106,6 +107,7 @@ const OVERSCAN = 4;
 export class GanttChart implements GanttInstance {
 	readonly #container: HTMLElement;
 	readonly #opts: GanttOptions;
+	readonly #callbacks: GanttCallbacks;
 	#input: GanttInput | null = null;
 	#scale: TimeScale;
 	#selectedId: number | null = null;
@@ -148,11 +150,12 @@ export class GanttChart implements GanttInstance {
 	 * @param container - The host `HTMLElement` the chart will be appended to.
 	 * @param opts - Configuration and callback options.
 	 */
-	public constructor(container: HTMLElement, opts: GanttOptions = {}) {
+	public constructor(container: HTMLElement, opts: GanttOptions = {}, cbs: GanttCallbacks = {}) {
 		this.#container = container;
 
 		this.#scale = opts.scale ?? 'day';
 		this.#opts = opts;
+		this.#callbacks = cbs;
 		this.#taskIndex = new Map();
 		this.#locale = resolveChartLocale(opts.locale);
 		this.#columns = opts.gridColumns ?? gridColumnDefaults(this.#locale);
@@ -169,14 +172,19 @@ export class GanttChart implements GanttInstance {
 					return;
 				}
 				this.#selectedId = id;
-				const task = this.#input?.tasks.find((t) => t.id === id);
-				if (task !== undefined) {
-					this.#opts.onTaskSelect?.({task});
+				if (this.#selectedId !== null) {
+					const task = this.#findTask(this.#selectedId);
+					if (task !== undefined) {
+						this.#callbacks.onTaskSelect?.({task});
+					}
 				}
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				this.#opts.onTaskDoubleClick?.({task: payload.task});
+				this.#callbacks.onTaskDoubleClick?.({task: payload.task});
+			},
+			onTaskEditIntent: (payload): void => {
+				this.#callbacks.onTaskDoubleClick?.({task: payload.task});
 			},
 			onTaskMove: (payload): void => {
 				if (!this.#dragOriginals.has(payload.id)) {
@@ -190,21 +198,19 @@ export class GanttChart implements GanttInstance {
 				this.#scheduleRender();
 			},
 			_onTaskMoveFinal: (payload): boolean => {
-				const task = this.#input?.tasks.find((t) => t.id === payload.id);
-				if (task === undefined) {
-					this.#dragOriginals.clear();
-					return true;
-				}
-				const result = this.#opts.onTaskMove?.({task, newStartDate: payload.startDate}) !== false;
-				if (!result) {
-					const original = this.#dragOriginals.get(payload.id);
-					if (original !== undefined) {
-						this.#patchTask(payload.id, {startDate: original.startDate});
+				const task = this.#findTask(payload.id);
+				if (task !== undefined) {
+					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate});
+					if (result === false) {
+						const original = this.#dragOriginals.get(payload.id);
+						if (original !== undefined) {
+							this.#patchTask(payload.id, {startDate: original.startDate});
+						}
 					}
 				}
 				this.#dragOriginals.clear();
 				this.#scheduleRender();
-				return result;
+				return true;
 			},
 			onTaskResize: (payload): void => {
 				if (!this.#dragOriginals.has(payload.id)) {
@@ -217,48 +223,44 @@ export class GanttChart implements GanttInstance {
 				this.#scheduleRender();
 			},
 			_onTaskResizeFinal: (payload): boolean => {
-				const task = this.#input?.tasks.find((t) => t.id === payload.id);
-				if (task === undefined) {
-					this.#dragOriginals.clear();
-					return true;
-				}
-				const result = this.#opts.onTaskResize?.({task, newDurationHours: payload.durationHours}) !== false;
-				if (!result) {
-					const original = this.#dragOriginals.get(payload.id);
-					if (original !== undefined) {
-						this.#patchTask(payload.id, {durationHours: original.durationHours});
+				const task = this.#findTask(payload.id);
+				if (task !== undefined) {
+					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours});
+					if (result === false) {
+						const original = this.#dragOriginals.get(payload.id);
+						if (original !== undefined) {
+							this.#patchTask(payload.id, {durationHours: original.durationHours});
+						}
 					}
 				}
 				this.#dragOriginals.clear();
 				this.#scheduleRender();
-				return result;
+				return true;
 			},
 			onTaskAdd: (parentId): void => {
-				const parentTask = this.#input?.tasks.find((t) => t.id === parentId);
+				const parentTask = this.#findTask(parentId);
 				if (parentTask !== undefined) {
-					this.#opts.onTaskAdd?.({parentTask});
+					this.#callbacks.onTaskAdd?.({parentTask});
 				}
 			},
 			onLeftPaneWidthChange: (width): void => {
-				this.#opts.onLeftPaneWidthChange?.(width);
+				this.#callbacks.onLeftPaneWidthChange?.(width);
 			},
 			onGridColumnsChange: (updatedColumns): void => {
-				this.#opts.onGridColumnsChange?.(updatedColumns);
+				this.#callbacks.onGridColumnsChange?.(updatedColumns);
 			},
 			onLinkCreate: (payload): void => {
-				const sourceTask = this.#input?.tasks.find((t) => t.id === payload.sourceTaskId);
-				const targetTask = this.#input?.tasks.find((t) => t.id === payload.targetTaskId);
+				const sourceTask = this.#findTask(payload.sourceTaskId);
+				const targetTask = this.#findTask(payload.targetTaskId);
 				if (sourceTask !== undefined && targetTask !== undefined) {
-					this.#opts.onLinkCreate?.({type: payload.type, sourceTask, targetTask});
+					this.#callbacks.onLinkCreate?.({type: 'FS', sourceTask, targetTask});
 				}
 			},
 			onLinkClick: (payload): void => {
-				const link: Link = {id: payload.id, source: payload.source, target: payload.target, type: payload.type as Link['type']};
-				this.#opts.onLinkClick?.({link});
+				this.#callbacks.onLinkClick?.({link: payload as Link});
 			},
 			onLinkDblClick: (payload): void => {
-				const link: Link = {id: payload.id, source: payload.source, target: payload.target, type: payload.type as Link['type']};
-				this.#opts.onLinkDblClick?.({link});
+				this.#callbacks.onLinkDblClick?.({link: payload as Link});
 			},
 		};
 
@@ -420,7 +422,7 @@ export class GanttChart implements GanttInstance {
 		} else {
 			const task = this.#input?.tasks.find((t) => t.id === id);
 			if (task !== undefined) {
-				this.#opts.onTaskSelect?.({task});
+				this.#callbacks.onTaskSelect?.({task});
 			}
 			this.#selectedId = id;
 		}
@@ -508,6 +510,10 @@ export class GanttChart implements GanttInstance {
 			return;
 		}
 		this.#input.tasks[index] = {...target, ...patch};
+	}
+
+	#findTask(id: number): Task | undefined {
+		return this.#input?.tasks.find((t) => t.id === id);
 	}
 
 	readonly #handleGridClick = (payload: {id: number; task: Task}): void => {

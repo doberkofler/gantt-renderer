@@ -1,5 +1,5 @@
 import {afterEach, beforeEach} from 'vitest';
-import {GanttChart, type GanttOptions} from './gantt-chart.ts';
+import {GanttChart, type GanttOptions, type GanttCallbacks} from './gantt-chart.ts';
 import {type GanttInput} from '../validation/schemas.ts';
 
 export const INPUT: GanttInput = {
@@ -28,12 +28,12 @@ export const SPECIAL_DAYS = [
 ];
 
 export function createMountHelpers(): {
-	mountTracked: (container: HTMLElement, input: GanttInput, opts?: GanttOptions) => GanttChart;
+	mountTracked: (container: HTMLElement, input: GanttInput, opts?: GanttOptions, cbs?: GanttCallbacks) => GanttChart;
 } {
 	const instances: GanttChart[] = [];
 
-	function mountTracked(container: HTMLElement, input: GanttInput, opts?: GanttOptions): GanttChart {
-		const instance = new GanttChart(container, opts);
+	function mountTracked(container: HTMLElement, input: GanttInput, opts?: GanttOptions, cbs?: GanttCallbacks): GanttChart {
+		const instance = new GanttChart(container, opts, cbs);
 		instance.update(input);
 		instances.push(instance);
 		return instance;

@@ -21,7 +21,7 @@ describe('splitter handle (M13)', () => {
 		document.body.append(container);
 		const onSplitterMock = vi.fn<(width: number) => void>();
 
-		mountTracked(container, INPUT, {height: 420, onLeftPaneWidthChange: onSplitterMock});
+		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
 		const splitter = container.querySelector<HTMLElement>('.gantt-splitter-handle');
 		expect(splitter).not.toBeNull();
@@ -46,7 +46,7 @@ describe('splitter handle (M13)', () => {
 		document.body.append(container);
 		const onSplitterMock = vi.fn<(width: number) => void>();
 
-		mountTracked(container, INPUT, {height: 420, onLeftPaneWidthChange: onSplitterMock});
+		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
 		const splitter = container.querySelector<HTMLElement>('.gantt-splitter-handle');
 		const leftPane = container.querySelector<HTMLElement>('[data-pane="left"]');
@@ -69,7 +69,7 @@ describe('splitter handle (M13)', () => {
 		const onSplitterMock = vi.fn<(width: number) => void>();
 
 		// timelineMinWidth defaults to 220, so max left = 400 - 220 = 180
-		mountTracked(container, INPUT, {height: 420, onLeftPaneWidthChange: onSplitterMock});
+		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
 		const splitter = container.querySelector<HTMLElement>('.gantt-splitter-handle');
 		const leftPane = container.querySelector<HTMLElement>('[data-pane="left"]');

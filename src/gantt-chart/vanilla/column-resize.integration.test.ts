@@ -24,14 +24,20 @@ describe('column resize handles (M14)', () => {
 		document.body.append(container);
 		const onColMock = vi.fn<(columns: GridColumn[]) => void>();
 
-		mountTracked(container, INPUT, {
-			gridColumns: [
-				{id: 'name', header: 'Name', width: '1fr'},
-				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-				{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
-			],
-			onGridColumnsChange: onColMock,
-		});
+		mountTracked(
+			container,
+			INPUT,
+			{
+				gridColumns: [
+					{id: 'name', header: 'Name', width: '1fr'},
+					{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
+					{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
+				],
+			},
+			{
+				onGridColumnsChange: onColMock,
+			},
+		);
 
 		const handle = container.querySelector<HTMLElement>('.gantt-col-resize-handle');
 		expect(handle).not.toBeNull();

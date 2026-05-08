@@ -14,7 +14,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 			expect(rowLabel).toBeDefined();
@@ -37,7 +37,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const bar = container.querySelector('.gantt-bar');
 			expect(bar).not.toBeNull();
@@ -58,7 +58,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const milestone = container.querySelector('.gantt-milestone');
 			expect(milestone).not.toBeNull();
@@ -79,7 +79,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const row = container.querySelector<HTMLElement>('[role="row"][data-task-id="3"]');
 			expect(row).not.toBeNull();
@@ -104,7 +104,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const bar = container.querySelector('.gantt-bar');
 			expect(bar).not.toBeNull();
@@ -126,7 +126,7 @@ describe('selection', () => {
 				onTaskSelectMock(payload);
 			};
 
-			mountTracked(container, INPUT, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskSelect});
 
 			const root = container.querySelector('.gantt-root');
 			root?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
@@ -142,7 +142,7 @@ describe('selection', () => {
 			onTaskSelectMock(payload);
 		};
 
-		mountTracked(container, INPUT, {onTaskSelect});
+		mountTracked(container, INPUT, {}, {onTaskSelect});
 
 		const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 		expect(rowLabel).toBeDefined();

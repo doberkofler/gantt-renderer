@@ -138,17 +138,16 @@ export const init = (): void => {
 			highlightLinkedDependenciesOnSelect: state.currentOptions.highlightLinkedDependenciesOnSelect,
 			showWeekends: state.currentOptions.showWeekends,
 			responsiveSplitPane: state.currentOptions.responsiveSplitPane,
-			...callbacks,
 		};
 	}
 
-	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions());
+	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions(), callbacks);
 	instance.update(initialInput);
 	appendEventLog('demo initialized');
 
 	function remountChart(): void {
 		instance.destroy();
-		instance = new GanttChart(ganttEl, buildOptions());
+		instance = new GanttChart(ganttEl, buildOptions(), callbacks);
 		instance.update(initialInput);
 	}
 

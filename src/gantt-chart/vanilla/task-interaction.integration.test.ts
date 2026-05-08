@@ -12,7 +12,7 @@ describe('task interaction', () => {
 			onTaskDoubleClickMock(payload);
 		};
 
-		mountTracked(container, INPUT, {onTaskDoubleClick});
+		mountTracked(container, INPUT, {}, {onTaskDoubleClick});
 
 		const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 		expect(rowLabel).toBeDefined();
@@ -48,7 +48,7 @@ describe('task interaction', () => {
 			return true;
 		};
 
-		mountTracked(container, INPUT, {onTaskMove, onTaskResize});
+		mountTracked(container, INPUT, {}, {onTaskMove, onTaskResize});
 
 		const bar = container.querySelector('.gantt-bar');
 		expect(bar).not.toBeNull();
