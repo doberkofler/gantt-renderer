@@ -381,6 +381,36 @@ describe('linkRouter utilities', () => {
 		});
 	});
 
+	describe('parity-based midY offset', () => {
+		it('offsets midY to avoid bar centers for even row gaps (same parity)', () => {
+			// Row 5: centerY = 5*44+22 = 242, Row 7: centerY = 7*44+22 = 330
+			// rowsApart = 2 (even) → midY should offset by +22
+			const layouts = new Map<number, BarLayout>([
+				[1, bar(1, 100, 242, 100)],
+				[2, bar(2, 120, 330, 80)],
+			]);
+			const routed = routeLinks([{id: 1, source: 1, target: 2, type: 'FS'}], layouts);
+			const p = pts(routed);
+			// Old midY = (242+330)/2 = 286 (bar center of row 6)
+			// New midY = 286 + 22 = 308 (row boundary between rows 6 & 7)
+			expect(p.some((pt) => pt.y === 308)).toBe(true);
+			expect(p.some((pt) => pt.y === 286)).toBe(false);
+		});
+
+		it('keeps natural midpoint for odd row gaps (different parity)', () => {
+			// Row 5: centerY = 242, Row 8: centerY = 8*44+22 = 374
+			// rowsApart = 3 (odd) → midY stays at natural midpoint
+			const layouts = new Map<number, BarLayout>([
+				[1, bar(1, 100, 242, 100)],
+				[2, bar(2, 120, 374, 80)],
+			]);
+			const routed = routeLinks([{id: 1, source: 1, target: 2, type: 'FS'}], layouts);
+			const p = pts(routed);
+			// midY = (242+374)/2 = 308 (row boundary between rows 6 & 7) — no offset needed
+			expect(p.some((pt) => pt.y === 308)).toBe(true);
+		});
+	});
+
 	describe('stub collapse', () => {
 		it('collapses consecutive near-zero-length segments', () => {
 			// SS zero-gap on same row: exitDir=-24 and approachX=-24 share the

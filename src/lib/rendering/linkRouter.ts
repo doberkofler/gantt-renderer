@@ -1,6 +1,6 @@
 import {type Link, type LinkType} from '../validation/schemas.ts';
 import {type BarLayout} from '../timeline/layoutEngine.ts';
-import {MILESTONE_HALF} from '../timeline/layoutEngine.ts';
+import {MILESTONE_HALF, ROW_HEIGHT} from '../timeline/layoutEngine.ts';
 
 export type Point = {x: number; y: number};
 
@@ -249,7 +249,8 @@ function routeSameRow(sx: number, sy: number, tx: number, ty: number, leftEntry:
  * @returns An ordered array of {@link Point} vertices.
  */
 function routeMultiRow(sx: number, sy: number, tx: number, ty: number, leftEntry: boolean, exitRight: boolean): Point[] {
-	const midY = (sy + ty) / 2;
+	const rowsApart = Math.round(Math.abs(sy - ty) / ROW_HEIGHT);
+	const midY = rowsApart % 2 === 0 ? (sy + ty) / 2 + ROW_HEIGHT / 2 : (sy + ty) / 2;
 	const approachX = leftEntry ? tx - TURN_MARGIN : tx + TURN_MARGIN;
 	const crossX = exitRight ? Math.max(sx + TURN_MARGIN, approachX) : Math.min(sx - TURN_MARGIN, approachX);
 
