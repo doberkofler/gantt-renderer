@@ -106,9 +106,12 @@ export const init = (): void => {
 		onTaskDoubleClick(payload): void {
 			const {task} = payload;
 			appendEventLog(
-				[`onTaskDoubleClick ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`].join(
-					' | ',
-				),
+				[
+					`onTaskDoubleClick ${task.text}`,
+					`id=${task.id}`,
+					`start=${task.startDate}`,
+					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
+				].join(' | '),
 			);
 		},
 		onTaskMove(payload): boolean {
