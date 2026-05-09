@@ -27,6 +27,7 @@ export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: 
 export type OnLinkClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
 export type OnLinkDblClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
 export type OnProgressChange = (payload: {task: Task; newPercentComplete: number; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnTooltipText = (payload: {task: Task; instance: GanttInstance}) => string | null;
 
 export type GanttCallbacks = {
 	onTaskClick?: OnTaskClick;
@@ -38,6 +39,7 @@ export type GanttCallbacks = {
 	onLinkClick?: OnLinkClick;
 	onLinkDblClick?: OnLinkDblClick;
 	onProgressChange?: OnProgressChange;
+	onTooltipText?: OnTooltipText;
 	onLeftPaneWidthChange?: (payload: {width: number; instance: GanttInstance}) => void | Promise<void>;
 	onGridColumnsChange?: (payload: {columns: GridColumn[]; instance: GanttInstance}) => void | Promise<void>;
 };
@@ -56,6 +58,7 @@ type InternalCallbacks = {
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
 	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
+	onTooltipText?: (payload: {id: number; task: Task}) => string | null;
 	onLeftPaneWidthChange?: (width: number) => void;
 	onGridColumnsChange?: (columns: GridColumn[]) => void;
 };
@@ -329,6 +332,7 @@ export class GanttChart implements GanttInstance {
 			onLinkDblClick: (payload): void => {
 				void this.#callbacks.onLinkDblClick?.({link: payload as Link, instance: this});
 			},
+			onTooltipText: (payload): string | null => this.#callbacks.onTooltipText?.({task: payload.task, instance: this}) ?? null,
 		};
 	}
 
@@ -562,10 +566,11 @@ export class GanttChart implements GanttInstance {
 			cancelAnimationFrame(this.#rafId);
 		}
 		this.#columnResizeCleanup();
-		for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag} of this.#rightPaneRefs.barRegistry.values()) {
+		for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag, cleanupTooltip} of this.#rightPaneRefs.barRegistry.values()) {
 			cleanupDrag?.();
 			cleanupLinkHandles?.();
 			cleanupProgressDrag?.();
+			cleanupTooltip?.();
 		}
 		clearChildren(this.#container);
 	}

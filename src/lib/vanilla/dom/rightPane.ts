@@ -24,6 +24,7 @@ type RightPaneCallbacks = {
 	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
 	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
+	onTooltipText?: (payload: {id: number; task: Task}) => string | null;
 };
 
 const BAR_COLOR: Record<string, string> = {
@@ -41,6 +42,7 @@ export type RightPaneRefs = {
 	stripeContainer: HTMLElement;
 	absoluteLayer: HTMLElement;
 	svgLayer: SVGSVGElement;
+	tooltipEl: HTMLElement;
 	/** Map of taskId → {bar, resizeHandle, cleanupDrag} for update-in-place */
 	barRegistry: Map<
 		number,
@@ -50,6 +52,7 @@ export type RightPaneRefs = {
 			cleanupDrag?: () => void;
 			cleanupLinkHandles?: () => void;
 			cleanupProgressDrag?: () => void;
+			cleanupTooltip?: () => void;
 		}
 	>;
 };
@@ -72,11 +75,17 @@ export function createRightPaneRefs(): RightPaneRefs {
 	scrollContainer.append(absoluteLayer);
 	absoluteLayer.append(svgLayer);
 
+	const tooltipEl = el('div');
+	tooltipEl.className = 'gantt-tooltip';
+	tooltipEl.style.display = 'none';
+	scrollContainer.append(tooltipEl);
+
 	return {
 		scrollContainer,
 		stripeContainer,
 		absoluteLayer,
 		svgLayer,
+		tooltipEl,
 		barRegistry: new Map(),
 	};
 }
@@ -144,6 +153,7 @@ function renderBar(
 	registry: RightPaneRefs['barRegistry'],
 	state: GanttState,
 	cbs: RightPaneCallbacks,
+	tooltipEl: HTMLElement,
 ): void {
 	const selected = task.id === selectedId;
 	const readonly = task.readonly === true;
@@ -291,12 +301,47 @@ function renderBar(
 		};
 	}
 
+	// Tooltip
+	const onTooltipEnter = (): void => {
+		const content = cbs.onTooltipText?.({id: task.id, task: toTask(task)});
+		if (content && content.length > 0) {
+			tooltipEl.innerHTML = content;
+			tooltipEl.style.display = '';
+		} else {
+			tooltipEl.style.display = 'none';
+		}
+	};
+	const onTooltipMove = (e: MouseEvent): void => {
+		const offsetX = 12;
+		const offsetY = -8;
+		let left = e.clientX + offsetX;
+		let top = e.clientY + offsetY;
+		const maxLeft = window.innerWidth - tooltipEl.offsetWidth - 4;
+		const maxTop = window.innerHeight - tooltipEl.offsetHeight - 4;
+		left = Math.max(4, Math.min(left, maxLeft));
+		top = Math.max(4, Math.min(top, maxTop));
+		tooltipEl.style.left = `${left}px`;
+		tooltipEl.style.top = `${top}px`;
+	};
+	const onTooltipLeave = (): void => {
+		tooltipEl.style.display = 'none';
+	};
+	bar.addEventListener('mouseenter', onTooltipEnter);
+	bar.addEventListener('mousemove', onTooltipMove);
+	bar.addEventListener('mouseleave', onTooltipLeave);
+	const cleanupTooltip = (): void => {
+		bar.removeEventListener('mouseenter', onTooltipEnter);
+		bar.removeEventListener('mousemove', onTooltipMove);
+		bar.removeEventListener('mouseleave', onTooltipLeave);
+	};
+
 	const entry: {
 		bar: HTMLElement;
 		resizeHandle: HTMLElement;
 		cleanupDrag?: () => void;
 		cleanupLinkHandles?: () => void;
 		cleanupProgressDrag?: () => void;
+		cleanupTooltip?: () => void;
 	} = {bar, resizeHandle: handle ?? el('div')};
 	if (cleanupDrag !== undefined) {
 		entry.cleanupDrag = cleanupDrag;
@@ -306,6 +351,9 @@ function renderBar(
 	}
 	if (cleanupProgressDrag !== undefined) {
 		entry.cleanupProgressDrag = cleanupProgressDrag;
+	}
+	if (cleanupTooltip !== undefined) {
+		entry.cleanupTooltip = cleanupTooltip;
 	}
 	registry.set(task.id, entry);
 }
@@ -321,6 +369,7 @@ function renderMilestone(
 	registry: RightPaneRefs['barRegistry'],
 	cbs: RightPaneCallbacks,
 	state: GanttState,
+	tooltipEl: HTMLElement,
 ): void {
 	const selected = task.id === selectedId;
 	const readonly = task.readonly === true;
@@ -414,18 +463,56 @@ function renderMilestone(
 		};
 	}
 
+	// Tooltip
+	const onTooltipEnter = (): void => {
+		const content = cbs.onTooltipText?.({id: task.id, task: toTask(task)});
+		if (content && content.length > 0) {
+			tooltipEl.innerHTML = content;
+			tooltipEl.style.display = '';
+		} else {
+			tooltipEl.style.display = 'none';
+		}
+	};
+	const onTooltipMove = (e: MouseEvent): void => {
+		const offsetX = 12;
+		const offsetY = -8;
+		let left = e.clientX + offsetX;
+		let top = e.clientY + offsetY;
+		const maxLeft = window.innerWidth - tooltipEl.offsetWidth - 4;
+		const maxTop = window.innerHeight - tooltipEl.offsetHeight - 4;
+		left = Math.max(4, Math.min(left, maxLeft));
+		top = Math.max(4, Math.min(top, maxTop));
+		tooltipEl.style.left = `${left}px`;
+		tooltipEl.style.top = `${top}px`;
+	};
+	const onTooltipLeave = (): void => {
+		tooltipEl.style.display = 'none';
+	};
+	diamond.addEventListener('mouseenter', onTooltipEnter);
+	diamond.addEventListener('mousemove', onTooltipMove);
+	diamond.addEventListener('mouseleave', onTooltipLeave);
+	const cleanupTooltip = (): void => {
+		diamond.removeEventListener('mouseenter', onTooltipEnter);
+		diamond.removeEventListener('mousemove', onTooltipMove);
+		diamond.removeEventListener('mouseleave', onTooltipLeave);
+	};
+
 	const entry: {
 		bar: HTMLElement;
 		resizeHandle: HTMLElement;
 		cleanupDrag?: () => void;
 		cleanupLinkHandles?: () => void;
 		cleanupProgressDrag?: () => void;
+		cleanupTooltip?: () => void;
 	} = {bar: diamond, resizeHandle: dummy};
 	if (cleanupDrag !== undefined) {
 		entry.cleanupDrag = cleanupDrag;
 	}
 	if (cleanupLinkHandles !== undefined) {
 		entry.cleanupLinkHandles = cleanupLinkHandles;
+	}
+	if (cleanupTooltip !== undefined) {
+		entry.cleanupTooltip = cleanupTooltip;
 	}
 	registry.set(task.id, entry);
 }
@@ -567,9 +654,9 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Rig
 		}
 
 		if (layout.kind === 'milestone') {
-			renderMilestone(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, cbs, state);
+			renderMilestone(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, cbs, state, refs.tooltipEl);
 		} else {
-			renderBar(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, state, cbs);
+			renderBar(absoluteLayer, svgLayer, task, layout, selectedId, barRegistry, state, cbs, refs.tooltipEl);
 		}
 	}
 

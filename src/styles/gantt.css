@@ -261,3 +261,20 @@
 	outline: 2px solid var(--gantt-task);
 	outline-offset: 2px;
 }
+
+/* ─── Tooltip ───────────────────────────────────────────────────────────── */
+.gantt-tooltip {
+	position: fixed;
+	z-index: 100;
+	background: var(--gantt-bg);
+	border: 1px solid var(--gantt-border);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	padding: 8px 12px;
+	font-size: var(--gantt-font-size-sm);
+	color: var(--gantt-text);
+	pointer-events: none;
+	max-width: 260px;
+	white-space: normal;
+	overflow-wrap: break-word;
+}
