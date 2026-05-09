@@ -90,7 +90,9 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
 			barEl.style.cursor = 'grab';
-			void cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
+			if (lastHours !== 0) {
+				void cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
+			}
 		}
 
 		barEl.style.cursor = 'grabbing';
