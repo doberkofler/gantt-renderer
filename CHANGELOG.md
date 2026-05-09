@@ -1,15 +1,19 @@
-# [0.3.0](https://github.com/doberkofler/gantt-renderer/compare/v0.2.0...v0.3.0) (2026-05-08)
+# [0.4.0](https://github.com/doberkofler/gantt-renderer/compare/v0.2.0...v0.4.0) (2026-05-09)
 
 
 ### Bug Fixes
 
 * correct link routing geometry and dependency layer rendering ([d00de8a](https://github.com/doberkofler/gantt-renderer/commit/d00de8a8b51d69b7b50ec4c6bf0ce6dd3657e1a8))
+* improve lint rules ([1644377](https://github.com/doberkofler/gantt-renderer/commit/1644377da0294838a77386ac4d74832c289fcbfb))
 * **interaction:** deep-clone input in update() to prevent drag mutations leaking to consumer data ([ce814a0](https://github.com/doberkofler/gantt-renderer/commit/ce814a02bb87230108635ae663f165497f522f7e)), closes [#patchTask](https://github.com/doberkofler/gantt-renderer/issues/patchTask)
+* prevent spurious onTaskMove callback on double-click in timeline ([14976d0](https://github.com/doberkofler/gantt-renderer/commit/14976d0ca8e17bf0b47b34a91e184513e316e811))
 * **rendering:** offset multi-row link midpoint to avoid bar center slicing ([1fe09fa](https://github.com/doberkofler/gantt-renderer/commit/1fe09fa3d736cf948035c4f1619f398fa374464d))
 
 
 ### Features
 
+* add custom tooltip support with onTooltipText callback ([eacc7a8](https://github.com/doberkofler/gantt-renderer/commit/eacc7a845d346f007b4c7ad5a9ed901f9d2e8d60))
+* add readonly support for tasks and links ([48cd946](https://github.com/doberkofler/gantt-renderer/commit/48cd946fe0b22bbcba18cb6b8e04d62d285300a0))
 * **interaction:** add progress bar drag with progressDragEnabled option ([77833b5](https://github.com/doberkofler/gantt-renderer/commit/77833b50b5984158bd9a2ab3ddcc744d05ccb18f))
 
 # [0.2.0](https://github.com/doberkofler/gantt-renderer/compare/v0.1.3...v0.2.0) (2026-05-07)
