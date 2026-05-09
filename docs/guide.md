@@ -110,8 +110,8 @@ All callbacks are optional. Provide them as the third argument to the
 
 ```ts
 export type OnTaskSelect = (payload: {task: Task}) => void;
-export type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
-export type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
+export type OnTaskMove = (payload: {task: Task; newStartDate: Date; newEndDate: Date}) => boolean;
+export type OnTaskResize = (payload: {task: Task; newDurationHours: number; newStartDate: Date; newEndDate: Date}) => boolean;
 export type OnProgressChange = (payload: {task: Task; newPercentComplete: number}) => boolean;
 export type OnTaskAdd = (payload: {parentTask: Task}) => boolean;
 export type OnTaskDoubleClick = (payload: {task: Task}) => void;
@@ -153,7 +153,7 @@ const onTaskSelect: OnTaskSelect = (payload) => {
 #### `onTaskMove`
 
 ```ts
-type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
+type OnTaskMove = (payload: {task: Task; newStartDate: Date; newEndDate: Date}) => boolean;
 ```
 
 Fires once after the user releases a task bar drag to a new position on the timeline. The chart
@@ -167,17 +167,18 @@ Return `false` from the callback to abort the move and revert the task to its or
 |---|---|---|
 | `task` | `Task` | The full task that was moved. |
 | `newStartDate` | `Date` | The new start date derived from the drop position on the timeline. |
+| `newEndDate` | `Date` | The new end date computed from `newStartDate` and the task's `durationHours`. |
 
 **Edge cases:**
 
 - Dragging a parent task does not move child tasks; only the dragged task is repositioned.
-- Dragging a milestone sets a new `newStartDate` but duration remains `0`.
+- Dragging a milestone sets a new `newStartDate` but duration remains `0`; `newEndDate` equals `newStartDate`.
 - The callback does not fire if the pointer returns to the original position before release.
 
 ```ts
 import type {OnTaskMove} from 'gantt-renderer';
 
-const onTaskMove: OnTaskMove = ({task, newStartDate}) => {
+const onTaskMove: OnTaskMove = ({task, newStartDate, newEndDate}) => {
 	// Persist the new start date to your data model, then call instance.update(...)
 };
 ```
@@ -185,7 +186,7 @@ const onTaskMove: OnTaskMove = ({task, newStartDate}) => {
 #### `onTaskResize`
 
 ```ts
-type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
+type OnTaskResize = (payload: {task: Task; newDurationHours: number; newStartDate: Date; newEndDate: Date}) => boolean;
 ```
 
 Fires once after the user drags a task bar's resize handle (right edge) to change its duration. The
@@ -199,6 +200,8 @@ Return `false` from the callback to abort the resize and revert the task to its 
 |---|---|---|
 | `task` | `Task` | The full task that was resized. |
 | `newDurationHours` | `number` | The new duration in hours. Never falls below 1 for task bars; milestones cannot be resized. |
+| `newStartDate` | `Date` | The task's unchanged start date. |
+| `newEndDate` | `Date` | The new end date computed from `newStartDate` and `newDurationHours`. |
 
 **Edge cases:**
 
@@ -209,7 +212,7 @@ Return `false` from the callback to abort the resize and revert the task to its 
 ```ts
 import type {OnTaskResize} from 'gantt-renderer';
 
-const onTaskResize: OnTaskResize = ({task, newDurationHours}) => {
+const onTaskResize: OnTaskResize = ({task, newDurationHours, newStartDate, newEndDate}) => {
 	// Persist the new duration, then call instance.update(...)
 };
 ```

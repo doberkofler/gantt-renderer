@@ -12,6 +12,7 @@ import {renderLeftPane, buildLeftPaneHeader, setupColumnResize} from './dom/left
 import {createRightPaneRefs, renderRightPane} from './dom/rightPane.ts';
 import {type RightPaneRefs} from './dom/rightPane.ts';
 import {type GridColumn, gridNaturalWidth, gridColumnDefaults} from './dom/gridColumns.ts';
+import {addHours, parseDate} from '../domain/dateMath.ts';
 import {GanttError} from '../errors.ts';
 import {buildTaskIndex, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
 import {attachSplitter} from './splitter.ts';
@@ -19,10 +20,16 @@ import {computeLeftPaneWidth, MOBILE_BREAKPOINT, MOBILE_LEFT_PANE_MIN_WIDTH, MOB
 import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 
 export type OnTaskClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
-export type OnTaskMove = (payload: {task: Task; newStartDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTaskResize = (payload: {task: Task; newDurationHours: number; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTaskAdd = (payload: {parentTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnTaskDoubleClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
+export type OnTaskMove = (payload: {task: Task; newStartDate: Date; newEndDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnTaskResize = (payload: {
+	task: Task;
+	newDurationHours: number;
+	newStartDate: Date;
+	newEndDate: Date;
+	instance: GanttInstance;
+}) => boolean | Promise<boolean>;
+export type OnTaskAdd = (payload: {parentTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnLinkClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
 export type OnLinkDblClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
@@ -31,10 +38,10 @@ export type OnTooltipText = (payload: {task: Task; instance: GanttInstance}) => 
 
 export type GanttCallbacks = {
 	onTaskClick?: OnTaskClick;
+	onTaskDoubleClick?: OnTaskDoubleClick;
 	onTaskMove?: OnTaskMove;
 	onTaskResize?: OnTaskResize;
 	onTaskAdd?: OnTaskAdd;
-	onTaskDoubleClick?: OnTaskDoubleClick;
 	onLinkCreate?: OnLinkCreate;
 	onLinkClick?: OnLinkClick;
 	onLinkDblClick?: OnLinkDblClick;
@@ -224,7 +231,9 @@ export class GanttChart implements GanttInstance {
 			_onTaskMoveFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate, instance: this});
+					const durationHours = task.kind !== 'milestone' ? task.durationHours : 0;
+					const newEndDate = addHours(payload.startDate, durationHours);
+					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate, newEndDate, instance: this});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
@@ -256,7 +265,10 @@ export class GanttChart implements GanttInstance {
 			_onTaskResizeFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours, instance: this});
+					const newStartDate = parseDate(task.startDate);
+					const durationHours = task.kind !== 'milestone' ? task.durationHours : 0;
+					const newEndDate = addHours(newStartDate, durationHours);
+					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours, newStartDate, newEndDate, instance: this});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
