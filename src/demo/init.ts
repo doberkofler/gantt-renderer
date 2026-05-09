@@ -103,7 +103,7 @@ export const init = (): void => {
 				].join(' | '),
 			);
 		},
-		onTaskDoubleClick(payload): void {
+		onTaskDoubleClick(payload) {
 			const {task} = payload;
 			appendEventLog(
 				[
@@ -114,18 +114,18 @@ export const init = (): void => {
 				].join(' | '),
 			);
 		},
-		onTaskMove(payload): boolean {
+		onTaskMove(payload) {
 			logControlHook('onTaskMove', payload.task.id.toString());
 			return true;
 		},
-		onTaskResize(payload): boolean {
+		onTaskResize(payload) {
 			logControlHook('onTaskResize', payload.task.id.toString());
 			return true;
 		},
-		onLeftPaneWidthChange(payload): void {
+		onLeftPaneWidthChange(payload) {
 			logControlHook('onLeftPaneWidthChange', `${payload.width}px`);
 		},
-		onGridColumnsChange(payload): void {
+		onGridColumnsChange(payload) {
 			const widths = payload.columns.filter((c) => c.visible !== false).map((c) => `${c.id}:${c.width}`);
 			logControlHook('onGridColumnsChange', widths.join(', '));
 		},
