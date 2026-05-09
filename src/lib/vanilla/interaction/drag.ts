@@ -4,14 +4,14 @@ import {parseDate, addHours} from '../../domain/dateMath.ts';
 import {type Task} from '../../validation/schemas.ts';
 
 type InternalCallbacks = {
-	onTaskSelect?: (id: number) => void;
+	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
 	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
-	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
-	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 };
 
 function toTask(node: TaskNode): Task {
@@ -72,7 +72,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		} catch {
 			// Browsers/tests may reject synthetic pointer ids.
 		}
-		cbs.onTaskSelect?.(task.id);
+		cbs.onTaskClick?.(task.id);
 
 		const startX = e.clientX;
 		const originDate = parseDate(task.startDate);
@@ -90,7 +90,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
 			barEl.style.cursor = 'grab';
-			cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
+			void cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
 		}
 
 		barEl.style.cursor = 'grabbing';
@@ -126,7 +126,7 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		function onUp(): void {
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
-			cbs._onTaskResizeFinal?.({id: task.id, durationHours: lastDuration});
+			void cbs._onTaskResizeFinal?.({id: task.id, durationHours: lastDuration});
 		}
 
 		window.addEventListener('pointermove', onMove);
@@ -174,7 +174,7 @@ export function attachProgressDrag(
 		}
 		e.preventDefault();
 		e.stopPropagation();
-		cbs.onTaskSelect?.(task.id);
+		cbs.onTaskClick?.(task.id);
 		try {
 			progressEl.setPointerCapture(e.pointerId);
 		} catch {
@@ -198,7 +198,7 @@ export function attachProgressDrag(
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
 			progressEl.style.cursor = 'ew-resize';
-			cbs._onTaskProgressDragFinal?.({id: task.id, percentComplete: lastPercent});
+			void cbs._onTaskProgressDragFinal?.({id: task.id, percentComplete: lastPercent});
 		}
 
 		progressEl.style.cursor = 'ew-resize';
@@ -223,7 +223,7 @@ export function attachProgressDrag(
  */
 export function attachMilestoneClick(diamondEl: HTMLElement, taskId: number, cbs: InternalCallbacks): () => void {
 	function onClick(): void {
-		cbs.onTaskSelect?.(taskId);
+		cbs.onTaskClick?.(taskId);
 	}
 	function onDoubleClick(event: MouseEvent): void {
 		if (event.detail === 2) {

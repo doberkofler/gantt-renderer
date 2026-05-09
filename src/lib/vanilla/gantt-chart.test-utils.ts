@@ -33,7 +33,10 @@ export function createMountHelpers(): {
 	const instances: GanttChart[] = [];
 
 	function mountTracked(container: HTMLElement, input: GanttInput, opts?: GanttOptions, cbs?: GanttCallbacks): GanttChart {
-		const instance = new GanttChart(container, opts, cbs);
+		const instance = new GanttChart(container, opts);
+		if (cbs !== undefined) {
+			instance.setCallbacks(cbs);
+		}
 		instance.update(input);
 		instances.push(instance);
 		return instance;

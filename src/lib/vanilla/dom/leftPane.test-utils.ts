@@ -34,7 +34,7 @@ export function mockState(overrides: Partial<GanttState> = {}): GanttState {
 export function mockCallbacks(overrides: Partial<LeftPaneCallbacks> = {}): LeftPaneCallbacks {
 	return {
 		onToggle: vi.fn<(id: number) => void>(),
-		onTaskSelect: vi.fn<(id: number) => void>(),
+		onTaskClick: vi.fn<(id: number) => void>(),
 		onRowClick: vi.fn<(payload: {id: number; task: {id: number} & Record<string, unknown>}) => void>(),
 		onTaskDoubleClick: vi.fn<(payload: {id: number; task: {id: number} & Record<string, unknown>}) => void>(),
 		onTaskAdd: vi.fn<(id: number) => void>(),

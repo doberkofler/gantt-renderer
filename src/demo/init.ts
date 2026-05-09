@@ -90,11 +90,11 @@ export const init = (): void => {
 	};
 
 	const callbacks: GanttCallbacks = {
-		onTaskSelect(payload): void {
+		onTaskClick(payload): void {
 			const {task} = payload;
 			appendEventLog(
 				[
-					`onTaskSelect ${task.text}`,
+					`onTaskClick ${task.text}`,
 					`id=${task.id}`,
 					`start=${task.startDate}`,
 					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
@@ -122,11 +122,11 @@ export const init = (): void => {
 			logControlHook('onTaskResize', payload.task.id.toString());
 			return true;
 		},
-		onLeftPaneWidthChange(width): void {
-			logControlHook('onLeftPaneWidthChange', `${width}px`);
+		onLeftPaneWidthChange(payload): void {
+			logControlHook('onLeftPaneWidthChange', `${payload.width}px`);
 		},
-		onGridColumnsChange(columns): void {
-			const widths = columns.filter((c) => c.visible !== false).map((c) => `${c.id}:${c.width}`);
+		onGridColumnsChange(payload): void {
+			const widths = payload.columns.filter((c) => c.visible !== false).map((c) => `${c.id}:${c.width}`);
 			logControlHook('onGridColumnsChange', widths.join(', '));
 		},
 	};
@@ -146,13 +146,15 @@ export const init = (): void => {
 		};
 	}
 
-	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions(), callbacks);
+	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions());
+	instance.setCallbacks(callbacks);
 	instance.update(initialInput);
 	appendEventLog('demo initialized');
 
 	function remountChart(): void {
 		instance.destroy();
-		instance = new GanttChart(ganttEl, buildOptions(), callbacks);
+		instance = new GanttChart(ganttEl, buildOptions());
+		instance.setCallbacks(callbacks);
 		instance.update(initialInput);
 	}
 

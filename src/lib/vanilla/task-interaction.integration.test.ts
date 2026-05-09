@@ -132,11 +132,11 @@ describe('task interaction', () => {
 			calledWithPercent = payload.newPercentComplete;
 			return false;
 		};
-		const onTaskSelect = (payload: {task: {id: number; percentComplete?: number}}): void => {
+		const onTaskClick = (payload: {task: {id: number; percentComplete?: number}}): void => {
 			selectCalls.push(payload.task.percentComplete ?? -1);
 		};
 
-		const instance = mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange, onTaskSelect});
+		const instance = mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange, onTaskClick});
 
 		const bar = container.querySelector<HTMLElement>('.gantt-bar[aria-label="Task Customer Portal Release"]');
 		const progressOverlay = bar?.querySelector<HTMLElement>('.gantt-progress-overlay');
@@ -151,5 +151,135 @@ describe('task interaction', () => {
 		expect(selectCalls[0]).toBe(40);
 		instance.select(1);
 		expect(selectCalls.at(-1)).toBe(40);
+	});
+
+	it('reverts percentComplete when onProgressChange returns Promise<false>', async () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		let calledWithPercent = -1;
+		const onProgressChange = async (payload: {newPercentComplete: number}): Promise<boolean> => {
+			calledWithPercent = payload.newPercentComplete;
+			await Promise.resolve();
+			return false;
+		};
+
+		const instance = mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+		const progressOverlay = bar?.querySelector<HTMLElement>('.gantt-progress-overlay');
+		expect(progressOverlay).not.toBeNull();
+
+		progressOverlay?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 5}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 150, pointerId: 5}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 5}));
+
+		expect(calledWithPercent).toBeGreaterThan(40);
+
+		instance.select(1);
+		await vi.waitFor(() => {
+			expect(calledWithPercent).toBeGreaterThan(40);
+		});
+	});
+
+	it('reverts task move when onTaskMove returns Promise<false>', async () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskMove = async (): Promise<boolean> => {
+			await Promise.resolve();
+			return false;
+		};
+
+		mountTracked(container, INPUT, {height: 420}, {onTaskMove});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+
+		const originalStart = bar?.style.left;
+
+		bar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 200, pointerId: 6}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 260, pointerId: 6}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 6}));
+
+		await vi.waitFor(() => {
+			const movedBar = container.querySelector<HTMLElement>('.gantt-bar');
+			expect(movedBar?.style.left).toBe(originalStart);
+		});
+	});
+
+	it('reverts task resize when onTaskResize returns Promise<false>', async () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskResize = async (): Promise<boolean> => {
+			await Promise.resolve();
+			return false;
+		};
+
+		mountTracked(container, INPUT, {height: 420}, {onTaskResize});
+
+		const resizeHandle = container.querySelector<HTMLElement>('.gantt-resize-handle');
+		expect(resizeHandle).not.toBeNull();
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		const originalWidth = bar?.style.width;
+
+		resizeHandle?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 300, pointerId: 7}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 350, pointerId: 7}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 7}));
+
+		await vi.waitFor(() => {
+			const resizedBar = container.querySelector<HTMLElement>('.gantt-bar');
+			expect(resizedBar?.style.width).toBe(originalWidth);
+		});
+	});
+
+	it('accepts task move when onTaskMove returns Promise<true>', async () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		let called = false;
+		const onTaskMove = async (): Promise<boolean> => {
+			await Promise.resolve();
+			called = true;
+			return true;
+		};
+
+		mountTracked(container, INPUT, {height: 420}, {onTaskMove});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+
+		bar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 200, pointerId: 8}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 260, pointerId: 8}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 8}));
+
+		await vi.waitFor(() => {
+			expect(called).toBe(true);
+		});
+	});
+
+	it('accepts progress change when onProgressChange returns Promise<true>', async () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		let called = false;
+		const onProgressChange = async (): Promise<boolean> => {
+			await Promise.resolve();
+			called = true;
+			return true;
+		};
+
+		mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+		const progressOverlay = bar?.querySelector<HTMLElement>('.gantt-progress-overlay');
+		expect(progressOverlay).not.toBeNull();
+
+		progressOverlay?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 9}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 180, pointerId: 9}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 9}));
+
+		await vi.waitFor(() => {
+			expect(called).toBe(true);
+		});
 	});
 });

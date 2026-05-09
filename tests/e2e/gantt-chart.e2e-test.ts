@@ -47,7 +47,7 @@ test.describe('gantt chart UX regressions', () => {
 		await expect(eventLog).toHaveValue(/demo initialized/u);
 
 		await taskRow.click();
-		await expect(eventLog).toHaveValue(/selected Billing Connector/u);
+		await expect(eventLog).toHaveValue(/onTaskClick Billing Connector/u);
 
 		await taskRow.click();
 		await expect(eventLog).not.toHaveValue(/selection cleared/u);
@@ -59,10 +59,10 @@ test.describe('gantt chart UX regressions', () => {
 
 		await taskBar.dblclick();
 		await taskBar.dblclick();
-		await expect(eventLog).toHaveValue(/edit intent Stakeholder Interviews/u);
+		await expect(eventLog).toHaveValue(/onTaskDoubleClick Stakeholder Interviews/u);
 
 		const logValue = await eventLog.inputValue();
-		const selectedMatches = logValue.match(/selected Stakeholder Interviews/gu) ?? [];
+		const selectedMatches = logValue.match(/onTaskClick Stakeholder Interviews/gu) ?? [];
 		expect(selectedMatches).toHaveLength(1);
 	});
 

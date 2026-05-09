@@ -1,5 +1,6 @@
 import {describe, expect, it, vi} from 'vitest';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
+import {type GanttInstance} from './gantt-chart.ts';
 
 describe('splitter handle (M13)', () => {
 	const {mountTracked} = createMountHelpers();
@@ -19,7 +20,7 @@ describe('splitter handle (M13)', () => {
 		const container = document.createElement('div');
 		Object.defineProperty(container, 'clientWidth', {configurable: true, value: 1024});
 		document.body.append(container);
-		const onSplitterMock = vi.fn<(width: number) => void>();
+		const onSplitterMock = vi.fn<(payload: {width: number; instance: GanttInstance}) => void>();
 
 		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
@@ -35,16 +36,16 @@ describe('splitter handle (M13)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: startWidth + 40, pointerId: 50}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 50}));
 
-		expect(onSplitterMock).toHaveBeenCalledWith(expect.any(Number));
-		const newWidth = onSplitterMock.mock.calls[0]?.[0];
-		expect(newWidth).toBeGreaterThan(startWidth);
+		expect(onSplitterMock).toHaveBeenCalledWith(expect.objectContaining({width: expect.any(Number)}));
+		const payload = onSplitterMock.mock.calls[0]?.[0];
+		expect(payload?.width).toBeGreaterThan(startWidth);
 	});
 
 	it('enforces minimum left pane width of 96px', () => {
 		const container = document.createElement('div');
 		Object.defineProperty(container, 'clientWidth', {configurable: true, value: 1024});
 		document.body.append(container);
-		const onSplitterMock = vi.fn<(width: number) => void>();
+		const onSplitterMock = vi.fn<(payload: {width: number; instance: GanttInstance}) => void>();
 
 		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
@@ -53,21 +54,19 @@ describe('splitter handle (M13)', () => {
 
 		const startWidth = Number.parseFloat(leftPane?.style.width ?? '0') || 0;
 
-		// Try to drag far left
 		splitter?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: startWidth, pointerId: 51}));
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: -500, pointerId: 51}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 51}));
 
-		expect(onSplitterMock).toHaveBeenCalledWith(96);
+		expect(onSplitterMock).toHaveBeenCalledWith(expect.objectContaining({width: 96}));
 	});
 
 	it('enforces right pane minimum width via max left pane', () => {
 		const container = document.createElement('div');
 		Object.defineProperty(container, 'clientWidth', {configurable: true, value: 400});
 		document.body.append(container);
-		const onSplitterMock = vi.fn<(width: number) => void>();
+		const onSplitterMock = vi.fn<(payload: {width: number; instance: GanttInstance}) => void>();
 
-		// timelineMinWidth defaults to 220, so max left = 400 - 220 = 180
 		mountTracked(container, INPUT, {height: 420}, {onLeftPaneWidthChange: onSplitterMock});
 
 		const splitter = container.querySelector<HTMLElement>('.gantt-splitter-handle');
@@ -75,13 +74,11 @@ describe('splitter handle (M13)', () => {
 
 		const startWidth = Number.parseFloat(leftPane?.style.width ?? '0') || 0;
 
-		// Try to drag far right
 		splitter?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: startWidth, pointerId: 52}));
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 1000, pointerId: 52}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 52}));
 
-		expect(onSplitterMock).toHaveBeenCalledWith(expect.any(Number));
-		// 400 - 220 = 180 max left pane
-		expect(onSplitterMock.mock.calls[0]?.[0]).toBeLessThanOrEqual(180);
+		expect(onSplitterMock).toHaveBeenCalledWith(expect.objectContaining({width: expect.any(Number)}));
+		expect(onSplitterMock.mock.calls[0]?.[0]?.width).toBeLessThanOrEqual(180);
 	});
 });

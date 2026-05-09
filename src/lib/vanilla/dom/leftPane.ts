@@ -12,7 +12,7 @@ const COLUMN_MIN_WIDTH = 30;
 
 export type LeftPaneCallbacks = {
 	onToggle: (id: number) => void;
-	onTaskSelect: (id: number) => void;
+	onTaskClick: (id: number) => void;
 	onRowClick: (payload: {id: number; task: Task}) => void;
 	onTaskDoubleClick: (payload: {id: number; task: Task}) => void;
 	onTaskAdd: (id: number) => void;
@@ -228,7 +228,7 @@ function buildRow(
 	wrapper.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onTaskSelect(row.id);
+			cbs.onTaskClick(row.id);
 		}
 	});
 

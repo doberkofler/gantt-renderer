@@ -1,20 +1,21 @@
 import {describe, expect, it, vi} from 'vitest';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
 import {type Task} from '../validation/schemas.ts';
+import {type GanttInstance} from './gantt-chart.ts';
 
 describe('selection', () => {
 	const {mountTracked} = createMountHelpers();
 
 	describe('m2 — stop second-click deselect toggle', () => {
-		it('does not fire onTaskSelect on repeated click of same grid row', () => {
+		it('does not fire onTaskClick on repeated click of same grid row', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 			expect(rowLabel).toBeDefined();
@@ -22,70 +23,70 @@ describe('selection', () => {
 			expect(row).not.toBeNull();
 
 			row?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 3})});
-			onTaskSelectMock.mockClear();
+			expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 3})}));
+			onTaskClickMock.mockClear();
 
 			row?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 
-		it('does not fire onTaskSelect on repeated click of same bar', () => {
+		it('does not fire onTaskClick on repeated click of same bar', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const bar = container.querySelector('.gantt-bar');
 			expect(bar).not.toBeNull();
 
 			bar?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 1})});
-			onTaskSelectMock.mockClear();
+			expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+			onTaskClickMock.mockClear();
 
 			bar?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 
-		it('does not fire onTaskSelect on repeated click of same milestone', () => {
+		it('does not fire onTaskClick on repeated click of same milestone', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const milestone = container.querySelector('.gantt-milestone');
 			expect(milestone).not.toBeNull();
 
 			milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 5})});
-			onTaskSelectMock.mockClear();
+			expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 5})}));
+			onTaskClickMock.mockClear();
 
 			milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 
-		it('deselects on background click in the timeline pane without firing onTaskSelect', () => {
+		it('deselects on background click in the timeline pane without firing onTaskClick', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const row = container.querySelector<HTMLElement>('[role="row"][data-task-id="3"]');
 			expect(row).not.toBeNull();
 			row?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
-			expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 3})});
-			onTaskSelectMock.mockClear();
+			expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 3})}));
+			onTaskClickMock.mockClear();
 
 			const rightPane = container.querySelector<HTMLElement>('[data-pane="right"]');
 			expect(rightPane).not.toBeNull();
@@ -93,56 +94,56 @@ describe('selection', () => {
 			expect(absoluteLayer).not.toBeNull();
 			absoluteLayer?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 
-		it('deselects on Escape key without firing onTaskSelect', () => {
+		it('deselects on Escape key without firing onTaskClick', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const bar = container.querySelector('.gantt-bar');
 			expect(bar).not.toBeNull();
 			bar?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 
-			expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 1})});
-			onTaskSelectMock.mockClear();
+			expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+			onTaskClickMock.mockClear();
 
 			const root = container.querySelector('.gantt-root');
 			root?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 
-		it('does not fire onTaskSelect when Escape is pressed with no selection', () => {
+		it('does not fire onTaskClick when Escape is pressed with no selection', () => {
 			const container = document.createElement('div');
 			document.body.append(container);
-			const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-			const onTaskSelect = (payload: {task: Task}): void => {
-				onTaskSelectMock(payload);
+			const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+			const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+				onTaskClickMock(payload);
 			};
 
-			mountTracked(container, INPUT, {}, {onTaskSelect});
+			mountTracked(container, INPUT, {}, {onTaskClick});
 
 			const root = container.querySelector('.gantt-root');
 			root?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
-			expect(onTaskSelectMock).not.toHaveBeenCalled();
+			expect(onTaskClickMock).not.toHaveBeenCalled();
 		});
 	});
 
-	it('fires onTaskSelect from row clicks and milestone clicks', () => {
+	it('fires onTaskClick from row clicks and milestone clicks', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onTaskSelectMock = vi.fn<(payload: {task: Task}) => void>();
-		const onTaskSelect = (payload: {task: Task}): void => {
-			onTaskSelectMock(payload);
+		const onTaskClickMock = vi.fn<(payload: {task: Task; instance: GanttInstance}) => void>();
+		const onTaskClick = (payload: {task: Task; instance: GanttInstance}): void => {
+			onTaskClickMock(payload);
 		};
 
-		mountTracked(container, INPUT, {}, {onTaskSelect});
+		mountTracked(container, INPUT, {}, {onTaskClick});
 
 		const rowLabel = [...container.querySelectorAll('span')].find((el) => el.textContent === 'API Implementation');
 		expect(rowLabel).toBeDefined();
@@ -152,8 +153,8 @@ describe('selection', () => {
 		expect(milestone).not.toBeNull();
 		milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 
-		expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 3})});
-		expect(onTaskSelectMock).toHaveBeenCalledWith({task: expect.objectContaining({id: 5})});
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 3})}));
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 5})}));
 	});
 
 	it('applies subtle selected style class without inline outlines for bars and milestones', async () => {

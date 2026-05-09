@@ -12,7 +12,7 @@ import {type ChartLocale, EN_US_LABELS, formatLabel} from '../../locale.ts';
 import {type Task} from '../../validation/schemas.ts';
 
 type RightPaneCallbacks = {
-	onTaskSelect?: (id: number) => void;
+	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
 	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
 	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
@@ -20,10 +20,10 @@ type RightPaneCallbacks = {
 	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
-	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
-	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 };
 
 const BAR_COLOR: Record<string, string> = {
@@ -211,12 +211,12 @@ function renderBar(
 	bar.setAttribute('aria-pressed', String(selected));
 	bar.dataset['taskId'] = String(task.id);
 	bar.addEventListener('click', () => {
-		cbs.onTaskSelect?.(task.id);
+		cbs.onTaskClick?.(task.id);
 	});
 	bar.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onTaskSelect?.(task.id);
+			cbs.onTaskClick?.(task.id);
 		}
 	});
 
@@ -332,7 +332,7 @@ function renderMilestone(
 	diamond.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
-			cbs.onTaskSelect?.(task.id);
+			cbs.onTaskClick?.(task.id);
 		}
 	});
 	const labelEl = el('span');

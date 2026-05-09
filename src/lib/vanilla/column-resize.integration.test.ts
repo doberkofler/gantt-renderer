@@ -1,6 +1,7 @@
 import {describe, expect, it, vi} from 'vitest';
 import {type GridColumn} from './dom/gridColumns.ts';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
+import {type GanttInstance} from './gantt-chart.ts';
 
 describe('column resize handles (M14)', () => {
 	const {mountTracked} = createMountHelpers();
@@ -12,7 +13,6 @@ describe('column resize handles (M14)', () => {
 		mountTracked(container, INPUT);
 
 		const handles = container.querySelectorAll('.gantt-col-resize-handle');
-		// 4 default columns → 3 resize handles
 		expect(handles).toHaveLength(3);
 
 		const first = handles[0] as HTMLElement;
@@ -22,7 +22,7 @@ describe('column resize handles (M14)', () => {
 	it('fires onGridColumnsChange on column resize drag-end', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
-		const onColMock = vi.fn<(columns: GridColumn[]) => void>();
+		const onColMock = vi.fn<(payload: {columns: GridColumn[]; instance: GanttInstance}) => void>();
 
 		mountTracked(
 			container,
@@ -46,11 +46,11 @@ describe('column resize handles (M14)', () => {
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 60}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 60}));
 
-		expect(onColMock).toHaveBeenCalledWith(expect.any(Array));
-		const updated = onColMock.mock.calls[0]?.[0];
-		expect(updated).toBeDefined();
-		expect(updated).toHaveLength(3);
-		for (const col of updated ?? []) {
+		expect(onColMock).toHaveBeenCalledWith(expect.objectContaining({columns: expect.any(Array)}));
+		const payload = onColMock.mock.calls[0]?.[0];
+		expect(payload?.columns).toBeDefined();
+		expect(payload?.columns).toHaveLength(3);
+		for (const col of payload?.columns ?? []) {
 			expect(col.width).toMatch(/^\d+px$/u);
 		}
 	});

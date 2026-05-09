@@ -18,18 +18,18 @@ import {attachSplitter} from './splitter.ts';
 import {computeLeftPaneWidth, MOBILE_BREAKPOINT, MOBILE_LEFT_PANE_MIN_WIDTH, MOBILE_LEFT_PANE_MAX_RATIO, TIMELINE_MIN_WIDTH} from './responsive.ts';
 import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 
-export type OnTaskSelect = (payload: {task: Task}) => void;
-export type OnTaskMove = (payload: {task: Task; newStartDate: Date}) => boolean;
-export type OnTaskResize = (payload: {task: Task; newDurationHours: number}) => boolean;
-export type OnTaskAdd = (payload: {parentTask: Task}) => boolean;
-export type OnTaskDoubleClick = (payload: {task: Task}) => void;
-export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task}) => boolean;
-export type OnLinkClick = (payload: {link: Link}) => void;
-export type OnLinkDblClick = (payload: {link: Link}) => void;
-export type OnProgressChange = (payload: {task: Task; newPercentComplete: number}) => boolean;
+export type OnTaskClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
+export type OnTaskMove = (payload: {task: Task; newStartDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnTaskResize = (payload: {task: Task; newDurationHours: number; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnTaskAdd = (payload: {parentTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnTaskDoubleClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
+export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
+export type OnLinkClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
+export type OnLinkDblClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
+export type OnProgressChange = (payload: {task: Task; newPercentComplete: number; instance: GanttInstance}) => boolean | Promise<boolean>;
 
 export type GanttCallbacks = {
-	onTaskSelect?: OnTaskSelect;
+	onTaskClick?: OnTaskClick;
 	onTaskMove?: OnTaskMove;
 	onTaskResize?: OnTaskResize;
 	onTaskAdd?: OnTaskAdd;
@@ -38,16 +38,16 @@ export type GanttCallbacks = {
 	onLinkClick?: OnLinkClick;
 	onLinkDblClick?: OnLinkDblClick;
 	onProgressChange?: OnProgressChange;
-	onLeftPaneWidthChange?: (width: number) => void;
-	onGridColumnsChange?: (columns: GridColumn[]) => void;
+	onLeftPaneWidthChange?: (payload: {width: number; instance: GanttInstance}) => void | Promise<void>;
+	onGridColumnsChange?: (payload: {columns: GridColumn[]; instance: GanttInstance}) => void | Promise<void>;
 };
 
 type InternalCallbacks = {
-	onTaskSelect?: (id: number) => void;
+	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
-	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => boolean;
+	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
 	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => boolean;
+	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
 	onTaskAdd?: (parentId: number) => void;
 	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
@@ -55,7 +55,7 @@ type InternalCallbacks = {
 	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
-	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => boolean;
+	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 	onLeftPaneWidthChange?: (width: number) => void;
 	onGridColumnsChange?: (columns: GridColumn[]) => void;
 };
@@ -87,7 +87,8 @@ export type GanttOptions = {
 export type GanttInstance = {
 	update: (input: GanttInput) => void;
 	setOptions: (opts: Partial<GanttOptions>) => void;
-	select: (id: number | null) => void;
+	setCallbacks: (cbs: GanttCallbacks) => void;
+	select: (id: number | null, fireCallback?: boolean) => void;
 	collapseAll: () => void;
 	expandAll: () => void;
 	destroy: () => void;
@@ -112,7 +113,7 @@ const OVERSCAN = 4;
 export class GanttChart implements GanttInstance {
 	readonly #container: HTMLElement;
 	readonly #opts: GanttOptions;
-	readonly #callbacks: GanttCallbacks;
+	#callbacks: GanttCallbacks;
 	#input: GanttInput | null = null;
 	#scale: TimeScale;
 	#selectedId: number | null = null;
@@ -143,7 +144,7 @@ export class GanttChart implements GanttInstance {
 	#rightPane!: HTMLElement;
 	#rightHeader!: HTMLElement;
 	#rightPaneRefs!: RightPaneRefs;
-	readonly #cbs: InternalCallbacks;
+	#cbs: InternalCallbacks;
 
 	#resizeObserver: ResizeObserver | null = null;
 	#columnResizeCleanup!: () => void;
@@ -151,16 +152,17 @@ export class GanttChart implements GanttInstance {
 	/**
 	 * Constructs a new chart, builds the DOM, and wires internal event handling.
 	 * Data must be loaded via {@link update} before the chart renders.
+	 * Callbacks must be set via {@link setCallbacks} before user interactions are handled.
 	 *
 	 * @param container - The host `HTMLElement` the chart will be appended to.
-	 * @param opts - Configuration and callback options.
+	 * @param opts - Configuration options.
 	 */
-	public constructor(container: HTMLElement, opts: GanttOptions = {}, cbs: GanttCallbacks = {}) {
+	public constructor(container: HTMLElement, opts: GanttOptions = {}) {
 		this.#container = container;
 
 		this.#scale = opts.scale ?? 'day';
 		this.#opts = opts;
-		this.#callbacks = cbs;
+		this.#callbacks = {};
 		this.#taskIndex = new Map();
 		this.#locale = resolveChartLocale(opts.locale);
 		this.#columns = opts.gridColumns ?? gridColumnDefaults(this.#locale);
@@ -171,8 +173,22 @@ export class GanttChart implements GanttInstance {
 		this.#specialDaysByDate = buildSpecialDayIndex(opts.specialDays ?? []);
 		this.#expandedIds = new Set();
 
-		this.#cbs = {
-			onTaskSelect: (id): void => {
+		this.#cbs = this.#buildCallbackAdapter();
+
+		this.#buildDom();
+		this.#wireEvents();
+
+		container.append(this.#root);
+
+		this.#applyTheme();
+
+		this.#applyResponsivePaneStyles();
+		this.#setupResizeObserver();
+	}
+
+	#buildCallbackAdapter(this: GanttChart): InternalCallbacks {
+		return {
+			onTaskClick: (id): void => {
 				if (this.#selectedId === id) {
 					return;
 				}
@@ -180,16 +196,16 @@ export class GanttChart implements GanttInstance {
 				if (this.#selectedId !== null) {
 					const task = this.#findTask(this.#selectedId);
 					if (task !== undefined) {
-						this.#callbacks.onTaskSelect?.({task});
+						void this.#callbacks.onTaskClick?.({task, instance: this});
 					}
 				}
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				this.#callbacks.onTaskDoubleClick?.({task: payload.task});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
 			},
 			onTaskEditIntent: (payload): void => {
-				this.#callbacks.onTaskDoubleClick?.({task: payload.task});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
 			},
 			onTaskMove: (payload): void => {
 				if (!this.#dragOriginals.has(payload.id)) {
@@ -202,11 +218,18 @@ export class GanttChart implements GanttInstance {
 				this.#patchTask(payload.id, {startDate: iso});
 				this.#scheduleRender();
 			},
-			_onTaskMoveFinal: (payload): boolean => {
+			_onTaskMoveFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate});
-					if (result === false) {
+					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate, instance: this});
+					if (result instanceof Promise) {
+						if (!(await result)) {
+							const original = this.#dragOriginals.get(payload.id);
+							if (original !== undefined) {
+								this.#patchTask(payload.id, {startDate: original.startDate});
+							}
+						}
+					} else if (!result) {
 						const original = this.#dragOriginals.get(payload.id);
 						if (original !== undefined) {
 							this.#patchTask(payload.id, {startDate: original.startDate});
@@ -227,11 +250,18 @@ export class GanttChart implements GanttInstance {
 				this.#patchTask(payload.id, {durationHours: payload.durationHours});
 				this.#scheduleRender();
 			},
-			_onTaskResizeFinal: (payload): boolean => {
+			_onTaskResizeFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours});
-					if (result === false) {
+					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours, instance: this});
+					if (result instanceof Promise) {
+						if (!(await result)) {
+							const original = this.#dragOriginals.get(payload.id);
+							if (original !== undefined && original.kind !== 'milestone') {
+								this.#patchTask(payload.id, {durationHours: original.durationHours});
+							}
+						}
+					} else if (!result) {
 						const original = this.#dragOriginals.get(payload.id);
 						if (original !== undefined && original.kind !== 'milestone') {
 							this.#patchTask(payload.id, {durationHours: original.durationHours});
@@ -252,11 +282,18 @@ export class GanttChart implements GanttInstance {
 				this.#patchTask(payload.id, {percentComplete: payload.percentComplete});
 				this.#scheduleRender();
 			},
-			_onTaskProgressDragFinal: (payload): boolean => {
+			_onTaskProgressDragFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onProgressChange?.({task, newPercentComplete: payload.percentComplete});
-					if (result === false) {
+					const result = this.#callbacks.onProgressChange?.({task, newPercentComplete: payload.percentComplete, instance: this});
+					if (result instanceof Promise) {
+						if (!(await result)) {
+							const original = this.#dragOriginals.get(payload.id);
+							if (original !== undefined && original.kind !== 'milestone') {
+								this.#patchTask(payload.id, {percentComplete: original.percentComplete});
+							}
+						}
+					} else if (!result) {
 						const original = this.#dragOriginals.get(payload.id);
 						if (original !== undefined && original.kind !== 'milestone') {
 							this.#patchTask(payload.id, {percentComplete: original.percentComplete});
@@ -270,39 +307,42 @@ export class GanttChart implements GanttInstance {
 			onTaskAdd: (parentId): void => {
 				const parentTask = this.#findTask(parentId);
 				if (parentTask !== undefined) {
-					this.#callbacks.onTaskAdd?.({parentTask});
+					void this.#callbacks.onTaskAdd?.({parentTask, instance: this});
 				}
 			},
 			onLeftPaneWidthChange: (width): void => {
-				this.#callbacks.onLeftPaneWidthChange?.(width);
+				void this.#callbacks.onLeftPaneWidthChange?.({width, instance: this});
 			},
 			onGridColumnsChange: (updatedColumns): void => {
-				this.#callbacks.onGridColumnsChange?.(updatedColumns);
+				void this.#callbacks.onGridColumnsChange?.({columns: updatedColumns, instance: this});
 			},
 			onLinkCreate: (payload): void => {
 				const sourceTask = this.#findTask(payload.sourceTaskId);
 				const targetTask = this.#findTask(payload.targetTaskId);
 				if (sourceTask !== undefined && targetTask !== undefined) {
-					this.#callbacks.onLinkCreate?.({type: 'FS', sourceTask, targetTask});
+					void this.#callbacks.onLinkCreate?.({type: 'FS', sourceTask, targetTask, instance: this});
 				}
 			},
 			onLinkClick: (payload): void => {
-				this.#callbacks.onLinkClick?.({link: payload as Link});
+				void this.#callbacks.onLinkClick?.({link: payload as Link, instance: this});
 			},
 			onLinkDblClick: (payload): void => {
-				this.#callbacks.onLinkDblClick?.({link: payload as Link});
+				void this.#callbacks.onLinkDblClick?.({link: payload as Link, instance: this});
 			},
 		};
+	}
 
-		this.#buildDom();
-		this.#wireEvents();
-
-		container.append(this.#root);
-
-		this.#applyTheme();
-
-		this.#applyResponsivePaneStyles();
-		this.#setupResizeObserver();
+	/**
+	 * Sets or replaces the chart's user-facing callbacks.
+	 * Does not trigger a re-render.
+	 *
+	 * @param cbs - The {@link GanttCallbacks} to register.
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
+	public setCallbacks(cbs: GanttCallbacks): void {
+		this.#assertAlive();
+		this.#callbacks = cbs;
+		this.#cbs = this.#buildCallbackAdapter();
 	}
 
 	/**
@@ -444,16 +484,17 @@ export class GanttChart implements GanttInstance {
 	 * Programmatically selects or deselects a task.
 	 *
 	 * @param id - The task ID to select, or `null` to clear the selection.
+	 * @param fireCallback - Whether to fire the `onTaskClick` callback. Default `true`.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public select(id: number | null): void {
+	public select(id: number | null, fireCallback = true): void {
 		this.#assertAlive();
 		if (id === null) {
 			this.#selectedId = null;
 		} else {
 			const task = this.#input?.tasks.find((t) => t.id === id);
-			if (task !== undefined) {
-				this.#callbacks.onTaskSelect?.({task});
+			if (task !== undefined && fireCallback) {
+				void this.#callbacks.onTaskClick?.({task, instance: this});
 			}
 			this.#selectedId = id;
 		}
@@ -557,7 +598,7 @@ export class GanttChart implements GanttInstance {
 			return;
 		}
 		this.#lastGridClick = {id: payload.id, atMs: now};
-		this.#cbs.onTaskSelect?.(payload.id);
+		this.#cbs.onTaskClick?.(payload.id);
 	};
 
 	readonly #onScroll = (): void => {
@@ -665,7 +706,7 @@ export class GanttChart implements GanttInstance {
 					}
 					this.#scheduleRender();
 				},
-				onTaskSelect: (id) => this.#cbs.onTaskSelect?.(id),
+				onTaskClick: (id) => this.#cbs.onTaskClick?.(id),
 				onRowClick: (payload) => {
 					this.#handleGridClick(payload);
 				},

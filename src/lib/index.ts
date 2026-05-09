@@ -52,7 +52,7 @@ export {
 export {GanttChart} from './vanilla/gantt-chart.ts';
 export type {GanttInstance, GanttOptions, GanttCallbacks, ThemeMode} from './vanilla/gantt-chart.ts';
 export type {
-	OnTaskSelect,
+	OnTaskClick,
 	OnTaskMove,
 	OnTaskResize,
 	OnTaskAdd,
