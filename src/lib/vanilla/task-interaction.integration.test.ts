@@ -1,5 +1,15 @@
 import {describe, expect, it, vi} from 'vitest';
 import {INPUT, createMountHelpers} from './gantt-chart.test-utils.ts';
+import {type GanttInput} from '../validation/schemas.ts';
+
+const READONLY_INPUT: GanttInput = {
+	tasks: [
+		{id: 1, text: 'Readonly Task', startDate: '2026-02-01', durationHours: 80, percentComplete: 40, kind: 'task', readonly: true},
+		{id: 2, text: 'Writable Task', startDate: '2026-02-04', durationHours: 80, percentComplete: 30, kind: 'task'},
+		{id: 3, text: 'Readonly Milestone', startDate: '2026-02-08', kind: 'milestone', readonly: true},
+	],
+	links: [],
+};
 
 describe('task interaction', () => {
 	const {mountTracked} = createMountHelpers();
@@ -281,5 +291,73 @@ describe('task interaction', () => {
 		await vi.waitFor(() => {
 			expect(called).toBe(true);
 		});
+	});
+
+	it('readonly task bar has no resize handle', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		mountTracked(container, READONLY_INPUT);
+
+		const readonlyBar = container.querySelector<HTMLElement>('.gantt-bar[data-task-id="1"]');
+		expect(readonlyBar).not.toBeNull();
+		expect(readonlyBar?.querySelector('.gantt-resize-handle')).toBeNull();
+	});
+
+	it('readonly task bar has pointer cursor not grab', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		mountTracked(container, READONLY_INPUT);
+
+		const readonlyBar = container.querySelector<HTMLElement>('.gantt-bar[data-task-id="1"]');
+		expect(readonlyBar?.style.cursor).toBe('pointer');
+
+		const writableBar = container.querySelector<HTMLElement>('.gantt-bar[data-task-id="2"]');
+		expect(writableBar?.style.cursor).toBe('grab');
+	});
+
+	it('readonly milestone has default cursor', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		mountTracked(container, READONLY_INPUT);
+
+		const milestone = container.querySelector<HTMLElement>('.gantt-milestone[data-task-id="3"]');
+		expect(milestone?.style.cursor).toBe('default');
+	});
+
+	it('readonly task does not fire onTaskMove on drag', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskMoveMock = vi.fn<(payload: {task: {id: number}}) => boolean>();
+		const onTaskMove = (payload: {task: {id: number}}): boolean => {
+			onTaskMoveMock(payload);
+			return true;
+		};
+
+		mountTracked(container, READONLY_INPUT, {}, {onTaskMove});
+
+		const readonlyBar = container.querySelector<HTMLElement>('.gantt-bar[data-task-id="1"]');
+		expect(readonlyBar).not.toBeNull();
+
+		readonlyBar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 10}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 150, pointerId: 10}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 10}));
+
+		expect(onTaskMoveMock).not.toHaveBeenCalled();
+	});
+
+	it('readonly task can still be selected', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskClickMock = vi.fn<(payload: {task: {id: number}}) => void>();
+		const onTaskClick = (payload: {task: {id: number}}): void => {
+			onTaskClickMock(payload);
+		};
+
+		mountTracked(container, READONLY_INPUT, {}, {onTaskClick});
+
+		const readonlyBar = container.querySelector<HTMLElement>('.gantt-bar[data-task-id="1"]');
+		readonlyBar?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
 	});
 });

@@ -23,6 +23,8 @@ const taskBase = {
 	parent: z.number().int().positive().optional(),
 	/** Optional CSS color value for the task bar. Overrides the default color assignment. */
 	color: z.string().optional(),
+	/** When `true`, the task bar cannot be dragged or resized. */
+	readonly: z.boolean().optional(),
 	/** Optional arbitrary metadata for consumer use. Preserved in the parsed output. */
 	data: z.record(z.string(), z.unknown()).optional(),
 };
@@ -81,6 +83,8 @@ export const LinkSchema = z
 		 * @default 'FS'
 		 */
 		type: LinkTypeSchema.default('FS'),
+		/** When `true`, the link cannot be modified or deleted through the UI. */
+		readonly: z.boolean().optional(),
 		/** Optional arbitrary metadata for consumer use. Preserved in the parsed output. */
 		data: z.record(z.string(), z.unknown()).optional(),
 	})

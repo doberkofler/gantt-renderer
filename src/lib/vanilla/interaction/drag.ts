@@ -14,13 +14,14 @@ type InternalCallbacks = {
 	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 };
 
-function toTask(node: TaskNode): Task {
+export function toTask(node: TaskNode): Task {
 	const base = {
 		id: node.id,
 		text: node.text,
 		startDate: node.startDate,
 		...(node.parent === undefined ? {} : {parent: node.parent}),
 		...(node.color === undefined ? {} : {color: node.color}),
+		...(node.readonly === undefined ? {} : {readonly: node.readonly}),
 		...(node.data === undefined ? {} : {data: node.data}),
 	};
 

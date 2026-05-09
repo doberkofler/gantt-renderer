@@ -116,4 +116,46 @@ describe('schema utilities', () => {
 		expect(parsed.tasks[0]?.text).toBe('Typed');
 		expect(parsed.links).toStrictEqual([]);
 	});
+
+	it('accepts readonly on tasks', () => {
+		const parsed = parseGanttInput({
+			tasks: [
+				{id: 1, text: 'Readonly', startDate: '2026-01-01', durationHours: 48, kind: 'task', readonly: true},
+				{id: 2, text: 'Writable', startDate: '2026-01-03', durationHours: 24, kind: 'task', readonly: false},
+				{id: 3, text: 'No Flag', startDate: '2026-01-05', durationHours: 24, kind: 'task'},
+			],
+		});
+		expect(parsed.tasks[0]?.readonly).toBe(true);
+		expect(parsed.tasks[1]?.readonly).toBe(false);
+		expect(parsed.tasks[2]?.readonly).toBeUndefined();
+	});
+
+	it('accepts readonly on links', () => {
+		const parsed = parseGanttInput({
+			tasks: [
+				{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 48, kind: 'task'},
+				{id: 2, text: 'B', startDate: '2026-01-03', durationHours: 24, kind: 'task'},
+				{id: 3, text: 'C', startDate: '2026-01-05', durationHours: 24, kind: 'task'},
+			],
+			links: [
+				{id: 1, source: 1, target: 2, readonly: true},
+				{id: 2, source: 2, target: 3, readonly: false},
+				{id: 3, source: 3, target: 1},
+			],
+		});
+		expect(parsed.links[0]?.readonly).toBe(true);
+		expect(parsed.links[1]?.readonly).toBe(false);
+		expect(parsed.links[2]?.readonly).toBeUndefined();
+	});
+
+	it('accepts readonly on milestones and projects', () => {
+		const parsed = parseGanttInput({
+			tasks: [
+				{id: 1, text: 'Project', startDate: '2026-01-01', durationHours: 80, kind: 'project', readonly: true, open: true},
+				{id: 2, text: 'Milestone', startDate: '2026-01-05', kind: 'milestone', readonly: true},
+			],
+		});
+		expect(parsed.tasks[0]?.readonly).toBe(true);
+		expect(parsed.tasks[1]?.readonly).toBe(true);
+	});
 });

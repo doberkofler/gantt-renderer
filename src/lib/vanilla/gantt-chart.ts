@@ -563,7 +563,7 @@ export class GanttChart implements GanttInstance {
 		}
 		this.#columnResizeCleanup();
 		for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag} of this.#rightPaneRefs.barRegistry.values()) {
-			cleanupDrag();
+			cleanupDrag?.();
 			cleanupLinkHandles?.();
 			cleanupProgressDrag?.();
 		}

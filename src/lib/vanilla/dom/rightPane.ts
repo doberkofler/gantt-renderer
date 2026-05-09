@@ -1,6 +1,6 @@
 import {el, css, clearChildren} from './helpers.ts';
 import {createDependencyLayer, updateDependencyLayer, hideGhostLine} from './dependencyLayer.ts';
-import {attachDrag, attachMilestoneClick, bindMilestoneTask, attachProgressDrag} from '../interaction/drag.ts';
+import {attachDrag, attachMilestoneClick, bindMilestoneTask, attachProgressDrag, toTask} from '../interaction/drag.ts';
 import {attachLinkEndpointHandle, createEndpointHandle} from '../interaction/linkCreation.ts';
 import {type GanttState} from '../state.ts';
 import {type TaskNode} from '../../domain/tree.ts';
@@ -47,7 +47,7 @@ export type RightPaneRefs = {
 		{
 			bar: HTMLElement;
 			resizeHandle: HTMLElement;
-			cleanupDrag: () => void;
+			cleanupDrag?: () => void;
 			cleanupLinkHandles?: () => void;
 			cleanupProgressDrag?: () => void;
 		}
@@ -146,6 +146,7 @@ function renderBar(
 	cbs: RightPaneCallbacks,
 ): void {
 	const selected = task.id === selectedId;
+	const readonly = task.readonly === true;
 	const color = BAR_COLOR[layout.kind] ?? BAR_COLOR['task'];
 
 	const bar = el('div');
@@ -158,7 +159,7 @@ function renderBar(
 		height: `${layout.height}px`,
 		...(color === undefined ? {} : {background: color}),
 		borderRadius: layout.kind === 'project' ? '3px' : '4px',
-		cursor: 'grab',
+		cursor: readonly ? 'pointer' : 'grab',
 		userSelect: 'none',
 		overflow: 'hidden',
 		zIndex: selected ? '3' : '2',
@@ -210,8 +211,12 @@ function renderBar(
 	bar.setAttribute('aria-label', ariaLabel(state.locale, 'ariaTask', task.text));
 	bar.setAttribute('aria-pressed', String(selected));
 	bar.dataset['taskId'] = String(task.id);
-	bar.addEventListener('click', () => {
-		cbs.onTaskClick?.(task.id);
+	bar.addEventListener('click', (event) => {
+		if (event.detail === 2) {
+			cbs.onTaskDoubleClick?.({id: task.id, task: toTask(task)});
+		} else {
+			cbs.onTaskClick?.(task.id);
+		}
 	});
 	bar.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -220,24 +225,30 @@ function renderBar(
 		}
 	});
 
-	// Resize handle
-	const handle = el('div');
-	handle.className = 'gantt-resize-handle';
-	css(handle, {
-		position: 'absolute',
-		right: '0',
-		top: '0',
-		width: '8px',
-		height: '100%',
-		cursor: 'ew-resize',
-		zIndex: '1',
-		touchAction: 'none',
-	});
-	bar.append(handle);
+	let handle: HTMLElement | undefined;
+	let cleanupDrag: (() => void) | undefined;
 
-	layer.insertBefore(bar, svgLayer);
+	if (!readonly) {
+		// Resize handle
+		handle = el('div');
+		handle.className = 'gantt-resize-handle';
+		css(handle, {
+			position: 'absolute',
+			right: '0',
+			top: '0',
+			width: '8px',
+			height: '100%',
+			cursor: 'ew-resize',
+			zIndex: '1',
+			touchAction: 'none',
+		});
+		bar.append(handle);
 
-	const cleanupDrag = attachDrag(bar, handle, task, () => state.mapper, cbs);
+		layer.insertBefore(bar, svgLayer);
+		cleanupDrag = attachDrag(bar, handle, task, () => state.mapper, cbs);
+	} else {
+		layer.insertBefore(bar, svgLayer);
+	}
 
 	// Link-creation endpoint handles
 	let cleanupLinkHandles: (() => void) | undefined;
@@ -283,10 +294,13 @@ function renderBar(
 	const entry: {
 		bar: HTMLElement;
 		resizeHandle: HTMLElement;
-		cleanupDrag: () => void;
+		cleanupDrag?: () => void;
 		cleanupLinkHandles?: () => void;
 		cleanupProgressDrag?: () => void;
-	} = {bar, resizeHandle: handle, cleanupDrag};
+	} = {bar, resizeHandle: handle ?? el('div')};
+	if (cleanupDrag !== undefined) {
+		entry.cleanupDrag = cleanupDrag;
+	}
 	if (cleanupLinkHandles !== undefined) {
 		entry.cleanupLinkHandles = cleanupLinkHandles;
 	}
@@ -309,6 +323,7 @@ function renderMilestone(
 	state: GanttState,
 ): void {
 	const selected = task.id === selectedId;
+	const readonly = task.readonly === true;
 	const size = MILESTONE_HALF * 2;
 
 	const diamond = el('div');
@@ -321,7 +336,7 @@ function renderMilestone(
 		height: `${size}px`,
 		background: 'var(--gantt-milestone)',
 		transform: 'rotate(45deg)',
-		cursor: 'pointer',
+		cursor: readonly ? 'default' : 'pointer',
 		zIndex: '4',
 	});
 	diamond.tabIndex = 0;
@@ -355,7 +370,19 @@ function renderMilestone(
 
 	// Milestones have no resize handle — use a dummy div for the registry interface
 	const dummy = el('div');
-	const cleanupDrag = attachMilestoneClick(diamond, task.id, cbs);
+	let cleanupDrag: (() => void) | undefined;
+
+	if (!readonly) {
+		cleanupDrag = attachMilestoneClick(diamond, task.id, cbs);
+	} else {
+		diamond.addEventListener('click', (event) => {
+			if (event.detail === 2) {
+				cbs.onTaskDoubleClick?.({id: task.id, task: toTask(task)});
+			} else {
+				cbs.onTaskClick?.(task.id);
+			}
+		});
+	}
 
 	// Link-creation endpoint handle for milestones (single handle at center)
 	let cleanupLinkHandles: (() => void) | undefined;
@@ -390,10 +417,13 @@ function renderMilestone(
 	const entry: {
 		bar: HTMLElement;
 		resizeHandle: HTMLElement;
-		cleanupDrag: () => void;
+		cleanupDrag?: () => void;
 		cleanupLinkHandles?: () => void;
 		cleanupProgressDrag?: () => void;
-	} = {bar: diamond, resizeHandle: dummy, cleanupDrag};
+	} = {bar: diamond, resizeHandle: dummy};
+	if (cleanupDrag !== undefined) {
+		entry.cleanupDrag = cleanupDrag;
+	}
 	if (cleanupLinkHandles !== undefined) {
 		entry.cleanupLinkHandles = cleanupLinkHandles;
 	}
@@ -479,7 +509,7 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Rig
 
 	// Clean up previous drag listeners
 	for (const {cleanupDrag, cleanupLinkHandles, cleanupProgressDrag} of barRegistry.values()) {
-		cleanupDrag();
+		cleanupDrag?.();
 		cleanupLinkHandles?.();
 		cleanupProgressDrag?.();
 	}

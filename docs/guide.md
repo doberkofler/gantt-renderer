@@ -456,6 +456,7 @@ or a zero-duration milestone.
 | `parent` | `number` | no | — | `id` of the parent task. When set, this task becomes a child in the tree hierarchy. |
 | `percentComplete` | `number` | no | `0` | Completion percentage from `0` to `100` (integer). Rendered as a darker fill inside the task bar. |
 | `kind` | `TaskKind` | no | `'task'` | Row variant (see below). |
+| `readonly` | `boolean` | no | — | When `true`, the task bar or milestone cannot be dragged or resized. Selection and double-click still work. |
 
 ##### Task kind values (`TaskKind`)
 
@@ -478,6 +479,7 @@ Each `Link` object defines a dependency arrow between two tasks.
 | `source` | `number` | **yes** | — | The `id` of the predecessor task. |
 | `target` | `number` | **yes** | — | The `id` of the successor task. |
 | `kind` | `LinkType` | no | `'FS'` | Dependency constraint type (see below). |
+| `readonly` | `boolean` | no | — | When `true`, the link cannot be modified or deleted through the UI. |
 
 ##### Link type values (`LinkType`)
 
