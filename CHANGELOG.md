@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/doberkofler/gantt-renderer/compare/v0.4.0...v0.5.0) (2026-05-09)
+
+
+### Features
+
+* add newEndDate to onTaskMove and newStartDate/newEndDate to onTaskResize callbacks ([e5fc91e](https://github.com/doberkofler/gantt-renderer/commit/e5fc91e6200c76b27db8c09aa1821765105317fa))
+
 # [0.4.0](https://github.com/doberkofler/gantt-renderer/compare/v0.2.0...v0.4.0) (2026-05-09)
 
 
