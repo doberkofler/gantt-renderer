@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/doberkofler/gantt-renderer/compare/v0.5.0...v0.6.0) (2026-05-11)
+
+
+### Features
+
+* **gantt:** simplify default grid columns and add showAddTaskButton option ([800c3cd](https://github.com/doberkofler/gantt-renderer/commit/800c3cdb02d42dfc266823e1d56c0c6cd0eaf009))
+* **locale:** add built-in locale constants for 9 languages ([712254a](https://github.com/doberkofler/gantt-renderer/commit/712254acecc4110ad53de9de14833b2feb1ef16f))
+* **types:** add generic type params to Task, Link, GanttInput, GanttChart ([561ebcf](https://github.com/doberkofler/gantt-renderer/commit/561ebcf01dd1610f0f80739bd29509a05e7848c5))
+
 # [0.5.0](https://github.com/doberkofler/gantt-renderer/compare/v0.4.0...v0.5.0) (2026-05-09)
 
 
