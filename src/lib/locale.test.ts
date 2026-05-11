@@ -1,6 +1,14 @@
 import {describe, expect, it} from 'vitest';
 import {
 	CHART_LOCALE_EN_US,
+	CHART_LOCALE_EN_GB,
+	CHART_LOCALE_DE_DE,
+	CHART_LOCALE_FR_FR,
+	CHART_LOCALE_ES_ES,
+	CHART_LOCALE_IT_IT,
+	CHART_LOCALE_PT_PT,
+	CHART_LOCALE_ZH_CN,
+	CHART_LOCALE_JA_JP,
 	EN_US_LABELS,
 	resolveChartLocale,
 	deriveWeekStartsOn,
@@ -14,7 +22,16 @@ import {
 
 describe('EN_US_LABELS', () => {
 	it('covers all LocaleLabelKey entries', () => {
-		const keys: LocaleLabelKey[] = ['ariaTask', 'ariaMilestone', 'addSubtaskTitle', 'columnTaskName', 'columnStartDate', 'columnEndDate', 'columnQuarter'];
+		const keys: LocaleLabelKey[] = [
+			'ariaTask',
+			'ariaMilestone',
+			'addSubtaskTitle',
+			'columnTaskName',
+			'columnStartDate',
+			'columnEndDate',
+			'columnDuration',
+			'columnQuarter',
+		];
 		for (const key of keys) {
 			expect(EN_US_LABELS[key]).toBeTypeOf('string');
 		}
@@ -257,5 +274,75 @@ describe('formatLabel', () => {
 
 	it('leaves template unchanged when there is no {0}', () => {
 		expect(formatLabel('No placeholder', 'arg')).toBe('No placeholder');
+	});
+});
+
+describe('shipped locales', () => {
+	const ALL_LABEL_KEYS: LocaleLabelKey[] = [
+		'ariaTask',
+		'ariaMilestone',
+		'addSubtaskTitle',
+		'columnTaskName',
+		'columnStartDate',
+		'columnEndDate',
+		'columnDuration',
+		'columnQuarter',
+	];
+
+	const SHIPPED_LOCALES: ChartLocale[] = [
+		CHART_LOCALE_EN_US,
+		CHART_LOCALE_EN_GB,
+		CHART_LOCALE_DE_DE,
+		CHART_LOCALE_FR_FR,
+		CHART_LOCALE_ES_ES,
+		CHART_LOCALE_IT_IT,
+		CHART_LOCALE_PT_PT,
+		CHART_LOCALE_ZH_CN,
+		CHART_LOCALE_JA_JP,
+	];
+
+	it('each shipped locale covers all LocaleLabelKey entries', () => {
+		for (const locale of SHIPPED_LOCALES) {
+			for (const key of ALL_LABEL_KEYS) {
+				expect(locale.labels?.[key], `${locale.code}: missing label key "${key}"`).toBeTypeOf('string');
+			}
+		}
+	});
+
+	it('each shipped locale has valid weekStartsOn', () => {
+		for (const locale of SHIPPED_LOCALES) {
+			expect([0, 1, 6], `${locale.code}: invalid weekStartsOn`).toContain(locale.weekStartsOn);
+		}
+	});
+
+	it('each shipped locale has valid weekendDays', () => {
+		for (const locale of SHIPPED_LOCALES) {
+			expect(locale.weekendDays, `${locale.code}: missing weekendDays`).toBeDefined();
+			expect(locale.weekendDays?.length, `${locale.code}: empty weekendDays`).toBeGreaterThan(0);
+			for (const day of locale.weekendDays ?? []) {
+				expect(day, `${locale.code}: invalid weekend day`).toBeGreaterThanOrEqual(0);
+				expect(day, `${locale.code}: invalid weekend day`).toBeLessThanOrEqual(6);
+			}
+		}
+	});
+
+	it('en-GB uses Monday start and ISO numbering', () => {
+		expect(CHART_LOCALE_EN_GB.weekStartsOn).toBe(1);
+		expect(CHART_LOCALE_EN_GB.weekNumbering).toBe('iso');
+	});
+
+	it('de-DE uses Monday start and ISO numbering', () => {
+		expect(CHART_LOCALE_DE_DE.weekStartsOn).toBe(1);
+		expect(CHART_LOCALE_DE_DE.weekNumbering).toBe('iso');
+	});
+
+	it('resolveChartLocale preserves labels from shipped locales', () => {
+		for (const locale of SHIPPED_LOCALES) {
+			const resolved = resolveChartLocale(locale);
+			expect(resolved.code).toBe(locale.code);
+			for (const key of ALL_LABEL_KEYS) {
+				expect(resolved.labels?.[key], `${locale.code}: missing resolved label "${key}"`).toBe(locale.labels?.[key]);
+			}
+		}
 	});
 });

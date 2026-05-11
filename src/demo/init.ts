@@ -1,4 +1,22 @@
-import {GanttChart, parseGanttInput, type GanttCallbacks, type GanttInstance, type GanttOptions, type ThemeMode, type TimeScale} from '../lib/index.ts';
+import {
+	GanttChart,
+	parseGanttInput,
+	type GanttCallbacks,
+	type GanttInstance,
+	type GanttOptions,
+	type ThemeMode,
+	type TimeScale,
+	CHART_LOCALE_EN_US,
+	CHART_LOCALE_EN_GB,
+	CHART_LOCALE_DE_DE,
+	CHART_LOCALE_FR_FR,
+	CHART_LOCALE_ES_ES,
+	CHART_LOCALE_IT_IT,
+	CHART_LOCALE_PT_PT,
+	CHART_LOCALE_ZH_CN,
+	CHART_LOCALE_JA_JP,
+	type ChartLocale,
+} from '../lib/index.ts';
 import {RAW_INPUT} from './data.ts';
 import '../styles/gantt.css';
 
@@ -21,6 +39,18 @@ const SUPPORTED_SCALES: Record<string, TimeScale> = {
 };
 
 const ZOOM_LEVELS: TimeScale[] = ['year', 'quarter', 'month', 'week', 'day', 'hour'];
+
+const DEMO_LOCALES: Record<string, ChartLocale> = {
+	'en-US': CHART_LOCALE_EN_US,
+	'en-GB': CHART_LOCALE_EN_GB,
+	'de-DE': CHART_LOCALE_DE_DE,
+	'fr-FR': CHART_LOCALE_FR_FR,
+	'es-ES': CHART_LOCALE_ES_ES,
+	'it-IT': CHART_LOCALE_IT_IT,
+	'pt-PT': CHART_LOCALE_PT_PT,
+	'zh-CN': CHART_LOCALE_ZH_CN,
+	'ja-JP': CHART_LOCALE_JA_JP,
+};
 
 type DemoControlState = {
 	currentScale: TimeScale;
@@ -134,7 +164,7 @@ export const init = (): void => {
 		return {
 			scale: state.currentScale,
 			theme: 'system',
-			locale: state.currentLocale,
+			locale: DEMO_LOCALES[state.currentLocale] ?? state.currentLocale,
 			height: 580,
 			leftPaneWidth: 340,
 			specialDays: DEMO_SPECIAL_DAYS,

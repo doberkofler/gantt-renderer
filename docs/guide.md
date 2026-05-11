@@ -771,6 +771,40 @@ import {
 **Weekend days** default to the locale-derived convention (e.g., Fri/Sat for `ar-SA`, Sat/Sun for `de-DE`).
 The `weekendDays` option overrides the locale default for non-standard corporate calendars.
 
+#### Built-in locales
+
+The library ships with nine prebuilt `ChartLocale` constants covering common languages:
+
+| Constant | Code | Language |
+|---|---|---|
+| `CHART_LOCALE_EN_US` | `en-US` | English (US) |
+| `CHART_LOCALE_EN_GB` | `en-GB` | English (UK) |
+| `CHART_LOCALE_DE_DE` | `de-DE` | German |
+| `CHART_LOCALE_FR_FR` | `fr-FR` | French |
+| `CHART_LOCALE_ES_ES` | `es-ES` | Spanish |
+| `CHART_LOCALE_IT_IT` | `it-IT` | Italian |
+| `CHART_LOCALE_PT_PT` | `pt-PT` | Portuguese |
+| `CHART_LOCALE_ZH_CN` | `zh-CN` | Chinese (Simplified) |
+| `CHART_LOCALE_JA_JP` | `ja-JP` | Japanese |
+
+Each constant includes translated chart labels (`ariaTask`, `columnTaskName`, etc.) and
+pre-configured `weekStartsOn`, `weekNumbering`, and `weekendDays`.
+
+```ts
+import {GanttChart, CHART_LOCALE_DE_DE, CHART_LOCALE_FR_FR} from 'gantt-renderer';
+
+// Pass the constant directly
+const instance = new GanttChart(container, {
+	locale: CHART_LOCALE_DE_DE,
+});
+
+// Or switch at runtime
+instance.setOptions({locale: CHART_LOCALE_FR_FR});
+```
+
+For any other language, pass a BCP 47 string — the chart derives calendar
+conventions automatically but uses English fallback labels.
+
 ### Grid column schema
 
 `GanttOptions` includes a `gridColumns` option for customising the left-pane grid:

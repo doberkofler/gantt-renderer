@@ -150,6 +150,142 @@ export const CHART_LOCALE_EN_US: ChartLocale = {
 	weekendDays: [0, 6],
 };
 
+export const CHART_LOCALE_EN_GB: ChartLocale = {
+	code: 'en-GB',
+	labels: {
+		ariaTask: 'Task {0}',
+		ariaMilestone: 'Milestone {0}',
+		addSubtaskTitle: 'Add subtask',
+		columnTaskName: 'Task name',
+		columnStartDate: 'Start',
+		columnEndDate: 'End',
+		columnDuration: 'Duration',
+		columnQuarter: 'Q',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_DE_DE: ChartLocale = {
+	code: 'de-DE',
+	labels: {
+		ariaTask: 'Aufgabe {0}',
+		ariaMilestone: 'Meilenstein {0}',
+		addSubtaskTitle: 'Teilaufgabe hinzufügen',
+		columnTaskName: 'Aufgabenname',
+		columnStartDate: 'Start',
+		columnEndDate: 'Ende',
+		columnDuration: 'Dauer',
+		columnQuarter: 'Q',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_FR_FR: ChartLocale = {
+	code: 'fr-FR',
+	labels: {
+		ariaTask: 'Tâche {0}',
+		ariaMilestone: 'Jalon {0}',
+		addSubtaskTitle: 'Ajouter une sous-tâche',
+		columnTaskName: 'Nom de la tâche',
+		columnStartDate: 'Début',
+		columnEndDate: 'Fin',
+		columnDuration: 'Durée',
+		columnQuarter: 'T',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_ES_ES: ChartLocale = {
+	code: 'es-ES',
+	labels: {
+		ariaTask: 'Tarea {0}',
+		ariaMilestone: 'Hito {0}',
+		addSubtaskTitle: 'Añadir subtarea',
+		columnTaskName: 'Nombre de tarea',
+		columnStartDate: 'Inicio',
+		columnEndDate: 'Fin',
+		columnDuration: 'Duración',
+		columnQuarter: 'T',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_IT_IT: ChartLocale = {
+	code: 'it-IT',
+	labels: {
+		ariaTask: 'Attività {0}',
+		ariaMilestone: 'Pietra miliare {0}',
+		addSubtaskTitle: 'Aggiungi sottoattività',
+		columnTaskName: 'Nome attività',
+		columnStartDate: 'Inizio',
+		columnEndDate: 'Fine',
+		columnDuration: 'Durata',
+		columnQuarter: 'T',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_PT_PT: ChartLocale = {
+	code: 'pt-PT',
+	labels: {
+		ariaTask: 'Tarefa {0}',
+		ariaMilestone: 'Marco {0}',
+		addSubtaskTitle: 'Adicionar subtarefa',
+		columnTaskName: 'Nome da tarefa',
+		columnStartDate: 'Início',
+		columnEndDate: 'Fim',
+		columnDuration: 'Duração',
+		columnQuarter: 'T',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_ZH_CN: ChartLocale = {
+	code: 'zh-CN',
+	labels: {
+		ariaTask: '任务 {0}',
+		ariaMilestone: '里程碑 {0}',
+		addSubtaskTitle: '添加子任务',
+		columnTaskName: '任务名称',
+		columnStartDate: '开始',
+		columnEndDate: '结束',
+		columnDuration: '工期',
+		columnQuarter: '季',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'us',
+	weekendDays: [0, 6],
+};
+
+export const CHART_LOCALE_JA_JP: ChartLocale = {
+	code: 'ja-JP',
+	labels: {
+		ariaTask: 'タスク {0}',
+		ariaMilestone: 'マイルストーン {0}',
+		addSubtaskTitle: 'サブタスクを追加',
+		columnTaskName: 'タスク名',
+		columnStartDate: '開始',
+		columnEndDate: '終了',
+		columnDuration: '期間',
+		columnQuarter: 'Q',
+	},
+	weekStartsOn: 0,
+	weekNumbering: 'us',
+	weekendDays: [0, 6],
+};
+
 function tryGetWeekInfo(code: string): {firstDay: number; weekend: number[]; minimalDays: number} | undefined {
 	try {
 		if (typeof Intl !== 'undefined' && typeof Intl.Locale === 'function') {
