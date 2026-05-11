@@ -14,14 +14,14 @@ import {type Task} from '../../validation/schemas.ts';
 type RightPaneCallbacks = {
 	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
-	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
+	onTaskResize?: (payload: {id: number; endDate: string}) => void;
 	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
 	onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 	onLinkClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	onLinkDblClick?: (payload: {id: number; source: number; target: number; type: string}) => void;
 	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
+	_onTaskResizeFinal?: (payload: {id: number; endDate: string}) => Promise<boolean>;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
 	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 	onTooltipText?: (payload: {id: number; task: Task}) => string | null;

@@ -6,7 +6,7 @@ import {mockState, mockCallbacks, taskNode, projectNode} from './leftPane.test-u
 describe('renderLeftPane', () => {
 	it('renders rows with default column schema', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', durationHours: 192});
+		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', endDate: '2026-02-08'});
 		const state = mockState({
 			allRows: [node],
 			startIndex: 0,
@@ -20,7 +20,7 @@ describe('renderLeftPane', () => {
 		expect(rows).toHaveLength(1);
 
 		const row = rows[0] as HTMLElement;
-		expect(row.style.gridTemplateColumns).toBe('1fr 90px 68px 28px');
+		expect(row.style.gridTemplateColumns).toBe('1fr 90px 90px 28px');
 		expect(row.children).toHaveLength(4);
 
 		// Name cell — the label span is always the last child
@@ -32,10 +32,10 @@ describe('renderLeftPane', () => {
 		expect(startCell.tagName).toBe('SPAN');
 		expect(startCell.textContent).toBe('02/01/2026');
 
-		// Duration cell
+		// End date cell - formatted as MM/DD/YYYY
 		const durCell = row.children[2] as HTMLElement;
 		expect(durCell.tagName).toBe('SPAN');
-		expect(durCell.textContent).toBe('192');
+		expect(durCell.textContent).toBe('02/08/2026');
 
 		// Actions cell (add button)
 		const actionsCell = row.children[3] as HTMLElement;
@@ -274,12 +274,12 @@ describe('renderLeftPane', () => {
 
 	it('renders custom column schema with different order and widths', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', durationHours: 72, percentComplete: 75});
+		const node = taskNode({id: 1, text: 'Custom', startDate: '2026-03-15', endDate: '2026-03-17', percentComplete: 75});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
 		const customColumns: GridColumn[] = [
-			{id: 'durationHours', header: 'Dur', width: '50px', field: 'durationHours'},
+			{id: 'endDate', header: 'Dur', width: '50px', field: 'endDate'},
 			{id: 'name', header: 'Name', width: '2fr'},
 			{id: 'percentComplete', header: '%', width: '60px', field: 'percentComplete', align: 'right', format: (value) => `${String(value)}%`},
 		];
@@ -295,7 +295,7 @@ describe('renderLeftPane', () => {
 		expect(el.children).toHaveLength(3);
 
 		// Duration first
-		expect((el.children[0] as HTMLElement).textContent).toBe('72');
+		expect((el.children[0] as HTMLElement).textContent).toBe('2026-03-17');
 		// Name second (tree name cell — label is last child)
 		const nameCell = el.children[1] as HTMLElement;
 		expect(nameCell.lastElementChild?.textContent).toBe('Custom');
@@ -352,13 +352,13 @@ describe('renderLeftPane', () => {
 
 	it('renders column with field but no format as raw string', () => {
 		const container = document.createElement('div');
-		const node = taskNode({id: 1, text: 'Test', durationHours: 168});
+		const node = taskNode({id: 1, text: 'Test', endDate: '2026-01-13'});
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'durationHours', header: 'Dur', width: '50px', field: 'durationHours'},
+			{id: 'endDate', header: 'Dur', width: '50px', field: 'endDate'},
 		];
 
 		renderLeftPane(container, state, cbs, columns);
@@ -366,7 +366,7 @@ describe('renderLeftPane', () => {
 		const row2 = container.querySelector('[role="row"]');
 		expect(row2).not.toBeNull();
 		const durCell2 = row2?.children[1] as HTMLElement;
-		expect(durCell2?.textContent).toBe('168');
+		expect(durCell2?.textContent).toBe('2026-01-13');
 	});
 
 	it('renders padding spacers for virtualized rows', () => {

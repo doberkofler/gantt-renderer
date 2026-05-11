@@ -4,8 +4,8 @@ import {type GanttInput} from '../validation/schemas.ts';
 
 const READONLY_INPUT: GanttInput = {
 	tasks: [
-		{id: 1, text: 'Readonly Task', startDate: '2026-02-01', durationHours: 80, percentComplete: 40, kind: 'task', readonly: true},
-		{id: 2, text: 'Writable Task', startDate: '2026-02-04', durationHours: 80, percentComplete: 30, kind: 'task'},
+		{id: 1, text: 'Readonly Task', startDate: '2026-02-01', endDate: '2026-02-04', percentComplete: 40, kind: 'task', readonly: true},
+		{id: 2, text: 'Writable Task', startDate: '2026-02-04', endDate: '2026-02-07', percentComplete: 30, kind: 'task'},
 		{id: 3, text: 'Readonly Milestone', startDate: '2026-02-08', kind: 'milestone', readonly: true},
 	],
 	links: [],
@@ -48,36 +48,37 @@ describe('task interaction', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 		const onTaskMoveMock = vi.fn<(payload: {task: {id: number}; newStartDate: Date}) => boolean>();
-		const onTaskResizeMock = vi.fn<(payload: {task: {id: number}; newDurationHours: number}) => boolean>();
+		const onTaskResizeMock = vi.fn<(payload: {task: {id: number}; newStartDate: Date; newEndDate: Date}) => boolean>();
 		const onTaskMove = (payload: {task: {id: number}; newStartDate: Date}): boolean => {
 			onTaskMoveMock(payload);
 			return true;
 		};
-		const onTaskResize = (payload: {task: {id: number}; newDurationHours: number}): boolean => {
+		const onTaskResize = (payload: {task: {id: number}; newStartDate: Date; newEndDate: Date}): boolean => {
 			onTaskResizeMock(payload);
 			return true;
 		};
 
 		mountTracked(container, INPUT, {}, {onTaskMove, onTaskResize});
 
-		const bar = container.querySelector('.gantt-bar');
-		expect(bar).not.toBeNull();
+		const bars = container.querySelectorAll('.gantt-bar');
+		const [, bar] = bars;
+		expect(bar).toBeDefined();
 		bar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 1}));
-		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 1}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 200, pointerId: 1}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 1}));
 
-		expect(onTaskMoveMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+		expect(onTaskMoveMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 2})}));
 
-		const handle = container.querySelector('.gantt-resize-handle');
+		const handle = bar?.querySelector('.gantt-resize-handle');
 		expect(handle).not.toBeNull();
 		handle?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 140, pointerId: 2}));
-		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 160, pointerId: 2}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 240, pointerId: 2}));
 		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 2}));
 
-		expect(onTaskResizeMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1}), newDurationHours: expect.any(Number)}));
+		expect(onTaskResizeMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 2}), newEndDate: expect.any(Date)}));
 		{
 			const [firstResizeCall] = onTaskResizeMock.mock.calls;
-			expect(firstResizeCall?.[0]?.newDurationHours).toBeGreaterThanOrEqual(1);
+			expect(firstResizeCall?.[0]?.newEndDate).toBeInstanceOf(Date);
 		}
 	});
 

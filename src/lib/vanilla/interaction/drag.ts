@@ -1,15 +1,15 @@
 import {type TaskNode} from '../../domain/tree.ts';
 import {type PixelMapper} from '../../timeline/pixelMapper.ts';
-import {parseDate, addHours} from '../../domain/dateMath.ts';
+import {parseDate, addDays} from '../../domain/dateMath.ts';
 import {type Task} from '../../validation/schemas.ts';
 
 type InternalCallbacks = {
 	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
-	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
+	onTaskResize?: (payload: {id: number; endDate: string}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
 	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
+	_onTaskResizeFinal?: (payload: {id: number; endDate: string}) => Promise<boolean>;
 	onTaskProgressDrag?: (payload: {id: number; percentComplete: number}) => void;
 	_onTaskProgressDragFinal?: (payload: {id: number; percentComplete: number}) => Promise<boolean>;
 };
@@ -30,7 +30,7 @@ export function toTask(node: TaskNode): Task {
 			return {
 				...base,
 				kind: 'task',
-				durationHours: node.durationHours,
+				endDate: node.endDate,
 				percentComplete: node.percentComplete,
 			};
 		}
@@ -38,7 +38,7 @@ export function toTask(node: TaskNode): Task {
 			return {
 				...base,
 				kind: 'project',
-				durationHours: node.durationHours,
+				endDate: node.endDate,
 				percentComplete: node.percentComplete,
 				open: node.open,
 			};
@@ -79,20 +79,20 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		const originDate = parseDate(task.startDate);
 		const mapper = getMapper();
 
-		let lastHours = 0;
+		let lastDays = 0;
 
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
-			lastHours = Math.round(mapper.widthToDuration(dx));
-			cbs.onTaskMove?.({id: task.id, startDate: addHours(originDate, lastHours)});
+			lastDays = Math.round(mapper.widthToDurationDays(dx));
+			cbs.onTaskMove?.({id: task.id, startDate: addDays(originDate, lastDays)});
 		}
 
 		function onUp(): void {
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
 			barEl.style.cursor = 'grab';
-			if (lastHours !== 0) {
-				void cbs._onTaskMoveFinal?.({id: task.id, startDate: addHours(originDate, lastHours)});
+			if (lastDays !== 0) {
+				void cbs._onTaskMoveFinal?.({id: task.id, startDate: addDays(originDate, lastDays)});
 			}
 		}
 
@@ -114,22 +114,25 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		}
 
 		const startX = e.clientX;
-		const origDur = task.kind !== 'milestone' ? task.durationHours : 0;
+		if (task.kind === 'milestone') {
+			return;
+		}
+		const origEnd = parseDate(task.endDate);
 		const mapper = getMapper();
 
-		let lastDuration = origDur;
+		let lastEnd = origEnd;
 
 		function onMove(me: PointerEvent): void {
 			const dx = me.clientX - startX;
-			const hoursDelta = Math.round(mapper.widthToDuration(dx));
-			lastDuration = Math.max(1, origDur + hoursDelta);
-			cbs.onTaskResize?.({id: task.id, durationHours: lastDuration});
+			const daysDelta = Math.round(mapper.widthToDurationDays(dx));
+			lastEnd = addDays(origEnd, daysDelta);
+			cbs.onTaskResize?.({id: task.id, endDate: lastEnd.toISOString().slice(0, 10)});
 		}
 
 		function onUp(): void {
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerup', onUp);
-			void cbs._onTaskResizeFinal?.({id: task.id, durationHours: lastDuration});
+			void cbs._onTaskResizeFinal?.({id: task.id, endDate: lastEnd.toISOString().slice(0, 10)});
 		}
 
 		window.addEventListener('pointermove', onMove);

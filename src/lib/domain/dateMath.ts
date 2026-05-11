@@ -199,6 +199,28 @@ export function formatUpperLabel(date: Date, scale: TimeScale, locale: ChartLoca
 }
 
 /**
+ * Returns the number of days in an inclusive range from `start` to `end`.
+ *
+ * @param start - The start date.
+ * @param end - The end date.
+ * @returns The number of days, inclusive.
+ */
+export function getRangeDays(start: Date, end: Date): number {
+	return Math.round(diffDays(start, end)) + 1;
+}
+
+/**
+ * Calculates the end date for an inclusive range starting at `start` with a given duration in days.
+ *
+ * @param start - The start date.
+ * @param durationDays - The number of days in the range (must be >= 1).
+ * @returns The end date.
+ */
+export function getEndDate(start: Date, durationDays: number): Date {
+	return addDays(start, Math.max(0, durationDays - 1));
+}
+
+/**
  * Formats a `YYYY-MM-DD` string for display in the grid.
  *
  * @param dateStr - An ISO-8601 date string in `YYYY-MM-DD` format.

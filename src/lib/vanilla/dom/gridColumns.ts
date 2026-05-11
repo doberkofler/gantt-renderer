@@ -8,7 +8,7 @@ import {type TaskNode} from '../../domain/tree.ts';
  * Use when referencing task fields in grid column schemas that apply
  * across a heterogeneous set of task kinds.
  */
-export type TaskDataField = keyof Task | 'durationHours' | 'percentComplete' | 'open';
+export type TaskDataField = keyof Task | 'endDate' | 'percentComplete' | 'open';
 
 export type GridColumn = {
 	id: string;
@@ -31,14 +31,14 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 		header: 'Start time',
 		width: '90px',
 		field: 'startDate',
-		format: (value, _task, _row, locale) => formatDisplayDate(String(value), locale),
+		format: (value, _task, _row, locale) => formatDisplayDate(value as string, locale),
 	},
 	{
-		id: 'durationHours',
-		header: 'Duration',
-		width: '68px',
-		field: 'durationHours',
-		format: (value) => ((value as number) > 0 ? String(value) : '\u2014'),
+		id: 'endDate',
+		header: 'End time',
+		width: '90px',
+		field: 'endDate',
+		format: (value, _task, _row, locale) => (typeof value === 'string' ? formatDisplayDate(value, locale) : '\u2014'),
 	},
 	{
 		id: 'actions',
@@ -69,11 +69,11 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 			format: (value, _task, _row, loc) => formatDisplayDate(String(value), loc),
 		},
 		{
-			id: 'durationHours',
-			header: locale.labels?.columnDuration ?? EN_US_LABELS.columnDuration,
-			width: '68px',
-			field: 'durationHours',
-			format: (value) => ((value as number) > 0 ? String(value) : '\u2014'),
+			id: 'endDate',
+			header: locale.labels?.columnEndDate ?? EN_US_LABELS.columnEndDate,
+			width: '90px',
+			field: 'endDate',
+			format: (value, _task, _row, loc) => (typeof value === 'string' ? formatDisplayDate(value, loc) : '\u2014'),
 		},
 		{
 			id: 'actions',

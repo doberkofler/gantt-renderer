@@ -97,7 +97,7 @@ export const init = (): void => {
 					`onTaskClick ${task.text}`,
 					`id=${task.id}`,
 					`start=${task.startDate}`,
-					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
+					`endDate=${task.kind !== 'milestone' ? task.endDate : 'N/A'}`,
 					`kind=${task.kind}`,
 					`percentComplete=${task.kind !== 'milestone' ? task.percentComplete : 0}%`,
 				].join(' | '),
@@ -106,12 +106,9 @@ export const init = (): void => {
 		onTaskDoubleClick(payload) {
 			const {task} = payload;
 			appendEventLog(
-				[
-					`onTaskDoubleClick ${task.text}`,
-					`id=${task.id}`,
-					`start=${task.startDate}`,
-					`durationHours=${task.kind !== 'milestone' ? task.durationHours : 0}h`,
-				].join(' | '),
+				[`onTaskDoubleClick ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `endDate=${task.kind !== 'milestone' ? task.endDate : 'N/A'}`].join(
+					' | ',
+				),
 			);
 		},
 		onTaskMove(payload) {

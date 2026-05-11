@@ -8,7 +8,7 @@ const baseRows: TaskNode[] = [
 		id: 1,
 		text: 'Task 1',
 		startDate: '2026-01-01',
-		durationHours: 72,
+		endDate: '2026-01-03',
 		percentComplete: 50,
 		kind: 'task',
 		depth: 0,
@@ -57,7 +57,7 @@ describe('layoutEngine utilities', () => {
 				id: 9,
 				text: 'Tiny',
 				startDate: '2026-01-01',
-				durationHours: 1,
+				endDate: '2026-01-01',
 				percentComplete: 900,
 				kind: 'task',
 				depth: 0,
@@ -65,8 +65,8 @@ describe('layoutEngine utilities', () => {
 			},
 		];
 		const layout = computeLayout(rows, mapper).get(9);
-		expect(layout?.width).toBe(4);
-		expect(layout?.progressWidth).toBe(4);
+		expect(layout?.width).toBe(72);
+		expect(layout?.progressWidth).toBe(72);
 	});
 
 	it('returns total content height from row count', () => {
@@ -76,7 +76,7 @@ describe('layoutEngine utilities', () => {
 	it('derives viewport across all tasks with padding', () => {
 		const [start, end] = deriveViewport(baseRows, 48);
 		expect(start.toISOString()).toBe('2025-12-30T00:00:00.000Z');
-		expect(end.toISOString()).toBe('2026-01-06T00:00:00.000Z');
+		expect(end.toISOString()).toBe('2026-01-05T00:00:00.000Z');
 	});
 
 	it('returns default viewport when there are no tasks', () => {

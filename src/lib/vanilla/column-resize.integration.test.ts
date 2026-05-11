@@ -31,7 +31,7 @@ describe('column resize handles (M14)', () => {
 				gridColumns: [
 					{id: 'name', header: 'Name', width: '1fr'},
 					{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-					{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
+					{id: 'endDate', header: 'Dur', width: '90px', field: 'endDate'},
 				],
 			},
 			{
@@ -62,7 +62,7 @@ describe('column resize handles (M14)', () => {
 		mountTracked(container, INPUT, {
 			gridColumns: [
 				{id: 'name', header: 'Name', width: '1fr'},
-				{id: 'durationHours', header: 'Dur', width: '68px', field: 'durationHours'},
+				{id: 'endDate', header: 'Dur', width: '90px', field: 'endDate'},
 			],
 		});
 
@@ -71,7 +71,7 @@ describe('column resize handles (M14)', () => {
 
 		const headerEl = container.querySelector<HTMLElement>('[data-pane="left"] > div:first-child > div');
 		const initialTemplate = headerEl?.style.gridTemplateColumns;
-		expect(initialTemplate).toBe('1fr 68px');
+		expect(initialTemplate).toBe('1fr 90px');
 
 		handle?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 61}));
 		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 120, pointerId: 61}));

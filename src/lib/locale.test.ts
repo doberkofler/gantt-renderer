@@ -14,7 +14,7 @@ import {
 
 describe('EN_US_LABELS', () => {
 	it('covers all LocaleLabelKey entries', () => {
-		const keys: LocaleLabelKey[] = ['ariaTask', 'ariaMilestone', 'addSubtaskTitle', 'columnTaskName', 'columnStartDate', 'columnDuration', 'columnQuarter'];
+		const keys: LocaleLabelKey[] = ['ariaTask', 'ariaMilestone', 'addSubtaskTitle', 'columnTaskName', 'columnStartDate', 'columnEndDate', 'columnQuarter'];
 		for (const key of keys) {
 			expect(EN_US_LABELS[key]).toBeTypeOf('string');
 		}
@@ -26,7 +26,7 @@ describe('EN_US_LABELS', () => {
 		expect(EN_US_LABELS.addSubtaskTitle).toBe('Add subtask');
 		expect(EN_US_LABELS.columnTaskName).toBe('Task name');
 		expect(EN_US_LABELS.columnStartDate).toBe('Start time');
-		expect(EN_US_LABELS.columnDuration).toBe('Duration');
+		expect(EN_US_LABELS.columnEndDate).toBe('End time');
 		expect(EN_US_LABELS.columnQuarter).toBe('Q');
 	});
 });

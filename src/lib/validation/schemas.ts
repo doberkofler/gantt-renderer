@@ -30,31 +30,35 @@ const taskBase = {
 };
 
 /** @internal */
-export const TaskLeafSchema = z.object({
-	...taskBase,
-	kind: z.literal('task'),
-	/** Duration in hours. Must be positive; use `kind: 'milestone'` for zero-duration points. */
-	durationHours: z.number().int().positive(),
-	/** 0–100 completion percentage (integer). */
-	percentComplete: z.number().int().min(0).max(100).default(0),
-});
+export const TaskLeafSchema = z
+	.object({
+		...taskBase,
+		kind: z.literal('task'),
+		/** ISO date: YYYY-MM-DD */
+		endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u, 'Expected YYYY-MM-DD'),
+		/** 0–100 completion percentage (integer). */
+		percentComplete: z.number().int().min(0).max(100).default(0),
+	})
+	.refine((t) => t.endDate >= t.startDate, {message: 'endDate must be on or after startDate', path: ['endDate']});
 
 /** @internal */
-export const TaskProjectSchema = z.object({
-	...taskBase,
-	kind: z.literal('project'),
-	/** Duration in hours. Must be positive; use `kind: 'milestone'` for zero-duration points. */
-	durationHours: z.number().int().positive(),
-	/** 0–100 completion percentage (integer). */
-	percentComplete: z.number().int().min(0).max(100).default(0),
-	/**
-	 * Initial expanded state for tree hierarchy.
-	 * When `false`, children of this task are hidden on initial render.
-	 *
-	 * @default true
-	 */
-	open: z.boolean().default(true),
-});
+export const TaskProjectSchema = z
+	.object({
+		...taskBase,
+		kind: z.literal('project'),
+		/** ISO date: YYYY-MM-DD */
+		endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u, 'Expected YYYY-MM-DD'),
+		/** 0–100 completion percentage (integer). */
+		percentComplete: z.number().int().min(0).max(100).default(0),
+		/**
+		 * Initial expanded state for tree hierarchy.
+		 * When `false`, children of this task are hidden on initial render.
+		 *
+		 * @default true
+		 */
+		open: z.boolean().default(true),
+	})
+	.refine((t) => t.endDate >= t.startDate, {message: 'endDate must be on or after startDate', path: ['endDate']});
 
 /** @internal */
 export const TaskMilestoneSchema = z.object({
@@ -163,9 +167,9 @@ export type SpecialDay = z.infer<typeof SpecialDaySchema>;
  * A task in the Gantt chart — discriminated by `kind` into leaf tasks,
  * summary projects, and milestones.
  *
- * - **`kind: 'task'`** — A regular task with a colored bar and duration.
- * - **`kind: 'project'`** — A summary/group row with a colored bar and optional tree state.
- * - **`kind: 'milestone'`** — A zero-duration marker rendered as a diamond.
+ * - **`kind: 'task'`** — A regular task with a colored bar, `startDate` and `endDate`.
+ * - **`kind: 'project'`** — A summary/group row with a colored bar, `startDate`, `endDate`, and optional tree state.
+ * - **`kind: 'milestone'`** — A zero-duration marker rendered as a diamond, using only `startDate`.
  */
 export type Task = z.infer<typeof TaskSchema>;
 /** Convenience alias for the leaf-task variant of {@link Task}. */

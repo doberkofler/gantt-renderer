@@ -3,9 +3,9 @@ import {detectCycles, validateLinkRefs} from './dependencies.ts';
 import {type Link, type Task} from '../validation/schemas.ts';
 
 const tasks: Task[] = [
-	{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'},
-	{id: 2, text: 'B', startDate: '2026-01-02', durationHours: 24, percentComplete: 0, kind: 'task'},
-	{id: 3, text: 'C', startDate: '2026-01-03', durationHours: 24, percentComplete: 0, kind: 'task'},
+	{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-01', percentComplete: 0, kind: 'task'},
+	{id: 2, text: 'B', startDate: '2026-01-02', endDate: '2026-01-02', percentComplete: 0, kind: 'task'},
+	{id: 3, text: 'C', startDate: '2026-01-03', endDate: '2026-01-03', percentComplete: 0, kind: 'task'},
 ];
 
 describe('dependency utilities', () => {
@@ -33,7 +33,7 @@ describe('dependency utilities', () => {
 
 	it('throws when non-FS link connects to a milestone', () => {
 		const milestoneTasks: Task[] = [
-			{id: 1, text: 'A', startDate: '2026-01-01', durationHours: 24, percentComplete: 0, kind: 'task'},
+			{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-01', percentComplete: 0, kind: 'task'},
 			{id: 2, text: 'M', startDate: '2026-01-02', kind: 'milestone'},
 		];
 		expect(() => {

@@ -13,8 +13,8 @@ describe('pixelMapper utilities', () => {
 
 	it('converts duration width and back', () => {
 		const mapper = createPixelMapper('week', new Date('2026-01-01T00:00:00.000Z'));
-		const width = mapper.durationToWidth(336);
+		const width = mapper.durationDaysToWidth(14);
 		expect(width).toBe(240);
-		expect(mapper.widthToDuration(width)).toBe(336);
+		expect(mapper.widthToDurationDays(width)).toBe(14);
 	});
 });

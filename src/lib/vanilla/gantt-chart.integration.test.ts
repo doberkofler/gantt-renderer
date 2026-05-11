@@ -67,7 +67,7 @@ describe('core rendering and viewport', () => {
 		expect(leftPane).not.toBeNull();
 
 		const width = Number.parseInt(leftPane?.style.width ?? '0', 10);
-		expect(width).toBe(306);
+		expect(width).toBe(328);
 	});
 
 	it('uses explicit leftPaneWidth option over computed value', () => {
@@ -98,7 +98,7 @@ describe('core rendering and viewport', () => {
 			gridColumns: [
 				{id: 'name', header: 'Task name', width: '1fr'},
 				{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-				{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
+				{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 				{id: 'percentComplete', header: '%', width: '60px', field: 'percentComplete'},
 				{id: 'actions', header: '', width: '28px'},
 			],

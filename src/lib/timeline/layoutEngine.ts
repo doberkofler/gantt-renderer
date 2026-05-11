@@ -1,6 +1,6 @@
 import {type TaskNode} from '../domain/tree.ts';
 import {type PixelMapper} from './pixelMapper.ts';
-import {parseDate, addHours} from '../domain/dateMath.ts';
+import {parseDate, addHours, getRangeDays} from '../domain/dateMath.ts';
 
 export const DENSITY = {
 	rowHeight: 44,
@@ -69,7 +69,9 @@ export function computeLayout(rows: TaskNode[], mapper: PixelMapper): Map<number
 			continue;
 		}
 
-		const width = Math.max(mapper.durationToWidth(task.durationHours), 4);
+		const end = parseDate(task.endDate);
+		const days = getRangeDays(start, end);
+		const width = Math.max(mapper.durationDaysToWidth(days), 4);
 		const progressWidth = width * Math.min(1, Math.max(0, (task.percentComplete ?? 0) / 100));
 
 		result.set(task.id, {
@@ -121,7 +123,7 @@ export function deriveViewport(tasks: TaskNode[], paddingHours = 48): [Date, Dat
 			minMs = start.getTime();
 		}
 		if (task.kind !== 'milestone') {
-			const end = addHours(start, task.durationHours);
+			const end = parseDate(task.endDate);
 			if (end.getTime() > maxMs) {
 				maxMs = end.getTime();
 			}

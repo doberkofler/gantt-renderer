@@ -1,4 +1,12 @@
-export type LocaleLabelKey = 'ariaTask' | 'ariaMilestone' | 'addSubtaskTitle' | 'columnTaskName' | 'columnStartDate' | 'columnDuration' | 'columnQuarter';
+export type LocaleLabelKey =
+	| 'ariaTask'
+	| 'ariaMilestone'
+	| 'addSubtaskTitle'
+	| 'columnTaskName'
+	| 'columnStartDate'
+	| 'columnEndDate'
+	| 'columnDuration'
+	| 'columnQuarter';
 
 export type ChartLocale = {
 	code: string;
@@ -129,6 +137,7 @@ export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
 	addSubtaskTitle: 'Add subtask',
 	columnTaskName: 'Task name',
 	columnStartDate: 'Start time',
+	columnEndDate: 'End time',
 	columnDuration: 'Duration',
 	columnQuarter: 'Q',
 };

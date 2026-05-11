@@ -12,7 +12,7 @@ import {renderLeftPane, buildLeftPaneHeader, setupColumnResize} from './dom/left
 import {createRightPaneRefs, renderRightPane} from './dom/rightPane.ts';
 import {type RightPaneRefs} from './dom/rightPane.ts';
 import {type GridColumn, gridNaturalWidth, gridColumnDefaults} from './dom/gridColumns.ts';
-import {addHours, parseDate} from '../domain/dateMath.ts';
+import {parseDate} from '../domain/dateMath.ts';
 import {GanttError} from '../errors.ts';
 import {buildTaskIndex, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
 import {attachSplitter} from './splitter.ts';
@@ -22,13 +22,7 @@ import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 export type OnTaskClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
 export type OnTaskDoubleClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
 export type OnTaskMove = (payload: {task: Task; newStartDate: Date; newEndDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTaskResize = (payload: {
-	task: Task;
-	newDurationHours: number;
-	newStartDate: Date;
-	newEndDate: Date;
-	instance: GanttInstance;
-}) => boolean | Promise<boolean>;
+export type OnTaskResize = (payload: {task: Task; newStartDate: Date; newEndDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnTaskAdd = (payload: {parentTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
 export type OnLinkClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
@@ -55,8 +49,8 @@ type InternalCallbacks = {
 	onTaskClick?: (id: number) => void;
 	onTaskMove?: (payload: {id: number; startDate: Date}) => void;
 	_onTaskMoveFinal?: (payload: {id: number; startDate: Date}) => Promise<boolean>;
-	onTaskResize?: (payload: {id: number; durationHours: number}) => void;
-	_onTaskResizeFinal?: (payload: {id: number; durationHours: number}) => Promise<boolean>;
+	onTaskResize?: (payload: {id: number; endDate: string}) => void;
+	_onTaskResizeFinal?: (payload: {id: number; endDate: string}) => Promise<boolean>;
 	onTaskAdd?: (parentId: number) => void;
 	onTaskEditIntent?: (payload: {id: number; source: 'grid' | 'bar' | 'milestone'; trigger: 'doubleClick'; task: Task}) => void;
 	onTaskDoubleClick?: (payload: {id: number; task: Task}) => void;
@@ -231,8 +225,7 @@ export class GanttChart implements GanttInstance {
 			_onTaskMoveFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const durationHours = task.kind !== 'milestone' ? task.durationHours : 0;
-					const newEndDate = addHours(payload.startDate, durationHours);
+					const newEndDate = task.kind !== 'milestone' ? parseDate(task.endDate) : payload.startDate;
 					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate, newEndDate, instance: this});
 					if (result instanceof Promise) {
 						if (!(await result)) {
@@ -259,27 +252,26 @@ export class GanttChart implements GanttInstance {
 						this.#dragOriginals.set(payload.id, task);
 					}
 				}
-				this.#patchTask(payload.id, {durationHours: payload.durationHours});
+				this.#patchTask(payload.id, {endDate: payload.endDate});
 				this.#scheduleRender();
 			},
 			_onTaskResizeFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
-				if (task !== undefined) {
+				if (task !== undefined && task.kind !== 'milestone') {
 					const newStartDate = parseDate(task.startDate);
-					const durationHours = task.kind !== 'milestone' ? task.durationHours : 0;
-					const newEndDate = addHours(newStartDate, durationHours);
-					const result = this.#callbacks.onTaskResize?.({task, newDurationHours: payload.durationHours, newStartDate, newEndDate, instance: this});
+					const newEndDate = parseDate(task.endDate);
+					const result = this.#callbacks.onTaskResize?.({task, newStartDate, newEndDate, instance: this});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
 							if (original !== undefined && original.kind !== 'milestone') {
-								this.#patchTask(payload.id, {durationHours: original.durationHours});
+								this.#patchTask(payload.id, {endDate: original.endDate});
 							}
 						}
 					} else if (!result) {
 						const original = this.#dragOriginals.get(payload.id);
 						if (original !== undefined && original.kind !== 'milestone') {
-							this.#patchTask(payload.id, {durationHours: original.durationHours});
+							this.#patchTask(payload.id, {endDate: original.endDate});
 						}
 					}
 				}

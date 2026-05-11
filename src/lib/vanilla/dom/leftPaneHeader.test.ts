@@ -10,13 +10,13 @@ describe('buildLeftPaneHeader', () => {
 		expect(cells).toHaveLength(4);
 		expect(cells[0]?.textContent).toBe('Task name');
 		expect(cells[1]?.textContent).toBe('Start time');
-		expect(cells[2]?.textContent).toBe('Duration');
+		expect(cells[2]?.textContent).toBe('End time');
 		expect(cells[3]?.textContent).toBe('');
 	});
 
 	it('uses gridTemplateColumns matching the column schema', () => {
 		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
-		expect(header.style.gridTemplateColumns).toBe('1fr 90px 68px 28px');
+		expect(header.style.gridTemplateColumns).toBe('1fr 90px 90px 28px');
 	});
 
 	it('renders custom columns with correct header labels', () => {
@@ -38,7 +38,7 @@ describe('buildLeftPaneHeader', () => {
 	it('applies alignment to header cells', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '1fr'},
-			{id: 'durationHours', header: 'Duration', width: '68px', align: 'right'},
+			{id: 'endDate', header: 'End time', width: '90px', align: 'right'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const cells = [...header.querySelectorAll('span')];
@@ -51,15 +51,15 @@ describe('buildLeftPaneHeader', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Task name', width: '1fr'},
 			{id: 'startDate', header: 'Start time', width: '90px', visible: false},
-			{id: 'durationHours', header: 'Duration', width: '68px'},
+			{id: 'endDate', header: 'End time', width: '90px'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const cells = [...header.querySelectorAll('span')];
 
 		expect(cells).toHaveLength(2);
-		expect(header.style.gridTemplateColumns).toBe('1fr 68px');
+		expect(header.style.gridTemplateColumns).toBe('1fr 90px');
 		expect(cells[0]?.textContent).toBe('Task name');
-		expect(cells[1]?.textContent).toBe('Duration');
+		expect(cells[1]?.textContent).toBe('End time');
 	});
 });
 
@@ -83,7 +83,7 @@ describe('buildLeftPaneHeader resize handles', () => {
 	it('wraps each header cell in a positioned container', () => {
 		const cols: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'durationHours', header: 'Days', width: '60px'},
+			{id: 'endDate', header: 'Days', width: '60px'},
 		];
 		const header = buildLeftPaneHeader(cols);
 		const wrappers = [...header.children] as HTMLElement[];
@@ -109,7 +109,7 @@ describe('setupColumnResize', () => {
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
+			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);
@@ -135,7 +135,7 @@ describe('setupColumnResize', () => {
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
+			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);
@@ -171,7 +171,7 @@ describe('setupColumnResize', () => {
 
 		const columns: GridColumn[] = [
 			{id: 'name', header: 'Name', width: '1fr'},
-			{id: 'durationHours', header: 'Days', width: '68px', field: 'durationHours'},
+			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
 		const header = buildLeftPaneHeader(columns);
 		container.append(header);
@@ -180,7 +180,7 @@ describe('setupColumnResize', () => {
 		// Add a mock body row
 		const row = document.createElement('div');
 		row.setAttribute('role', 'row');
-		row.style.gridTemplateColumns = '1fr 68px';
+		row.style.gridTemplateColumns = '1fr 90px';
 		bodyEl.append(row);
 		container.append(bodyEl);
 

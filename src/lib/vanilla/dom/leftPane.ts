@@ -33,7 +33,7 @@ export function toTask(node: TaskNode): Task {
 			return {
 				...base,
 				kind: 'task',
-				durationHours: node.durationHours,
+				endDate: node.endDate,
 				percentComplete: node.percentComplete,
 			};
 		}
@@ -41,7 +41,7 @@ export function toTask(node: TaskNode): Task {
 			return {
 				...base,
 				kind: 'project',
-				durationHours: node.durationHours,
+				endDate: node.endDate,
 				percentComplete: node.percentComplete,
 				open: node.open,
 			};
@@ -54,8 +54,8 @@ export function toTask(node: TaskNode): Task {
 
 function getTaskField(task: Task, field: string): unknown {
 	switch (field) {
-		case 'durationHours': {
-			return task.kind !== 'milestone' ? task.durationHours : undefined;
+		case 'endDate': {
+			return task.kind !== 'milestone' ? task.endDate : undefined;
 		}
 		case 'percentComplete': {
 			return task.kind !== 'milestone' ? task.percentComplete : undefined;

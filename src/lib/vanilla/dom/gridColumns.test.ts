@@ -15,18 +15,18 @@ describe('gridColumns helpers', () => {
 		const cols: GridColumn[] = [
 			{id: 'a', header: 'A', width: '1fr'},
 			{id: 'b', header: 'B', width: '90px'},
-			{id: 'c', header: 'C', width: '68px'},
+			{id: 'c', header: 'C', width: '90px'},
 		];
-		expect(gridTemplateColumns(cols)).toBe('1fr 90px 68px');
+		expect(gridTemplateColumns(cols)).toBe('1fr 90px 90px');
 	});
 
 	it('filters hidden columns from gridTemplateColumns', () => {
 		const cols: GridColumn[] = [
 			{id: 'a', header: 'A', width: '1fr'},
 			{id: 'b', header: 'B', width: '90px', visible: false},
-			{id: 'c', header: 'C', width: '68px'},
+			{id: 'c', header: 'C', width: '90px'},
 		];
-		expect(gridTemplateColumns(cols)).toBe('1fr 68px');
+		expect(gridTemplateColumns(cols)).toBe('1fr 90px');
 		expect(visibleColumns(cols)).toHaveLength(2);
 		expect(visibleColumns(cols)[0]?.id).toBe('a');
 		expect(visibleColumns(cols)[1]?.id).toBe('c');
@@ -36,7 +36,7 @@ describe('gridColumns helpers', () => {
 		expect(DEFAULT_GRID_COLUMNS).toHaveLength(4);
 		expect(DEFAULT_GRID_COLUMNS[0]?.id).toBe('name');
 		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('startDate');
-		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('durationHours');
+		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('endDate');
 		expect(DEFAULT_GRID_COLUMNS[3]?.id).toBe('actions');
 	});
 });
@@ -48,7 +48,7 @@ describe('gridColumnDefaults', () => {
 		expect(columns).toHaveLength(4);
 		expect(columns[0]?.id).toBe('name');
 		expect(columns[1]?.id).toBe('startDate');
-		expect(columns[2]?.id).toBe('durationHours');
+		expect(columns[2]?.id).toBe('endDate');
 		expect(columns[3]?.id).toBe('actions');
 	});
 
@@ -57,7 +57,7 @@ describe('gridColumnDefaults', () => {
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe(EN_US_LABELS.columnTaskName);
 		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.columnDuration);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.columnEndDate);
 	});
 
 	it('uses locale label overrides when provided', () => {
@@ -66,13 +66,13 @@ describe('gridColumnDefaults', () => {
 			labels: {
 				columnTaskName: 'Aufgabe',
 				columnStartDate: 'Start',
-				columnDuration: 'Dauer',
+				columnEndDate: 'Ende',
 			},
 		};
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe('Aufgabe');
 		expect(columns[1]?.header).toBe('Start');
-		expect(columns[2]?.header).toBe('Dauer');
+		expect(columns[2]?.header).toBe('Ende');
 	});
 
 	it('falls back to EN_US_LABELS for missing label keys', () => {
@@ -83,7 +83,7 @@ describe('gridColumnDefaults', () => {
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe('Aufgabe');
 		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.columnDuration);
+		expect(columns[2]?.header).toBe(EN_US_LABELS.columnEndDate);
 	});
 
 	it('actions column has empty header and 28px width', () => {
@@ -95,17 +95,17 @@ describe('gridColumnDefaults', () => {
 });
 
 describe('gridNaturalWidth', () => {
-	it('default schema returns 306px (120 + 90 + 68 + 28)', () => {
-		expect(gridNaturalWidth(DEFAULT_GRID_COLUMNS)).toBe(306);
+	it('default schema returns 328px (120 + 90 + 90 + 28)', () => {
+		expect(gridNaturalWidth(DEFAULT_GRID_COLUMNS)).toBe(328);
 	});
 
 	it('sums fixed px columns', () => {
 		const cols: GridColumn[] = [
 			{id: 'a', header: 'A', width: '90px'},
-			{id: 'b', header: 'B', width: '68px'},
+			{id: 'b', header: 'B', width: '90px'},
 			{id: 'c', header: 'C', width: '28px'},
 		];
-		expect(gridNaturalWidth(cols)).toBe(186);
+		expect(gridNaturalWidth(cols)).toBe(208);
 	});
 
 	it('converts fr units using GRID_COLUMN_FR_MIN_WIDTH', () => {
@@ -127,7 +127,7 @@ describe('gridNaturalWidth', () => {
 	it('skips hidden columns', () => {
 		const cols: GridColumn[] = [
 			{id: 'a', header: 'A', width: '90px'},
-			{id: 'b', header: 'B', width: '68px', visible: false},
+			{id: 'b', header: 'B', width: '90px', visible: false},
 			{id: 'c', header: 'C', width: '28px'},
 		];
 		expect(gridNaturalWidth(cols)).toBe(118);
@@ -147,7 +147,7 @@ describe('gridNaturalWidth', () => {
 			{id: 'name', header: 'Name', width: '2fr'},
 			{id: 'percentComplete', header: 'Progress', width: '70px', field: 'percentComplete'},
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
-			{id: 'durationHours', header: 'Days', width: '60px', field: 'durationHours'},
+			{id: 'endDate', header: 'Days', width: '60px', field: 'endDate'},
 		];
 		expect(gridNaturalWidth(cols)).toBe(2 * GRID_COLUMN_FR_MIN_WIDTH + 220);
 	});

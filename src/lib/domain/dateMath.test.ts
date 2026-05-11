@@ -7,6 +7,8 @@ import {
 	formatDisplayDate,
 	formatHeaderLabel,
 	formatUpperLabel,
+	getEndDate,
+	getRangeDays,
 	parseDate,
 	startOfDay,
 	startOfHour,
@@ -85,5 +87,22 @@ describe('dateMath utilities', () => {
 		const localeWithoutQuarter: ChartLocale = {code: 'de-DE', labels: {}};
 		const date = new Date('2026-03-10T09:00:00.000Z');
 		expect(formatHeaderLabel(date, 'quarter', localeWithoutQuarter)).toBe('Q1 2026');
+	});
+
+	it('inclusive range helpers', () => {
+		const start = parseDate('2026-01-01');
+		const end = parseDate('2026-01-05');
+
+		// 1st, 2nd, 3rd, 4th, 5th = 5 days
+		expect(getRangeDays(start, end)).toBe(5);
+
+		// duration 1 -> end is start
+		expect(getEndDate(start, 1).toISOString()).toBe(start.toISOString());
+
+		// duration 5 -> end is start + 4 days
+		expect(getEndDate(start, 5).toISOString()).toBe('2026-01-05T00:00:00.000Z');
+
+		// duration 0 -> end is start (safeguard)
+		expect(getEndDate(start, 0).toISOString()).toBe(start.toISOString());
 	});
 });
