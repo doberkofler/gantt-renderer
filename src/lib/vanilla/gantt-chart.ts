@@ -1,4 +1,11 @@
-import {type _GanttInputZod, type SpecialDay, type ZodTaskInferred, type Task as GenTask, type Link as GenLink} from '../validation/schemas.ts';
+import {
+	type _GanttInputZod,
+	type GanttInput as PubGanttInput,
+	type SpecialDay,
+	type ZodTaskInferred,
+	type Task as GenTask,
+	type Link as GenLink,
+} from '../validation/schemas.ts';
 import {validateLinkRefs, detectCycles} from '../domain/dependencies.ts';
 import {buildTaskTree, flattenTree} from '../domain/tree.ts';
 import {createPixelMapper} from '../timeline/pixelMapper.ts';
@@ -132,7 +139,7 @@ export type GanttOptions = {
 };
 
 export type GanttInstance<TTaskData = never, TLinkData = never> = {
-	update: (input: GanttInput) => void;
+	update: (input: PubGanttInput<TTaskData, TLinkData>) => void;
 	setOptions: (opts: Partial<GanttOptions>) => void;
 	setCallbacks: (cbs: GanttCallbacks<TTaskData, TLinkData>) => void;
 	select: (id: number | null, fireCallback?: boolean) => void;
@@ -428,11 +435,12 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 * @param newInput - The new {@link GanttInput} to apply.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public update(newInput: GanttInput): void {
+	public update(newInput: PubGanttInput<TTaskData, TLinkData>): void {
 		this.#assertAlive();
-		validateLinkRefs(newInput.tasks, newInput.links);
-		detectCycles(newInput.tasks, newInput.links);
-		this.#input = structuredClone(newInput);
+		const input = newInput as unknown as GanttInput;
+		validateLinkRefs(input.tasks, input.links);
+		detectCycles(input.tasks, input.links);
+		this.#input = structuredClone(input);
 		this.#taskIndex = buildTaskIndex(this.#input.tasks);
 		this.#expandedIds = getInitialExpandedIds(this.#input.tasks);
 		if (this.#rafPending && this.#rafId !== null) {

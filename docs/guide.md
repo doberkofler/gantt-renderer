@@ -444,7 +444,9 @@ export type GanttInput<TTaskData = never, TLinkData = never> = {
 ```
 
 Pass your raw data through `parseGanttInput(yourData)` to validate against the `zod` schemas
-and get back a fully typed `GanttInput` with defaults applied.
+and get back a fully typed `GanttInput` with defaults applied. For typed `data` properties,
+use `parseGanttInput<TTaskData, TLinkData>(yourData)` and annotate your raw object with
+`GanttInputRaw<TTaskData, TLinkData>`.
 
 #### `Task`
 
@@ -573,7 +575,7 @@ const raw = {
 	],
 };
 
-const input = parseGanttInput(raw);
+const input = parseGanttInput<CustomTaskData, CustomLinkData>(raw);
 const instance = new GanttChart<CustomTaskData, CustomLinkData>(container, {scale: 'day'});
 instance.update(input);
 
@@ -596,7 +598,8 @@ instance.setCallbacks(cbs);
 |---|---|
 | `Task<TData = never>` | Task with optional typed `data`. Default `never` forbids `data`. |
 | `Link<TData = never>` | Link with optional typed `data`. Default `never` forbids `data`. |
-| `GanttInput<TTaskData = never, TLinkData = never>` | Input with typed task/link data. |
+| `GanttInput<TTaskData = never, TLinkData = never>` | Parsed input with typed task/link data. |
+| `GanttInputRaw<TTaskData = never, TLinkData = never>` | Unvalidated input type — enforces `data` shape at compile time. |
 | `GanttChart<TTaskData = never, TLinkData = never>` | Chart class with typed data. |
 | `GanttCallbacks<TTaskData = never, TLinkData = never>` | Callbacks with typed task/link payloads. |
 | `GanttInstance<TTaskData = never, TLinkData = never>` | Instance type with typed update/setCallbacks. |
@@ -612,6 +615,20 @@ instance.setCallbacks(cbs);
 
 When types are specified on `GanttChart`, they propagate automatically to `setCallbacks()`.
 Callbacks can also be typed independently using the generic callback types listed above.
+
+`parseGanttInput` also accepts the same type parameters. When you pass them, the
+function validates `data` shapes at compile time through the `GanttInputRaw<TTaskData, TLinkData>`
+input type. Runtime validation remains schema-driven; `data` is always checked as a generic object
+by zod regardless of the type parameter.
+
+```ts
+const raw: GanttInputRaw<MyTaskData, MyLinkData> = {
+	tasks: [{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task', data: {priority: 1}}],
+};
+
+// Input type is GanttInput<MyTaskData, MyLinkData>
+const input = parseGanttInput(raw);
+```
 
 ### Time scale
 

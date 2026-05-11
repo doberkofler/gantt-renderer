@@ -162,6 +162,16 @@ export type ZodTaskInferred = z.infer<typeof TaskSchema>;
 /** @internal */
 export type ZodLinkInferred = z.infer<typeof LinkSchema>;
 
+/** @internal */
+type ZodTaskInput = z.input<typeof TaskSchema>;
+/** @internal */
+type ZodLinkInput = z.input<typeof LinkSchema>;
+
+/** Raw input version of a task — uses zod's input shape where fields with defaults are optional. */
+type TaskRaw<TData = never> = WithoutData<ZodTaskInput> & WithData<TData>;
+/** Raw input version of a link — uses zod's input shape where fields with defaults are optional. */
+type LinkRaw<TData = never> = WithoutData<ZodLinkInput> & WithData<TData>;
+
 // ─── Public generic types ───
 
 /**
@@ -221,8 +231,18 @@ export type GanttInput<TTaskData = never, TLinkData = never> = {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type _GanttInputZod = z.infer<typeof GanttInputSchema>;
 
-/** The raw, unvalidated input shape that consumers pass to {@link parseGanttInput}. */
-export type GanttInputRaw = z.input<typeof GanttInputSchema>;
+/**
+ * The raw, unvalidated input shape that consumers pass to {@link parseGanttInput}.
+ *
+ * Fields with defaults in the schema (e.g. `percentComplete`, `type`) remain optional here.
+ *
+ * @param TTaskData - The type of the `data` property on tasks. Defaults to `never`.
+ * @param TLinkData - The type of the `data` property on links. Defaults to `never`.
+ */
+export type GanttInputRaw<TTaskData = never, TLinkData = never> = {
+	tasks: TaskRaw<TTaskData>[];
+	links?: LinkRaw<TLinkData>[];
+};
 /** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
 export type LinkType = z.infer<typeof LinkTypeSchema>;
 /** Allowed task kind values: `'task'`, `'project'`, or `'milestone'`. */
@@ -239,10 +259,14 @@ export type TaskMilestoneInferred = z.infer<typeof TaskMilestoneSchema>;
 /**
  * Parses raw external data.
  *
+ * Compile-time generics enforce the `data` shape on tasks and links.
+ * Runtime validation is done by the zod schemas; the `data` field is
+ * validated as a generic object at runtime regardless of the type parameter.
+ *
  * @param raw - The unvalidated input from the consumer.
- * @returns The parsed and validated input with `data` typed as `Record<string, unknown>`.
+ * @returns The parsed and validated input with `data` typed per the type parameters.
  * @throws {import('zod').ZodError} On schema validation failure.
  */
-export function parseGanttInput(raw: GanttInputRaw): GanttInput<Record<string, unknown>, Record<string, unknown>> {
-	return GanttInputSchema.parse(raw);
+export function parseGanttInput<TTaskData = never, TLinkData = never>(raw: GanttInputRaw<TTaskData, TLinkData>): GanttInput<TTaskData, TLinkData> {
+	return GanttInputSchema.parse(raw) as unknown as GanttInput<TTaskData, TLinkData>;
 }
