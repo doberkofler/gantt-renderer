@@ -2,6 +2,12 @@
 
 ---
 
+## Task 1: Eventually add locale for the following languages
+
+en, zh-Hans, zh-Hant, es, pt-BR, pt-PT, fr, de, ru, ja, ko, ar, hi, id, th, tr, it, pl, nl, sv, da, nb, fi, uk, ro, cs, hu, el, sk, bg, hr, sr, lt, lv, et, sl, be, sq, mk, ca, eu, cy, ga, mt
+
+---
+
 ## Task 5: Link `lag` Support
 
 ### Context
