@@ -86,6 +86,7 @@ export type GanttOptions = {
 	specialDays?: SpecialDay[];
 	gridColumns?: GridColumn[];
 	theme?: ThemeMode;
+	showAddTaskButton?: boolean;
 };
 
 export type GanttInstance = {
@@ -135,6 +136,7 @@ export class GanttChart implements GanttInstance {
 	#timelineMinWidth: number;
 	#columns: GridColumn[];
 	#leftPaneDefaultWidth: number;
+	#showAddTaskButton: boolean;
 	#weekendDays: Set<number>;
 	#specialDaysByDate: Map<string, ResolvedSpecialDay>;
 	#expandedIds: Set<number>;
@@ -171,6 +173,7 @@ export class GanttChart implements GanttInstance {
 		this.#locale = resolveChartLocale(opts.locale);
 		this.#columns = opts.gridColumns ?? gridColumnDefaults(this.#locale);
 		this.#leftPaneDefaultWidth = opts.leftPaneWidth ?? gridNaturalWidth(this.#columns);
+		this.#showAddTaskButton = opts.showAddTaskButton ?? true;
 		this.#height = opts.height ?? 500;
 		this.#timelineMinWidth = opts.timelineMinWidth ?? TIMELINE_MIN_WIDTH;
 		this.#weekendDays = normalizeWeekendDays(opts.weekendDays ?? this.#locale.weekendDays);
@@ -440,6 +443,10 @@ export class GanttChart implements GanttInstance {
 			this.#applyTheme();
 		}
 
+		if (opts.showAddTaskButton !== undefined) {
+			this.#showAddTaskButton = opts.showAddTaskButton;
+		}
+
 		const hasLayoutChange =
 			opts.leftPaneWidth !== undefined ||
 			opts.responsiveSplitPane !== undefined ||
@@ -452,7 +459,7 @@ export class GanttChart implements GanttInstance {
 			this.#applyResponsivePaneStyles();
 		}
 
-		const hasLeftPaneChange = columnsChanged || opts.locale !== undefined;
+		const hasLeftPaneChange = columnsChanged || opts.locale !== undefined || opts.showAddTaskButton !== undefined;
 
 		const hasRightPaneChange =
 			opts.scale !== undefined ||
@@ -723,6 +730,7 @@ export class GanttChart implements GanttInstance {
 				onTaskAdd: (id) => this.#cbs.onTaskAdd?.(id),
 			},
 			this.#columns,
+			this.#showAddTaskButton,
 		);
 	}
 

@@ -112,6 +112,24 @@ describe('add/toggle affordance visibility', () => {
 		}
 	});
 
+	it('add buttons are not rendered when showAddTaskButton is false', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		mountTracked(container, INPUT, {showAddTaskButton: false});
+
+		const addBtns = container.querySelectorAll('.gantt-add-btn');
+		expect(addBtns).toHaveLength(0);
+	});
+
+	it('add buttons are rendered when showAddTaskButton is true (default)', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		mountTracked(container, INPUT, {showAddTaskButton: true});
+
+		const addBtns = container.querySelectorAll('.gantt-add-btn');
+		expect(addBtns.length).toBeGreaterThan(0);
+	});
+
 	it('add buttons are not rendered when actions column is omitted from schema', () => {
 		const container = document.createElement('div');
 		document.body.append(container);

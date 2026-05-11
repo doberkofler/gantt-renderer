@@ -180,13 +180,25 @@ function buildAddButton(row: TaskNode, cbs: LeftPaneCallbacks, locale: ChartLoca
 	return btn;
 }
 
-function buildCell(column: GridColumn, row: TaskNode, expandedIds: Set<number>, cbs: LeftPaneCallbacks, locale: ChartLocale): HTMLElement {
+function buildActionsPlaceholder(): HTMLElement {
+	const div = el('div');
+	return div;
+}
+
+function buildCell(
+	column: GridColumn,
+	row: TaskNode,
+	expandedIds: Set<number>,
+	cbs: LeftPaneCallbacks,
+	locale: ChartLocale,
+	showAddTaskButton: boolean,
+): HTMLElement {
 	switch (column.id) {
 		case 'name': {
 			return buildTreeNameCell(row, expandedIds, cbs);
 		}
 		case 'actions': {
-			return buildAddButton(row, cbs, locale);
+			return showAddTaskButton ? buildAddButton(row, cbs, locale) : buildActionsPlaceholder();
 		}
 		default: {
 			return buildDataCell(row, column, locale);
@@ -201,6 +213,7 @@ function buildRow(
 	cbs: LeftPaneCallbacks,
 	columns: GridColumn[],
 	locale: ChartLocale,
+	showAddTaskButton: boolean,
 ): HTMLElement {
 	const selected = row.id === selectedId;
 
@@ -233,7 +246,7 @@ function buildRow(
 	});
 
 	for (const column of visibleColumns(columns)) {
-		wrapper.append(buildCell(column, row, expandedIds, cbs, locale));
+		wrapper.append(buildCell(column, row, expandedIds, cbs, locale, showAddTaskButton));
 	}
 
 	return wrapper;
@@ -246,8 +259,9 @@ function buildRow(
  * @param state - The current chart state.
  * @param cbs - The left pane callbacks.
  * @param columns - The grid column schema.
+ * @param showAddTaskButton - Whether to render the add-subtask button in the actions column.
  */
-export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: LeftPaneCallbacks, columns: GridColumn[]): void {
+export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: LeftPaneCallbacks, columns: GridColumn[], showAddTaskButton = true): void {
 	const {allRows, selectedId, expandedIds, startIndex, endIndex, paddingTop, paddingBottom, locale} = state;
 
 	const frag = document.createDocumentFragment();
@@ -259,7 +273,7 @@ export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: L
 	}
 
 	for (const row of allRows.slice(startIndex, endIndex + 1)) {
-		frag.append(buildRow(row, selectedId, expandedIds, cbs, columns, locale));
+		frag.append(buildRow(row, selectedId, expandedIds, cbs, columns, locale, showAddTaskButton));
 	}
 
 	if (paddingBottom > 0) {

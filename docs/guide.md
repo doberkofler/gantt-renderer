@@ -70,7 +70,7 @@ All constructor options with their types, defaults, and descriptions.
 | `viewportStart` | `Date` | (earliest task) | Left boundary of the initial viewport. |
 | `viewportEnd` | `Date` | (latest task) | Right boundary of the initial viewport. |
 | `locale` | `ChartLocale \| string` | `'en-US'` | Locale for labels and calendar conventions. Accepts a BCP 47 string or a `ChartLocale` object. |
-| `gridColumns` | `GridColumn[]` | (localized 4-col) | Left-pane column schema. When omitted, generates a localized layout (name, start, duration, actions). |
+| `gridColumns` | `GridColumn[]` | (localized 3-col) | Left-pane column schema. When omitted, generates a localized layout (name, start, actions). |
 | `leftPaneWidth` | `number` | (computed) | Explicit left grid pane width in px. When omitted, derived from the column schema and viewport. |
 | `responsiveSplitPane` | `boolean` | `true` | Enables automatic mobile adaptation. |
 | `mobileBreakpoint` | `number` | `768` | Container width in px below which mobile behavior activates. |
@@ -84,6 +84,7 @@ All constructor options with their types, defaults, and descriptions.
 | `highlightLinkedDependenciesOnSelect` | `boolean` | `false` | When `true`, links connected to the selected task use highlight styling. |
 | `linkCreationEnabled` | `boolean` | `false` | Enables per-task endpoint handles and drag-to-create-link interactions. |
 | `progressDragEnabled` | `boolean` | `false` | Enables dragging the percent-complete fill inside a task bar to change `percentComplete`. |
+| `showAddTaskButton` | `boolean` | `true` | Shows the add-subtask button (`+`) in the actions column. Set to `false` to hide it.
 
 #### Callback options
 
@@ -258,7 +259,7 @@ type OnTaskAdd = (payload: {parentId: number}) => void;
 
 Fires when the user clicks the add-subtask button (`+`) in the actions column of a grid row.
 The button is rendered in the `actions` column (which must be present in the `gridColumns` schema
-— it is included in the default 4-column layout). The callback receives the parent task's `id`;
+— it is included in the default 3-column layout). The callback receives the parent task's `id`;
 consumers are expected to create a new subtask and call `instance.update()`.
 
 Return `false` from the callback to abort the add operation.
@@ -638,8 +639,8 @@ When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conve
 | `ariaMilestone` | `Milestone {0}` | Milestone `aria-label` |
 | `addSubtaskTitle` | `Add subtask` | Add-button `title` attribute |
 | `columnTaskName` | `Task name` | Grid column header |
-| `columnStartDate` | `Start time` | Grid column header |
-| `columnDuration` | `Duration` | Grid column header |
+| `columnStartDate` | `Start` | Grid column header |
+| `columnEndDate` | `End` | Grid column header |
 | `columnQuarter` | `Q` | Quarter prefix in time header |
 
 Aria-label templates use `{0}` as the task name placeholder. Only the keys you override in
@@ -673,7 +674,7 @@ The `weekendDays` option overrides the locale default for non-standard corporate
 
 `GanttOptions` includes a `gridColumns` option for customising the left-pane grid:
 
-- `gridColumns?: GridColumn[]` - Column schema array. When omitted, `gridColumnDefaults(locale)` generates a localized 4-column layout (name, start time, duration, actions).
+- `gridColumns?: GridColumn[]` - Column schema array. When omitted, `gridColumnDefaults(locale)` generates a localized 3-column layout (name, start, actions).
 
 `GridColumn` shape:
 

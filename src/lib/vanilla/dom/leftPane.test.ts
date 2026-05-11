@@ -20,8 +20,8 @@ describe('renderLeftPane', () => {
 		expect(rows).toHaveLength(1);
 
 		const row = rows[0] as HTMLElement;
-		expect(row.style.gridTemplateColumns).toBe('1fr 90px 90px 28px');
-		expect(row.children).toHaveLength(4);
+		expect(row.style.gridTemplateColumns).toBe('1fr 90px 28px');
+		expect(row.children).toHaveLength(3);
 
 		// Name cell — the label span is always the last child
 		const nameCell = row.children[0] as HTMLElement;
@@ -32,16 +32,31 @@ describe('renderLeftPane', () => {
 		expect(startCell.tagName).toBe('SPAN');
 		expect(startCell.textContent).toBe('02/01/2026');
 
-		// End date cell - formatted as MM/DD/YYYY
-		const durCell = row.children[2] as HTMLElement;
-		expect(durCell.tagName).toBe('SPAN');
-		expect(durCell.textContent).toBe('02/08/2026');
-
 		// Actions cell (add button)
-		const actionsCell = row.children[3] as HTMLElement;
+		const actionsCell = row.children[2] as HTMLElement;
 		expect(actionsCell.tagName).toBe('BUTTON');
 		expect(actionsCell.className).toBe('gantt-add-btn');
 		expect(actionsCell.textContent).toBe('+');
+	});
+
+	it('hides add button when showAddTaskButton is false', () => {
+		const container = document.createElement('div');
+		const node = taskNode({id: 1, text: 'My Task', startDate: '2026-02-01', endDate: '2026-02-08'});
+		const state = mockState({
+			allRows: [node],
+			startIndex: 0,
+			endIndex: 0,
+		});
+		const cbs = mockCallbacks();
+
+		renderLeftPane(container, state, cbs, DEFAULT_GRID_COLUMNS, false);
+
+		const row = container.querySelector('[role="row"]');
+		expect(row?.children).toHaveLength(3);
+
+		const actionsCell = row?.children[2] as HTMLElement | undefined;
+		expect(actionsCell?.tagName).toBe('DIV');
+		expect(actionsCell?.className).toBe('');
 	});
 
 	it('renders zero-duration as em dash in duration column', () => {
@@ -50,7 +65,13 @@ describe('renderLeftPane', () => {
 		const state = mockState({allRows: [node], startIndex: 0, endIndex: 0});
 		const cbs = mockCallbacks();
 
-		renderLeftPane(container, state, cbs, DEFAULT_GRID_COLUMNS);
+		const columns: GridColumn[] = [
+			{id: 'name', header: 'Task name', width: '1fr'},
+			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
+			{id: 'endDate', header: 'End', width: '90px', field: 'endDate', format: (value, _task, _row, _loc) => (typeof value === 'string' ? value : '\u2014')},
+		];
+
+		renderLeftPane(container, state, cbs, columns);
 
 		const row = container.querySelector('[role="row"]');
 		const durCell = row?.children[2];

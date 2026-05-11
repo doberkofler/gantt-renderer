@@ -101,7 +101,7 @@ describe('typography scale tokens', () => {
 		const headerGrid = leftHeader?.children[0] as HTMLElement | undefined;
 		const headerSpans = [...(headerGrid?.querySelectorAll('span') ?? [])];
 
-		expect(headerSpans).toHaveLength(4);
+		expect(headerSpans).toHaveLength(3);
 		for (const el of headerSpans) {
 			const span = el as HTMLElement;
 			if (span.textContent === '') {

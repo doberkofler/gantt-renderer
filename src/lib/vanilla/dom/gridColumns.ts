@@ -28,17 +28,10 @@ export const DEFAULT_GRID_COLUMNS: GridColumn[] = [
 	},
 	{
 		id: 'startDate',
-		header: 'Start time',
+		header: 'Start',
 		width: '90px',
 		field: 'startDate',
 		format: (value, _task, _row, locale) => formatDisplayDate(value as string, locale),
-	},
-	{
-		id: 'endDate',
-		header: 'End time',
-		width: '90px',
-		field: 'endDate',
-		format: (value, _task, _row, locale) => (typeof value === 'string' ? formatDisplayDate(value, locale) : '\u2014'),
 	},
 	{
 		id: 'actions',
@@ -67,13 +60,6 @@ export function gridColumnDefaults(locale: ChartLocale): GridColumn[] {
 			width: '90px',
 			field: 'startDate',
 			format: (value, _task, _row, loc) => formatDisplayDate(String(value), loc),
-		},
-		{
-			id: 'endDate',
-			header: locale.labels?.columnEndDate ?? EN_US_LABELS.columnEndDate,
-			width: '90px',
-			field: 'endDate',
-			format: (value, _task, _row, loc) => (typeof value === 'string' ? formatDisplayDate(value, loc) : '\u2014'),
 		},
 		{
 			id: 'actions',

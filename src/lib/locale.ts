@@ -136,8 +136,8 @@ export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
 	ariaMilestone: 'Milestone {0}',
 	addSubtaskTitle: 'Add subtask',
 	columnTaskName: 'Task name',
-	columnStartDate: 'Start time',
-	columnEndDate: 'End time',
+	columnStartDate: 'Start',
+	columnEndDate: 'End',
 	columnDuration: 'Duration',
 	columnQuarter: 'Q',
 };

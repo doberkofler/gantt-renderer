@@ -32,6 +32,7 @@ type DemoControlState = {
 		highlightLinkedDependenciesOnSelect: boolean;
 		showWeekends: boolean;
 		responsiveSplitPane: boolean;
+		showAddTaskButton: boolean;
 	};
 };
 
@@ -86,6 +87,7 @@ export const init = (): void => {
 			highlightLinkedDependenciesOnSelect: false,
 			showWeekends: true,
 			responsiveSplitPane: true,
+			showAddTaskButton: true,
 		},
 	};
 
@@ -140,6 +142,7 @@ export const init = (): void => {
 			highlightLinkedDependenciesOnSelect: state.currentOptions.highlightLinkedDependenciesOnSelect,
 			showWeekends: state.currentOptions.showWeekends,
 			responsiveSplitPane: state.currentOptions.responsiveSplitPane,
+			showAddTaskButton: state.currentOptions.showAddTaskButton,
 		};
 	}
 
@@ -225,6 +228,13 @@ export const init = (): void => {
 		state.currentOptions.responsiveSplitPane = checked;
 		remountChart();
 		logControlHook('toggle-responsive', 'toggled', checked ? 'on' : 'off');
+	});
+
+	document.querySelector<HTMLInputElement>('#toggle-show-add-task')?.addEventListener('change', (e) => {
+		const {checked} = e.target as HTMLInputElement;
+		state.currentOptions.showAddTaskButton = checked;
+		remountChart();
+		logControlHook('toggle-show-add-task', 'toggled', checked ? 'on' : 'off');
 	});
 
 	const shell = document.querySelector<HTMLElement>('#demo-shell');

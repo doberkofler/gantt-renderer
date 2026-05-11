@@ -67,7 +67,7 @@ describe('core rendering and viewport', () => {
 		expect(leftPane).not.toBeNull();
 
 		const width = Number.parseInt(leftPane?.style.width ?? '0', 10);
-		expect(width).toBe(328);
+		expect(width).toBe(256);
 	});
 
 	it('uses explicit leftPaneWidth option over computed value', () => {

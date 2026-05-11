@@ -25,8 +25,8 @@ describe('EN_US_LABELS', () => {
 		expect(EN_US_LABELS.ariaMilestone).toBe('Milestone {0}');
 		expect(EN_US_LABELS.addSubtaskTitle).toBe('Add subtask');
 		expect(EN_US_LABELS.columnTaskName).toBe('Task name');
-		expect(EN_US_LABELS.columnStartDate).toBe('Start time');
-		expect(EN_US_LABELS.columnEndDate).toBe('End time');
+		expect(EN_US_LABELS.columnStartDate).toBe('Start');
+		expect(EN_US_LABELS.columnEndDate).toBe('End');
 		expect(EN_US_LABELS.columnQuarter).toBe('Q');
 	});
 });

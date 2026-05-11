@@ -32,24 +32,22 @@ describe('gridColumns helpers', () => {
 		expect(visibleColumns(cols)[1]?.id).toBe('c');
 	});
 
-	it('default schema has four columns', () => {
-		expect(DEFAULT_GRID_COLUMNS).toHaveLength(4);
+	it('default schema has three columns', () => {
+		expect(DEFAULT_GRID_COLUMNS).toHaveLength(3);
 		expect(DEFAULT_GRID_COLUMNS[0]?.id).toBe('name');
 		expect(DEFAULT_GRID_COLUMNS[1]?.id).toBe('startDate');
-		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('endDate');
-		expect(DEFAULT_GRID_COLUMNS[3]?.id).toBe('actions');
+		expect(DEFAULT_GRID_COLUMNS[2]?.id).toBe('actions');
 	});
 });
 
 describe('gridColumnDefaults', () => {
-	it('generates four columns with correct ids', () => {
+	it('generates three columns with correct ids', () => {
 		const locale: ChartLocale = {code: 'en-US'};
 		const columns = gridColumnDefaults(locale);
-		expect(columns).toHaveLength(4);
+		expect(columns).toHaveLength(3);
 		expect(columns[0]?.id).toBe('name');
 		expect(columns[1]?.id).toBe('startDate');
-		expect(columns[2]?.id).toBe('endDate');
-		expect(columns[3]?.id).toBe('actions');
+		expect(columns[2]?.id).toBe('actions');
 	});
 
 	it('uses EN_US_LABELS as fallback when locale has no labels', () => {
@@ -57,7 +55,6 @@ describe('gridColumnDefaults', () => {
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe(EN_US_LABELS.columnTaskName);
 		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.columnEndDate);
 	});
 
 	it('uses locale label overrides when provided', () => {
@@ -66,13 +63,11 @@ describe('gridColumnDefaults', () => {
 			labels: {
 				columnTaskName: 'Aufgabe',
 				columnStartDate: 'Start',
-				columnEndDate: 'Ende',
 			},
 		};
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe('Aufgabe');
 		expect(columns[1]?.header).toBe('Start');
-		expect(columns[2]?.header).toBe('Ende');
 	});
 
 	it('falls back to EN_US_LABELS for missing label keys', () => {
@@ -83,20 +78,19 @@ describe('gridColumnDefaults', () => {
 		const columns = gridColumnDefaults(locale);
 		expect(columns[0]?.header).toBe('Aufgabe');
 		expect(columns[1]?.header).toBe(EN_US_LABELS.columnStartDate);
-		expect(columns[2]?.header).toBe(EN_US_LABELS.columnEndDate);
 	});
 
 	it('actions column has empty header and 28px width', () => {
 		const locale: ChartLocale = {code: 'en-US'};
 		const columns = gridColumnDefaults(locale);
-		expect(columns[3]?.header).toBe('');
-		expect(columns[3]?.width).toBe('28px');
+		expect(columns[2]?.header).toBe('');
+		expect(columns[2]?.width).toBe('28px');
 	});
 });
 
 describe('gridNaturalWidth', () => {
-	it('default schema returns 328px (120 + 90 + 90 + 28)', () => {
-		expect(gridNaturalWidth(DEFAULT_GRID_COLUMNS)).toBe(328);
+	it('default schema returns 238px (120 + 90 + 28)', () => {
+		expect(gridNaturalWidth(DEFAULT_GRID_COLUMNS)).toBe(238);
 	});
 
 	it('sums fixed px columns', () => {

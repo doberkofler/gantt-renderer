@@ -7,16 +7,15 @@ describe('buildLeftPaneHeader', () => {
 		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
 		const cells = [...header.querySelectorAll('span')];
 
-		expect(cells).toHaveLength(4);
+		expect(cells).toHaveLength(3);
 		expect(cells[0]?.textContent).toBe('Task name');
-		expect(cells[1]?.textContent).toBe('Start time');
-		expect(cells[2]?.textContent).toBe('End time');
-		expect(cells[3]?.textContent).toBe('');
+		expect(cells[1]?.textContent).toBe('Start');
+		expect(cells[2]?.textContent).toBe('');
 	});
 
 	it('uses gridTemplateColumns matching the column schema', () => {
 		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
-		expect(header.style.gridTemplateColumns).toBe('1fr 90px 90px 28px');
+		expect(header.style.gridTemplateColumns).toBe('1fr 90px 28px');
 	});
 
 	it('renders custom columns with correct header labels', () => {
@@ -67,7 +66,7 @@ describe('buildLeftPaneHeader resize handles', () => {
 	it('includes resize handles on all but the last visible column', () => {
 		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
 		const handles = header.querySelectorAll('.gantt-col-resize-handle');
-		expect(handles).toHaveLength(3); // 4 columns → 3 handles
+		expect(handles).toHaveLength(2); // 3 columns → 2 handles
 	});
 
 	it('resize handle has col-resize cursor', () => {

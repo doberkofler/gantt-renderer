@@ -13,7 +13,7 @@ describe('column resize handles (M14)', () => {
 		mountTracked(container, INPUT);
 
 		const handles = container.querySelectorAll('.gantt-col-resize-handle');
-		expect(handles).toHaveLength(3);
+		expect(handles).toHaveLength(2);
 
 		const first = handles[0] as HTMLElement;
 		expect(first?.style.cursor).toBe('col-resize');
