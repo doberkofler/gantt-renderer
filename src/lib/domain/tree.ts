@@ -1,4 +1,4 @@
-import {type Task} from '../validation/schemas.ts';
+import {type ZodTaskInferred as Task} from '../validation/schemas.ts';
 import {GanttError} from '../errors.ts';
 
 /**

@@ -1,6 +1,6 @@
 import {formatDisplayDate} from '../../domain/dateMath.ts';
 import {type ChartLocale, EN_US_LABELS} from '../../locale.ts';
-import {type Task} from '../../validation/schemas.ts';
+import {type ZodTaskInferred as Task} from '../../validation/schemas.ts';
 import {type TaskNode} from '../../domain/tree.ts';
 
 /**

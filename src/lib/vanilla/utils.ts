@@ -1,4 +1,4 @@
-import {SpecialDaySchema, type GanttInput, type SpecialDay} from '../validation/schemas.ts';
+import {SpecialDaySchema, type _GanttInputZod as GanttInput, type SpecialDay} from '../validation/schemas.ts';
 import {parseDate} from '../domain/dateMath.ts';
 import {buildTaskTree} from '../domain/tree.ts';
 import {type ResolvedSpecialDay} from './state.ts';

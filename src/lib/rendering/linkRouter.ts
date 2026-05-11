@@ -1,4 +1,4 @@
-import {type Link, type LinkType} from '../validation/schemas.ts';
+import {type ZodLinkInferred as Link, type LinkType} from '../validation/schemas.ts';
 import {type BarLayout} from '../timeline/layoutEngine.ts';
 import {MILESTONE_HALF, ROW_HEIGHT} from '../timeline/layoutEngine.ts';
 

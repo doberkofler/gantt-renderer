@@ -1,4 +1,4 @@
-import {type GanttInput, type SpecialDay, type Task, type Link} from '../validation/schemas.ts';
+import {type _GanttInputZod, type SpecialDay, type ZodTaskInferred, type Task as GenTask, type Link as GenLink} from '../validation/schemas.ts';
 import {validateLinkRefs, detectCycles} from '../domain/dependencies.ts';
 import {buildTaskTree, flattenTree} from '../domain/tree.ts';
 import {createPixelMapper} from '../timeline/pixelMapper.ts';
@@ -12,37 +12,79 @@ import {renderLeftPane, buildLeftPaneHeader, setupColumnResize} from './dom/left
 import {createRightPaneRefs, renderRightPane} from './dom/rightPane.ts';
 import {type RightPaneRefs} from './dom/rightPane.ts';
 import {type GridColumn, gridNaturalWidth, gridColumnDefaults} from './dom/gridColumns.ts';
-import {parseDate} from '../domain/dateMath.ts';
+import {parseDate, diffHours} from '../domain/dateMath.ts';
 import {GanttError} from '../errors.ts';
 import {buildTaskIndex, buildSpecialDayIndex, normalizeWeekendDays, getExpandableTaskIds, getInitialExpandedIds} from './utils.ts';
 import {attachSplitter} from './splitter.ts';
 import {computeLeftPaneWidth, MOBILE_BREAKPOINT, MOBILE_LEFT_PANE_MIN_WIDTH, MOBILE_LEFT_PANE_MAX_RATIO, TIMELINE_MIN_WIDTH} from './responsive.ts';
 import {type ChartLocale, resolveChartLocale} from '../locale.ts';
 
-export type OnTaskClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
-export type OnTaskDoubleClick = (payload: {task: Task; instance: GanttInstance}) => void | Promise<void>;
-export type OnTaskMove = (payload: {task: Task; newStartDate: Date; newEndDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTaskResize = (payload: {task: Task; newStartDate: Date; newEndDate: Date; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTaskAdd = (payload: {parentTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnLinkCreate = (payload: {type: 'FS'; sourceTask: Task; targetTask: Task; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnLinkClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
-export type OnLinkDblClick = (payload: {link: Link; instance: GanttInstance}) => void | Promise<void>;
-export type OnProgressChange = (payload: {task: Task; newPercentComplete: number; instance: GanttInstance}) => boolean | Promise<boolean>;
-export type OnTooltipText = (payload: {task: Task; instance: GanttInstance}) => string | null;
+/** Internal convenience aliases for the zod-inferred runtime types (include `data?: Record<string, unknown>`). */
+type GanttInput = _GanttInputZod;
+type Task = ZodTaskInferred;
 
-export type GanttCallbacks = {
-	onTaskClick?: OnTaskClick;
-	onTaskDoubleClick?: OnTaskDoubleClick;
-	onTaskMove?: OnTaskMove;
-	onTaskResize?: OnTaskResize;
-	onTaskAdd?: OnTaskAdd;
-	onLinkCreate?: OnLinkCreate;
-	onLinkClick?: OnLinkClick;
-	onLinkDblClick?: OnLinkDblClick;
-	onProgressChange?: OnProgressChange;
-	onTooltipText?: OnTooltipText;
-	onLeftPaneWidthChange?: (payload: {width: number; instance: GanttInstance}) => void | Promise<void>;
-	onGridColumnsChange?: (payload: {columns: GridColumn[]; instance: GanttInstance}) => void | Promise<void>;
+export type OnTaskClick<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
+export type OnTaskDoubleClick<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
+export type OnTaskMove<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	newStartDate: Date;
+	newEndDate: Date;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => boolean | Promise<boolean>;
+export type OnTaskResize<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	newDurationHours: number;
+	newStartDate: Date;
+	newEndDate: Date;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => boolean | Promise<boolean>;
+export type OnTaskAdd<TTaskData = never, TLinkData = never> = (payload: {
+	parentTask: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => boolean | Promise<boolean>;
+export type OnLinkCreate<TTaskData = never, TLinkData = never> = (payload: {
+	type: 'FS';
+	sourceTask: GenTask<TTaskData>;
+	targetTask: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => boolean | Promise<boolean>;
+export type OnLinkClick<TTaskData = never, TLinkData = never> = (payload: {
+	link: GenLink<TLinkData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
+export type OnLinkDblClick<TTaskData = never, TLinkData = never> = (payload: {
+	link: GenLink<TLinkData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
+export type OnProgressChange<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	newPercentComplete: number;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => boolean | Promise<boolean>;
+export type OnTooltipText<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => string | null;
+
+export type GanttCallbacks<TTaskData = never, TLinkData = never> = {
+	onTaskClick?: OnTaskClick<TTaskData, TLinkData>;
+	onTaskDoubleClick?: OnTaskDoubleClick<TTaskData, TLinkData>;
+	onTaskMove?: OnTaskMove<TTaskData, TLinkData>;
+	onTaskResize?: OnTaskResize<TTaskData, TLinkData>;
+	onTaskAdd?: OnTaskAdd<TTaskData, TLinkData>;
+	onLinkCreate?: OnLinkCreate<TTaskData, TLinkData>;
+	onLinkClick?: OnLinkClick<TTaskData, TLinkData>;
+	onLinkDblClick?: OnLinkDblClick<TTaskData, TLinkData>;
+	onProgressChange?: OnProgressChange<TTaskData, TLinkData>;
+	onTooltipText?: OnTooltipText<TTaskData, TLinkData>;
+	onLeftPaneWidthChange?: (payload: {width: number; instance: GanttInstance<TTaskData, TLinkData>}) => void | Promise<void>;
+	onGridColumnsChange?: (payload: {columns: GridColumn[]; instance: GanttInstance<TTaskData, TLinkData>}) => void | Promise<void>;
 };
 
 type InternalCallbacks = {
@@ -89,10 +131,10 @@ export type GanttOptions = {
 	showAddTaskButton?: boolean;
 };
 
-export type GanttInstance = {
+export type GanttInstance<TTaskData = never, TLinkData = never> = {
 	update: (input: GanttInput) => void;
 	setOptions: (opts: Partial<GanttOptions>) => void;
-	setCallbacks: (cbs: GanttCallbacks) => void;
+	setCallbacks: (cbs: GanttCallbacks<TTaskData, TLinkData>) => void;
 	select: (id: number | null, fireCallback?: boolean) => void;
 	collapseAll: () => void;
 	expandAll: () => void;
@@ -107,18 +149,21 @@ const OVERSCAN = 4;
  * Validates input, builds a DOM tree, and renders a full interactive chart
  * inside the given container element.
  *
+ * @param TTaskData - The type of the optional `data` property on tasks. Defaults to `never`.
+ * @param TLinkData - The type of the optional `data` property on links. Defaults to `never`.
+ *
  * @example
  * ```ts
- * const chart = new GanttChart(document.getElementById('chart')!, input, {
+ * const chart = new GanttChart(document.getElementById('chart')!, {
  *   locale: 'de-DE',
  *   theme: 'dark',
  * });
  * ```
  */
-export class GanttChart implements GanttInstance {
+export class GanttChart<TTaskData = never, TLinkData = never> implements GanttInstance<TTaskData, TLinkData> {
 	readonly #container: HTMLElement;
 	readonly #opts: GanttOptions;
-	#callbacks: GanttCallbacks;
+	#callbacks: GanttCallbacks<TTaskData, TLinkData>;
 	#input: GanttInput | null = null;
 	#scale: TimeScale;
 	#selectedId: number | null = null;
@@ -193,7 +238,7 @@ export class GanttChart implements GanttInstance {
 		this.#setupResizeObserver();
 	}
 
-	#buildCallbackAdapter(this: GanttChart): InternalCallbacks {
+	#buildCallbackAdapter(this: GanttChart<TTaskData, TLinkData>): InternalCallbacks {
 		return {
 			onTaskClick: (id): void => {
 				if (this.#selectedId === id) {
@@ -203,16 +248,16 @@ export class GanttChart implements GanttInstance {
 				if (this.#selectedId !== null) {
 					const task = this.#findTask(this.#selectedId);
 					if (task !== undefined) {
-						void this.#callbacks.onTaskClick?.({task, instance: this});
+						void this.#callbacks.onTaskClick?.({task: task as unknown as GenTask<TTaskData>, instance: this});
 					}
 				}
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this});
 			},
 			onTaskEditIntent: (payload): void => {
-				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this});
 			},
 			onTaskMove: (payload): void => {
 				if (!this.#dragOriginals.has(payload.id)) {
@@ -229,7 +274,12 @@ export class GanttChart implements GanttInstance {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
 					const newEndDate = task.kind !== 'milestone' ? parseDate(task.endDate) : payload.startDate;
-					const result = this.#callbacks.onTaskMove?.({task, newStartDate: payload.startDate, newEndDate, instance: this});
+					const result = this.#callbacks.onTaskMove?.({
+						task: task as unknown as GenTask<TTaskData>,
+						newStartDate: payload.startDate,
+						newEndDate,
+						instance: this,
+					});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
@@ -263,7 +313,14 @@ export class GanttChart implements GanttInstance {
 				if (task !== undefined && task.kind !== 'milestone') {
 					const newStartDate = parseDate(task.startDate);
 					const newEndDate = parseDate(task.endDate);
-					const result = this.#callbacks.onTaskResize?.({task, newStartDate, newEndDate, instance: this});
+					const newDurationHours = diffHours(newEndDate, newStartDate);
+					const result = this.#callbacks.onTaskResize?.({
+						task: task as unknown as GenTask<TTaskData>,
+						newDurationHours,
+						newStartDate,
+						newEndDate,
+						instance: this,
+					});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
@@ -295,7 +352,11 @@ export class GanttChart implements GanttInstance {
 			_onTaskProgressDragFinal: async (payload): Promise<boolean> => {
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
-					const result = this.#callbacks.onProgressChange?.({task, newPercentComplete: payload.percentComplete, instance: this});
+					const result = this.#callbacks.onProgressChange?.({
+						task: task as unknown as GenTask<TTaskData>,
+						newPercentComplete: payload.percentComplete,
+						instance: this,
+					});
 					if (result instanceof Promise) {
 						if (!(await result)) {
 							const original = this.#dragOriginals.get(payload.id);
@@ -317,7 +378,7 @@ export class GanttChart implements GanttInstance {
 			onTaskAdd: (parentId): void => {
 				const parentTask = this.#findTask(parentId);
 				if (parentTask !== undefined) {
-					void this.#callbacks.onTaskAdd?.({parentTask, instance: this});
+					void this.#callbacks.onTaskAdd?.({parentTask: parentTask as unknown as GenTask<TTaskData>, instance: this});
 				}
 			},
 			onLeftPaneWidthChange: (width): void => {
@@ -330,16 +391,21 @@ export class GanttChart implements GanttInstance {
 				const sourceTask = this.#findTask(payload.sourceTaskId);
 				const targetTask = this.#findTask(payload.targetTaskId);
 				if (sourceTask !== undefined && targetTask !== undefined) {
-					void this.#callbacks.onLinkCreate?.({type: 'FS', sourceTask, targetTask, instance: this});
+					void this.#callbacks.onLinkCreate?.({
+						type: 'FS',
+						sourceTask: sourceTask as unknown as GenTask<TTaskData>,
+						targetTask: targetTask as unknown as GenTask<TTaskData>,
+						instance: this,
+					});
 				}
 			},
 			onLinkClick: (payload): void => {
-				void this.#callbacks.onLinkClick?.({link: payload as Link, instance: this});
+				void this.#callbacks.onLinkClick?.({link: payload as unknown as GenLink<TLinkData>, instance: this});
 			},
 			onLinkDblClick: (payload): void => {
-				void this.#callbacks.onLinkDblClick?.({link: payload as Link, instance: this});
+				void this.#callbacks.onLinkDblClick?.({link: payload as unknown as GenLink<TLinkData>, instance: this});
 			},
-			onTooltipText: (payload): string | null => this.#callbacks.onTooltipText?.({task: payload.task, instance: this}) ?? null,
+			onTooltipText: (payload): string | null => this.#callbacks.onTooltipText?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this}) ?? null,
 		};
 	}
 
@@ -350,7 +416,7 @@ export class GanttChart implements GanttInstance {
 	 * @param cbs - The {@link GanttCallbacks} to register.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public setCallbacks(cbs: GanttCallbacks): void {
+	public setCallbacks(cbs: GanttCallbacks<TTaskData, TLinkData>): void {
 		this.#assertAlive();
 		this.#callbacks = cbs;
 		this.#cbs = this.#buildCallbackAdapter();

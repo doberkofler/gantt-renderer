@@ -9,7 +9,7 @@ import {ROW_HEIGHT, MILESTONE_HALF, totalContentHeight} from '../../timeline/lay
 import {nextScaleBoundary, snapToScaleBoundary} from '../../timeline/scale.ts';
 import {startOfDay} from '../../domain/dateMath.ts';
 import {type ChartLocale, EN_US_LABELS, formatLabel} from '../../locale.ts';
-import {type Task} from '../../validation/schemas.ts';
+import {type ZodTaskInferred as Task} from '../../validation/schemas.ts';
 
 type RightPaneCallbacks = {
 	onTaskClick?: (id: number) => void;

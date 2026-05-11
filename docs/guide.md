@@ -437,9 +437,9 @@ The chart renders data in the shape of `GanttInput`, which consists of two array
 `tasks` (required, at least one) and `links` (optional).
 
 ```ts
-export type GanttInput = {
-	tasks: Task[];
-	links: Link[];
+export type GanttInput<TTaskData = never, TLinkData = never> = {
+	tasks: Task<TTaskData>[];
+	links: Link<TLinkData>[];
 };
 ```
 
@@ -452,15 +452,16 @@ Each `Task` object defines one row in the chart — either a regular task, a sum
 or a zero-duration milestone.
 
 | Field | Type | Required | Default | Description |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | `id` | `number` | **yes** | — | Unique positive integer identifier. |
 | `text` | `string` | **yes** | — | Display name / label. |
 | `startDate` | `string` | **yes** | — | ISO date `YYYY-MM-DD`. Determines the visual start position on the timeline. |
-| `durationHours` | `number` | **yes** | — | Duration in hours; `0` = milestone. |
+| `endDate` | `string` | **yes** | — | ISO date `YYYY-MM-DD`. Determines the visual end position on the timeline. |
 | `parent` | `number` | no | — | `id` of the parent task. When set, this task becomes a child in the tree hierarchy. |
 | `percentComplete` | `number` | no | `0` | Completion percentage from `0` to `100` (integer). Rendered as a darker fill inside the task bar. |
 | `kind` | `TaskKind` | no | `'task'` | Row variant (see below). |
 | `readonly` | `boolean` | no | — | When `true`, the task bar or milestone cannot be dragged or resized. Selection and double-click still work. |
+| `data` | `Record<string, unknown>` | no | — | Optional consumer metadata. Use the generic `Task<TData>` for compile-time-typed data (see [Typed task and link data](#typed-task-and-link-data)). |
 
 ##### Task kind values (`TaskKind`)
 
@@ -468,7 +469,7 @@ or a zero-duration milestone.
 |---|---|
 | `'task'` | A regular task with a colored bar. |
 | `'project'` | A summary / group row with a colored bar. Same visual as `'task'`. |
-| `'milestone'` | A zero-duration marker rendered as a diamond (no `durationHours` field). |
+| `'milestone'` | A zero-duration marker rendered as a diamond. |
 
 Tasks with `type: 'project'` typically have children. The chart uses the `parent` field —
 not the `kind` — to build the tree hierarchy.
@@ -478,12 +479,13 @@ not the `kind` — to build the tree hierarchy.
 Each `Link` object defines a dependency arrow between two tasks.
 
 | Field | Type | Required | Default | Description |
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | `id` | `number` | **yes** | — | Unique positive integer identifier for the link. |
 | `source` | `number` | **yes** | — | The `id` of the predecessor task. |
 | `target` | `number` | **yes** | — | The `id` of the successor task. |
 | `kind` | `LinkType` | no | `'FS'` | Dependency constraint type (see below). |
 | `readonly` | `boolean` | no | — | When `true`, the link cannot be modified or deleted through the UI. |
+| `data` | `Record<string, unknown>` | no | — | Optional consumer metadata. Use the generic `Link<TData>` for compile-time-typed data (see [Typed task and link data](#typed-task-and-link-data)). |
 
 ##### Link type values (`LinkType`)
 
@@ -504,13 +506,112 @@ public API to detect dangling references at runtime.
 `Task` with two computed fields:
 
 | Field | Type | Description |
-|---|---|---|
+|---|---|---|---|
 | `children` | `TaskNode[]` | Array of child nodes in the tree hierarchy. Populated by `buildTaskTree`. |
 | `depth` | `number` | Nesting depth. `0` = root-level task. |
 
 Consumers don't create `TaskNode` directly; it is only used internally for virtualized row
 rendering and timeline layout. The `GanttCallbacks` (e.g., `onTaskSelect`, `onTaskDoubleClick`)
 return the flat `Task` shape, not `TaskNode`.
+
+#### Typed task and link data
+
+The `Task`, `Link`, `GanttInput`, and `GanttChart` types accept optional generic type
+parameters for the `data` property. By default the type parameter is `never`, which prevents
+the `data` property from being used. Specify a concrete type to enable compile-time-checked
+`data` throughout the API.
+
+**Default (no data can be set or accessed):**
+
+```ts
+import {GanttChart} from 'gantt-renderer';
+
+// With default generic params, `data` is forbidden on tasks and links:
+const instance = new GanttChart(container, {scale: 'day'});
+instance.update({
+	tasks: [
+		{id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task'},
+		// data: {} ← TypeScript error: data does not exist
+	],
+	links: [],
+});
+
+instance.setCallbacks({
+	onTaskClick: ({task}) => {
+		// task.data ← TypeScript error: data does not exist
+	},
+	onTaskMove: ({task}) => {
+		// task.data ← TypeScript error: data does not exist
+	},
+});
+```
+
+**With typed data:**
+
+```ts
+import {type GanttCallbacks, parseGanttInput} from 'gantt-renderer';
+
+interface CustomTaskData {
+	owner: string;
+	priority: 'low' | 'medium' | 'high';
+}
+
+interface CustomLinkData {
+	label: string;
+}
+
+const raw = {
+	tasks: [
+		{
+			id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-03',
+			kind: 'task' as const,
+			data: {owner: 'alice', priority: 'high' as const},
+		},
+	],
+	links: [
+		{id: 1, source: 1, target: 2, type: 'FS' as const, data: {label: 'blocks'}},
+	],
+};
+
+const input = parseGanttInput(raw);
+const instance = new GanttChart<CustomTaskData, CustomLinkData>(container, {scale: 'day'});
+instance.update(input);
+
+const cbs: GanttCallbacks<CustomTaskData, CustomLinkData> = {
+	onTaskClick({task}) {
+		// task.data is CustomTaskData | undefined
+		console.log(task.data?.owner);
+	},
+	onLinkClick({link}) {
+		// link.data is CustomLinkData | undefined
+		console.log(link.data?.label);
+	},
+};
+instance.setCallbacks(cbs);
+```
+
+**Key types:**
+
+| Type | Signature |
+|---|---|
+| `Task<TData = never>` | Task with optional typed `data`. Default `never` forbids `data`. |
+| `Link<TData = never>` | Link with optional typed `data`. Default `never` forbids `data`. |
+| `GanttInput<TTaskData = never, TLinkData = never>` | Input with typed task/link data. |
+| `GanttChart<TTaskData = never, TLinkData = never>` | Chart class with typed data. |
+| `GanttCallbacks<TTaskData = never, TLinkData = never>` | Callbacks with typed task/link payloads. |
+| `GanttInstance<TTaskData = never, TLinkData = never>` | Instance type with typed update/setCallbacks. |
+| `OnTaskClick<TTaskData, TLinkData>` | Callback with typed task data. |
+| `OnTaskMove<TTaskData, TLinkData>` | Callback with typed task data. |
+| `OnTaskResize<TTaskData, TLinkData>` | Callback with typed task data. |
+| `OnTaskAdd<TTaskData, TLinkData>` | Callback with typed task data. |
+| `OnLinkCreate<TTaskData, TLinkData>` | Callback with typed task/link data. |
+| `OnLinkClick<TTaskData, TLinkData>` | Callback with typed link data. |
+| `OnLinkDblClick<TTaskData, TLinkData>` | Callback with typed link data. |
+| `OnProgressChange<TTaskData, TLinkData>` | Callback with typed task data. |
+| `OnTooltipText<TTaskData, TLinkData>` | Callback with typed task data. |
+
+When types are specified on `GanttChart`, they propagate automatically to `setCallbacks()`.
+Callbacks can also be typed independently using the generic callback types listed above.
 
 ### Time scale
 

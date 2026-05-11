@@ -1,4 +1,4 @@
-import {type GanttInput} from '../validation/schemas.ts';
+import {type _GanttInputZod as GanttInput} from '../validation/schemas.ts';
 import {type TimeScale} from '../timeline/scale.ts';
 import {type TaskNode} from '../domain/tree.ts';
 import {type BarLayout} from '../timeline/layoutEngine.ts';

@@ -155,6 +155,72 @@ export const GanttInputSchema = z
 		}
 	});
 
+// ─── Internal zod-inferred types (runtime shapes, include data?: Record<string, unknown>) ───
+
+/** @internal */
+export type ZodTaskInferred = z.infer<typeof TaskSchema>;
+/** @internal */
+export type ZodLinkInferred = z.infer<typeof LinkSchema>;
+
+// ─── Public generic types ───
+
+/**
+ * Conditional data property helper.
+ * When `T` is `never`, adds nothing. Otherwise adds `{data?: T | undefined}`.
+ */
+type WithData<T> = [T] extends [never] ? Record<never, never> : {data?: T | undefined};
+
+/**
+ * Distributes `Omit` over union members so variant-specific properties
+ * (e.g. `endDate`, `percentComplete`, `open`) are preserved in discriminated unions.
+ */
+type WithoutData<T> = T extends unknown ? Omit<T, 'data'> : never;
+
+/**
+ * A task in the Gantt chart &mdash; discriminated by `kind` into leaf tasks,
+ * summary projects, and milestones.
+ *
+ * @param TData - The type of the optional `data` property. Defaults to `never`,
+ * which omits the `data` property from the type. Specify a concrete type to enable
+ * compile-time-checked task data in both input and callback payloads.
+ *
+ * @example
+ * ```ts
+ * // Default: no `data` property
+ * const task: Task = { id: 1, text: 'Build', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task' };
+ *
+ * // With typed data
+ * interface TaskMeta { priority: number; label: string }
+ * const typedTask: Task<TaskMeta> = {
+ *   id: 1, text: 'Build', startDate: '2026-01-01', endDate: '2026-01-03',
+ *   kind: 'task', data: { priority: 1, label: 'critical' }
+ * };
+ * ```
+ */
+export type Task<TData = never> = WithoutData<ZodTaskInferred> & WithData<TData>;
+
+/**
+ * A dependency link between two tasks.
+ *
+ * @param TData - The type of the optional `data` property. Defaults to `never`.
+ */
+export type Link<TData = never> = WithoutData<ZodLinkInferred> & WithData<TData>;
+
+/**
+ * The complete input data for the chart.
+ *
+ * @param TTaskData - The type of the `data` property on tasks. Defaults to `never`.
+ * @param TLinkData - The type of the `data` property on links. Defaults to `never`.
+ */
+export type GanttInput<TTaskData = never, TLinkData = never> = {
+	tasks: Task<TTaskData>[];
+	links: Link<TLinkData>[];
+};
+
+/** @internal */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export type _GanttInputZod = z.infer<typeof GanttInputSchema>;
+
 /** The raw, unvalidated input shape that consumers pass to {@link parseGanttInput}. */
 export type GanttInputRaw = z.input<typeof GanttInputSchema>;
 /** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
@@ -163,42 +229,20 @@ export type LinkType = z.infer<typeof LinkTypeSchema>;
 export type TaskKind = z.infer<typeof TaskKindSchema>;
 export type SpecialDayKind = z.infer<typeof SpecialDayKindSchema>;
 export type SpecialDay = z.infer<typeof SpecialDaySchema>;
-/**
- * A task in the Gantt chart — discriminated by `kind` into leaf tasks,
- * summary projects, and milestones.
- *
- * - **`kind: 'task'`** — A regular task with a colored bar, `startDate` and `endDate`.
- * - **`kind: 'project'`** — A summary/group row with a colored bar, `startDate`, `endDate`, and optional tree state.
- * - **`kind: 'milestone'`** — A zero-duration marker rendered as a diamond, using only `startDate`.
- */
-export type Task = z.infer<typeof TaskSchema>;
-/** Convenience alias for the leaf-task variant of {@link Task}. */
 /** @internal */
-export type TaskLeaf = z.infer<typeof TaskLeafSchema>;
+export type TaskLeafInferred = z.infer<typeof TaskLeafSchema>;
 /** @internal */
-export type TaskProject = z.infer<typeof TaskProjectSchema>;
+export type TaskProjectInferred = z.infer<typeof TaskProjectSchema>;
 /** @internal */
-export type TaskMilestone = z.infer<typeof TaskMilestoneSchema>;
-/**
- * A dependency link between two tasks. The `type` determines the scheduling constraint
- * (e.g., finish-to-start, start-to-start).
- */
-export type Link = z.infer<typeof LinkSchema>;
-/**
- * The complete input data for the chart.
- *
- * Pass a raw plain object (typed as {@link GanttInputRaw}) to
- * {@link parseGanttInput} to validate and get back a typed {@link GanttInput}.
- */
-export type GanttInput = z.infer<typeof GanttInputSchema>;
+export type TaskMilestoneInferred = z.infer<typeof TaskMilestoneSchema>;
 
 /**
  * Parses raw external data.
  *
  * @param raw - The unvalidated input from the consumer.
- * @returns The parsed and validated {@link GanttInput}.
+ * @returns The parsed and validated input with `data` typed as `Record<string, unknown>`.
  * @throws {import('zod').ZodError} On schema validation failure.
  */
-export function parseGanttInput(raw: GanttInputRaw): GanttInput {
+export function parseGanttInput(raw: GanttInputRaw): GanttInput<Record<string, unknown>, Record<string, unknown>> {
 	return GanttInputSchema.parse(raw);
 }

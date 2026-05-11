@@ -1,7 +1,7 @@
 import {type TaskNode} from '../../domain/tree.ts';
 import {type PixelMapper} from '../../timeline/pixelMapper.ts';
 import {parseDate, addDays} from '../../domain/dateMath.ts';
-import {type Task} from '../../validation/schemas.ts';
+import {type ZodTaskInferred as Task} from '../../validation/schemas.ts';
 
 type InternalCallbacks = {
 	onTaskClick?: (id: number) => void;

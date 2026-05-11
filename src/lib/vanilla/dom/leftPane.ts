@@ -1,7 +1,7 @@
 import {el, clearChildren, css} from './helpers.ts';
 import {type GanttState} from '../state.ts';
 import {type TaskNode} from '../../domain/tree.ts';
-import {type Task} from '../../validation/schemas.ts';
+import {type ZodTaskInferred as Task} from '../../validation/schemas.ts';
 import {isParent} from '../../domain/tree.ts';
 import {ROW_HEIGHT} from '../../timeline/layoutEngine.ts';
 import {type GridColumn, gridTemplateColumns, visibleColumns} from './gridColumns.ts';
