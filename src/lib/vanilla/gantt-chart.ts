@@ -1,6 +1,7 @@
 import {
 	type _GanttInputZod,
-	type GanttInput as PubGanttInput,
+	type GanttInputRaw,
+	GanttInputSchema,
 	type SpecialDay,
 	type ZodTaskInferred,
 	type Task as GenTask,
@@ -139,7 +140,7 @@ export type GanttOptions = {
 };
 
 export type GanttInstance<TTaskData = never, TLinkData = never> = {
-	update: (input: PubGanttInput<TTaskData, TLinkData>) => void;
+	update: (input: GanttInputRaw<TTaskData, TLinkData>) => void;
 	setOptions: (opts: Partial<GanttOptions>) => void;
 	setCallbacks: (cbs: GanttCallbacks<TTaskData, TLinkData>) => void;
 	select: (id: number | null, fireCallback?: boolean) => void;
@@ -436,9 +437,9 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 * @param newInput - The new {@link GanttInput} to apply.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public update(newInput: PubGanttInput<TTaskData, TLinkData>): void {
+	public update(newInput: GanttInputRaw<TTaskData, TLinkData>): void {
 		this.#assertAlive();
-		const input = newInput as unknown as GanttInput;
+		const input = GanttInputSchema.parse(newInput) as unknown as GanttInput;
 		validateLinkRefs(input.tasks, input.links);
 		detectCycles(input.tasks, input.links);
 		this.#input = structuredClone(input);

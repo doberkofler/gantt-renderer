@@ -7,19 +7,6 @@ export type {BarLayout} from './timeline/layoutEngine.ts';
 export type {PixelMapper} from './timeline/pixelMapper.ts';
 export type {ChartLocale, LocaleLabelKey} from './locale.ts';
 
-// ─── Validation ───────────────────────────────────────────────────────────────
-
-export {
-	GanttInputSchema,
-	TaskSchema,
-	LinkSchema,
-	LinkTypeSchema,
-	TaskKindSchema,
-	SpecialDayKindSchema,
-	SpecialDaySchema,
-	parseGanttInput,
-} from './validation/schemas.ts';
-
 // ─── Domain ───────────────────────────────────────────────────────────────────
 
 export {buildTaskTree, flattenTree, isParent} from './domain/tree.ts';

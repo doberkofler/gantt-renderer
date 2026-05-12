@@ -1,6 +1,5 @@
 import {
 	GanttChart,
-	parseGanttInput,
 	type GanttCallbacks,
 	type GanttInstance,
 	type GanttOptions,
@@ -20,7 +19,7 @@ import {
 import {RAW_INPUT} from './data.ts';
 import '../styles/gantt.css';
 
-const initialInput = parseGanttInput(RAW_INPUT);
+const initialInput = RAW_INPUT;
 const DEMO_SPECIAL_DAYS = [
 	{date: '2026-01-01', kind: 'holiday' as const, label: "New Year's Day"},
 	{date: '2026-02-14', kind: 'custom' as const, label: 'Architecture Freeze'},

@@ -1,9 +1,9 @@
 import {describe, expect, it} from 'vitest';
-import {parseGanttInput, SpecialDaySchema, type GanttInputRaw} from './schemas.ts';
+import {GanttInputSchema, SpecialDaySchema, type GanttInputRaw} from './schemas.ts';
 
 describe('schema utilities', () => {
 	it('parses valid input and applies defaults', () => {
-		const parsed = parseGanttInput({
+		const parsed = GanttInputSchema.parse({
 			tasks: [
 				{id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task'},
 				{id: 2, text: 'Task 2', startDate: '2026-01-03', endDate: '2026-01-04', kind: 'task'},
@@ -15,24 +15,24 @@ describe('schema utilities', () => {
 	});
 
 	it('returns empty links array when links omitted', () => {
-		expect(parseGanttInput({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]}).links).toStrictEqual([]);
+		expect(GanttInputSchema.parse({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]}).links).toStrictEqual([]);
 	});
 
 	it('rejects invalid task fields', () => {
-		expect(() => parseGanttInput({tasks: [{id: 1, text: 'Task', startDate: '2026-01-05', endDate: '2026-01-01', kind: 'task'}]})).toThrow();
-		expect(() => parseGanttInput({tasks: [{id: 1, text: '', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]})).toThrow();
-		expect(() => parseGanttInput({tasks: [{id: 1.5, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]})).toThrow();
+		expect(() => GanttInputSchema.parse({tasks: [{id: 1, text: 'Task', startDate: '2026-01-05', endDate: '2026-01-01', kind: 'task'}]})).toThrow();
+		expect(() => GanttInputSchema.parse({tasks: [{id: 1, text: '', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]})).toThrow();
+		expect(() => GanttInputSchema.parse({tasks: [{id: 1.5, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]})).toThrow();
 	});
 
 	it('rejects invalid link fields', () => {
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}],
 				links: [{id: 1, source: -1, target: 1}],
 			}),
 		).toThrow();
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}],
 				links: [{id: 1, source: 1, target: 1, type: 'INVALID'}],
 			} as unknown as GanttInputRaw),
@@ -50,7 +50,7 @@ describe('schema utilities', () => {
 	});
 
 	it('applies defaults on minimal input with only required fields', () => {
-		const parsed = parseGanttInput({
+		const parsed = GanttInputSchema.parse({
 			tasks: [{id: 1, text: 'Minimal', startDate: '2026-04-01', endDate: '2026-04-06', kind: 'task'}],
 		});
 		expect(parsed.tasks[0]).toMatchObject({kind: 'task', percentComplete: 0});
@@ -60,7 +60,7 @@ describe('schema utilities', () => {
 
 	it('rejects duplicate task ids', () => {
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [
 					{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
 					{id: 1, text: 'B', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
@@ -71,7 +71,7 @@ describe('schema utilities', () => {
 
 	it('rejects duplicate link ids', () => {
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [
 					{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
 					{id: 2, text: 'B', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
@@ -86,7 +86,7 @@ describe('schema utilities', () => {
 
 	it('rejects duplicate link pairs', () => {
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [
 					{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
 					{id: 2, text: 'B', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'},
@@ -101,7 +101,7 @@ describe('schema utilities', () => {
 
 	it('rejects self-links', () => {
 		expect(() =>
-			parseGanttInput({
+			GanttInputSchema.parse({
 				tasks: [{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}],
 				links: [{id: 1, source: 1, target: 1}],
 			}),
@@ -112,13 +112,13 @@ describe('schema utilities', () => {
 		const raw: GanttInputRaw = {
 			tasks: [{id: 1, text: 'Typed', startDate: '2026-05-01', endDate: '2026-05-04', kind: 'task'}],
 		};
-		const parsed = parseGanttInput(raw);
+		const parsed = GanttInputSchema.parse(raw);
 		expect(parsed.tasks[0]?.text).toBe('Typed');
 		expect(parsed.links).toStrictEqual([]);
 	});
 
 	it('accepts readonly on tasks', () => {
-		const parsed = parseGanttInput({
+		const parsed = GanttInputSchema.parse({
 			tasks: [
 				{id: 1, text: 'Readonly', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task', readonly: true},
 				{id: 2, text: 'Writable', startDate: '2026-01-03', endDate: '2026-01-04', kind: 'task', readonly: false},
@@ -131,7 +131,7 @@ describe('schema utilities', () => {
 	});
 
 	it('accepts readonly on links', () => {
-		const parsed = parseGanttInput({
+		const parsed = GanttInputSchema.parse({
 			tasks: [
 				{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task'},
 				{id: 2, text: 'B', startDate: '2026-01-03', endDate: '2026-01-04', kind: 'task'},
@@ -149,7 +149,7 @@ describe('schema utilities', () => {
 	});
 
 	it('accepts readonly on milestones and projects', () => {
-		const parsed = parseGanttInput({
+		const parsed = GanttInputSchema.parse({
 			tasks: [
 				{id: 1, text: 'Project', startDate: '2026-01-01', endDate: '2026-01-05', kind: 'project', readonly: true, open: true},
 				{id: 2, text: 'Milestone', startDate: '2026-01-05', kind: 'milestone', readonly: true},

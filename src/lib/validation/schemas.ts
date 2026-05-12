@@ -2,8 +2,9 @@ import {z} from 'zod';
 
 export const LinkTypeSchema = z.enum(['FS', 'SS', 'FF', 'SF']);
 export const TaskKindSchema = z.enum(['task', 'project', 'milestone']);
-export const SpecialDayKindSchema = z.enum(['holiday', 'custom']);
+const SpecialDayKindSchema = z.enum(['holiday', 'custom']);
 
+/** @internal */
 export const SpecialDaySchema = z.object({
 	/** ISO date: YYYY-MM-DD */
 	date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u, 'Expected YYYY-MM-DD'),
@@ -30,7 +31,7 @@ const taskBase = {
 };
 
 /** @internal */
-export const TaskLeafSchema = z
+const TaskLeafSchema = z
 	.object({
 		...taskBase,
 		kind: z.literal('task'),
@@ -42,7 +43,7 @@ export const TaskLeafSchema = z
 	.refine((t) => t.endDate >= t.startDate, {message: 'endDate must be on or after startDate', path: ['endDate']});
 
 /** @internal */
-export const TaskProjectSchema = z
+const TaskProjectSchema = z
 	.object({
 		...taskBase,
 		kind: z.literal('project'),
@@ -61,14 +62,14 @@ export const TaskProjectSchema = z
 	.refine((t) => t.endDate >= t.startDate, {message: 'endDate must be on or after startDate', path: ['endDate']});
 
 /** @internal */
-export const TaskMilestoneSchema = z.object({
+const TaskMilestoneSchema = z.object({
 	...taskBase,
 	kind: z.literal('milestone'),
 });
 
-export const TaskSchema = z.discriminatedUnion('kind', [TaskLeafSchema, TaskProjectSchema, TaskMilestoneSchema]);
+const TaskSchema = z.discriminatedUnion('kind', [TaskLeafSchema, TaskProjectSchema, TaskMilestoneSchema]);
 
-export const LinkSchema = z
+const LinkSchema = z
 	.object({
 		/** Unique positive integer identifier for the dependency link. */
 		id: z.number().int().positive(),
@@ -97,6 +98,7 @@ export const LinkSchema = z
 		path: ['target'],
 	});
 
+/** @internal */
 export const GanttInputSchema = z
 	.object({
 		/** Array of task objects. At least one task is required. */
@@ -232,7 +234,7 @@ export type GanttInput<TTaskData = never, TLinkData = never> = {
 export type _GanttInputZod = z.infer<typeof GanttInputSchema>;
 
 /**
- * The raw, unvalidated input shape that consumers pass to {@link parseGanttInput}.
+ * The raw input shape that consumers pass to {@link GanttChart.update}.
  *
  * Fields with defaults in the schema (e.g. `percentComplete`, `type`) remain optional here.
  *
@@ -240,8 +242,8 @@ export type _GanttInputZod = z.infer<typeof GanttInputSchema>;
  * @param TLinkData - The type of the `data` property on links. Defaults to `never`.
  */
 export type GanttInputRaw<TTaskData = never, TLinkData = never> = {
-	tasks: TaskRaw<TTaskData>[];
-	links?: LinkRaw<TLinkData>[];
+	tasks: readonly TaskRaw<TTaskData>[];
+	links?: readonly LinkRaw<TLinkData>[];
 };
 /** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
 export type LinkType = z.infer<typeof LinkTypeSchema>;
@@ -255,18 +257,3 @@ export type TaskLeafInferred = z.infer<typeof TaskLeafSchema>;
 export type TaskProjectInferred = z.infer<typeof TaskProjectSchema>;
 /** @internal */
 export type TaskMilestoneInferred = z.infer<typeof TaskMilestoneSchema>;
-
-/**
- * Parses raw external data.
- *
- * Compile-time generics enforce the `data` shape on tasks and links.
- * Runtime validation is done by the zod schemas; the `data` field is
- * validated as a generic object at runtime regardless of the type parameter.
- *
- * @param raw - The unvalidated input from the consumer.
- * @returns The parsed and validated input with `data` typed per the type parameters.
- * @throws {import('zod').ZodError} On schema validation failure.
- */
-export function parseGanttInput<TTaskData = never, TLinkData = never>(raw: GanttInputRaw<TTaskData, TLinkData>): GanttInput<TTaskData, TLinkData> {
-	return GanttInputSchema.parse(raw) as unknown as GanttInput<TTaskData, TLinkData>;
-}

@@ -55,18 +55,18 @@ describe('api lifecycle', () => {
 		expect(container.querySelectorAll('[role="row"]')).toHaveLength(5);
 	});
 
-	it('handles collapseAll and expandAll for empty trees', () => {
+	it('handles collapseAll and expandAll for flat trees', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 
 		const instance = new GanttChart(container);
-		instance.update({tasks: [], links: []});
-		expect(container.querySelectorAll('[role="row"]')).toHaveLength(0);
+		instance.update({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]});
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(1);
 
 		instance.collapseAll();
-		expect(container.querySelectorAll('[role="row"]')).toHaveLength(0);
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(1);
 
 		instance.expandAll();
-		expect(container.querySelectorAll('[role="row"]')).toHaveLength(0);
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(1);
 	});
 });

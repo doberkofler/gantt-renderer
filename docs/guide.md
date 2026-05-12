@@ -6,7 +6,7 @@ For a quick overview, see the [README](../README.md).
 ## Quick Start
 
 ```ts
-import {GanttChart, parseGanttInput} from 'gantt-renderer';
+import {GanttChart} from 'gantt-renderer';
 import 'gantt-renderer/styles/gantt.css';
 
 const rawData = {
@@ -32,12 +32,10 @@ const rawData = {
 	],
 };
 
-const input = parseGanttInput(rawData);
-
 const instance = new GanttChart(document.getElementById('chart')!, {
 	scale: 'day',
 });
-instance.update(input);
+instance.update(rawData);
 ```
 
 ---
@@ -443,10 +441,10 @@ export type GanttInput<TTaskData = never, TLinkData = never> = {
 };
 ```
 
-Pass your raw data through `parseGanttInput(yourData)` to validate against the `zod` schemas
-and get back a fully typed `GanttInput` with defaults applied. For typed `data` properties,
-use `parseGanttInput<TTaskData, TLinkData>(yourData)` and annotate your raw object with
-`GanttInputRaw<TTaskData, TLinkData>`.
+Pass your raw data directly to `update(yourData)` — the method validates against the `zod` schemas
+internally and applies defaults. For typed `data` properties,
+annotate your raw object with `GanttInputRaw<TTaskData, TLinkData>` and TypeScript will
+enforce the `data` shape at compile time.
 
 #### `Task`
 
@@ -499,8 +497,8 @@ Each `Link` object defines a dependency arrow between two tasks.
 | `'SF'` | Start-to-finish | Successor finishes after predecessor starts. |
 
 Both `source` and `target` must reference valid `id` values present in the `tasks` array.
-`parseGanttInput` only checks schema validity; use `validateLinkRefs(tasks, links)` from the
-public API to detect dangling references at runtime.
+Schema validation only checks field types and constraints; `validateLinkRefs(tasks, links)` from the
+public API detects dangling references at runtime (called automatically by `update`).
 
 #### `TaskNode` (internal domain type)
 
@@ -551,7 +549,7 @@ instance.setCallbacks({
 **With typed data:**
 
 ```ts
-import {type GanttCallbacks, parseGanttInput} from 'gantt-renderer';
+import {type GanttCallbacks} from 'gantt-renderer';
 
 interface CustomTaskData {
 	owner: string;
@@ -575,9 +573,8 @@ const raw = {
 	],
 };
 
-const input = parseGanttInput<CustomTaskData, CustomLinkData>(raw);
 const instance = new GanttChart<CustomTaskData, CustomLinkData>(container, {scale: 'day'});
-instance.update(input);
+instance.update(raw);
 
 const cbs: GanttCallbacks<CustomTaskData, CustomLinkData> = {
 	onTaskClick({task}) {
@@ -616,9 +613,9 @@ instance.setCallbacks(cbs);
 When types are specified on `GanttChart`, they propagate automatically to `setCallbacks()`.
 Callbacks can also be typed independently using the generic callback types listed above.
 
-`parseGanttInput` also accepts the same type parameters. When you pass them, the
-function validates `data` shapes at compile time through the `GanttInputRaw<TTaskData, TLinkData>`
-input type. Runtime validation remains schema-driven; `data` is always checked as a generic object
+`GanttChart` accepts the same type parameters. When you pass them, the
+class validates `data` shapes at compile time through the `GanttInputRaw<TTaskData, TLinkData>`
+input type accepted by `update()`. Runtime validation remains schema-driven; `data` is always checked as a generic object
 by zod regardless of the type parameter.
 
 ```ts
@@ -626,8 +623,7 @@ const raw: GanttInputRaw<MyTaskData, MyLinkData> = {
 	tasks: [{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-03', kind: 'task', data: {priority: 1}}],
 };
 
-// Input type is GanttInput<MyTaskData, MyLinkData>
-const input = parseGanttInput(raw);
+instance.update(raw);
 ```
 
 ### Time scale
@@ -1074,6 +1070,6 @@ The primary entrypoint is `src/lib/index.ts`, which exports:
 
 - Core input and domain types (`Task`, `Link`, `GanttInput`, `TaskNode`, and related types).
 - Locale types and utilities (`ChartLocale`, `LocaleLabelKey`, `resolveChartLocale`, `deriveWeekendDays`, etc.).
-- Validation helpers (`parseGanttInput` and schemas).
+- Validation is handled automatically by `GanttChart.update()` using internal zod schemas.
 - Timeline/domain utilities (`computeLayout`, `createPixelMapper`, `routeLinks`, and others).
 - Vanilla chart class (`GanttChart`) and instance/callback types.

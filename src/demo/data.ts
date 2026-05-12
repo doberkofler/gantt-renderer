@@ -1,6 +1,6 @@
 import {type GanttInputRaw} from '../lib/index.ts';
 
-/** Raw input matching the screenshots. Validated at runtime via parseGanttInput. */
+/** Raw input matching the screenshots. Validated at runtime inside GanttChart.update. */
 export const RAW_INPUT = {
 	tasks: [
 		{id: 1000, text: 'Enterprise CRM Rollout', startDate: '2026-01-06', endDate: '2026-07-04', kind: 'project', open: true, percentComplete: 32},

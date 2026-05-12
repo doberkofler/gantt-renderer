@@ -1,3 +1,14 @@
+# [0.8.0](https://github.com/doberkofler/gantt-renderer/compare/v0.7.0...v0.8.0) (2026-05-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** remove `parseGanttInput` — validation now happens inside `GanttChart.update()`. Pass raw data directly to `update()` instead.
+
+### Features
+
+* **api:** inline zod parsing into `update()`, remove `parseGanttInput` and schema exports from public API
+
 # [0.7.0](https://github.com/doberkofler/gantt-renderer/compare/v0.6.0...v0.7.0) (2026-05-11)
 
 

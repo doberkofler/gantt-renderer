@@ -63,20 +63,19 @@ npm install gantt-renderer
 ```
 
 ```ts
-import {GanttChart, parseGanttInput} from 'gantt-renderer';
+import {GanttChart} from 'gantt-renderer';
 import 'gantt-renderer/styles/gantt.css';
 
-const input = parseGanttInput(yourData);
 const instance = new GanttChart(document.getElementById('chart')!, {
 	scale: 'day',
 });
-instance.update(input);
+instance.update(yourData);
 ```
 
 ## Integration Pattern
 
 1. Compute/plan project data in your domain layer or backend.
-2. Validate the result with `parseGanttInput(yourData)`.
+2. Pass it directly to `instance.update(yourData)` — the chart validates and renders in one call.
 3. Render with `new GanttChart(container, options)` followed by `instance.update(input)` and react to interaction callbacks.
 4. Persist user edits through your own business logic, then update with `instance.update(newInput)`.
 
