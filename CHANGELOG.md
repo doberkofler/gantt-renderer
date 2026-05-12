@@ -1,15 +1,34 @@
 # [0.8.0](https://github.com/doberkofler/gantt-renderer/compare/v0.7.0...v0.8.0) (2026-05-12)
 
 
-### ⚠ BREAKING CHANGES
+### Bug Fixes
 
-* **api:** remove `parseGanttInput` — validation now happens inside `GanttChart.update()`. Pass raw data directly to `update()` instead.
+* **gantt:** free actions column space when showAddTaskButton is disabled ([464c5cd](https://github.com/doberkofler/gantt-renderer/commit/464c5cda446828c7a0a8ca2b6e5f6a226f37aef4))
+* **interaction:** remove duplicate dblclick handler causing double callback fire ([df6500a](https://github.com/doberkofler/gantt-renderer/commit/df6500a9be31818f8a79cc94a33326a81793e7e3))
+
 
 ### Features
 
-* **api:** inline zod parsing into `update()`, remove `parseGanttInput` and schema exports from public API
+* **api:** inline zod validation into update(), remove parseGanttInput ([6136fe9](https://github.com/doberkofler/gantt-renderer/commit/6136fe9c732d4d919bfee592633be68eab0e05ef))
+* **demo:** add HTML tooltip with typed custom data to demo app ([401bebc](https://github.com/doberkofler/gantt-renderer/commit/401bebc190145cf30dd96e6e67e0c76867028114))
+
+
+### BREAKING CHANGES
+
+* **api:** Remove the public parseGanttInput() function and all
+zod schema exports. Pass raw data directly to GanttChart.update() —
+validation, defaults, and duplicate detection now happen internally.
+GanttInputRaw uses readonly arrays so as const data is accepted
+without casts.
 
 # [0.7.0](https://github.com/doberkofler/gantt-renderer/compare/v0.6.0...v0.7.0) (2026-05-11)
+
+
+### Features
+
+* **types:** make GanttInputRaw and parseGanttInput generic ([e665221](https://github.com/doberkofler/gantt-renderer/commit/e665221cd13ed58138770365079884cfcc5067fe))
+
+# [0.6.0](https://github.com/doberkofler/gantt-renderer/compare/v0.5.0...v0.6.0) (2026-05-11)
 
 
 ### Features
@@ -17,7 +36,6 @@
 * **gantt:** simplify default grid columns and add showAddTaskButton option ([800c3cd](https://github.com/doberkofler/gantt-renderer/commit/800c3cdb02d42dfc266823e1d56c0c6cd0eaf009))
 * **locale:** add built-in locale constants for 9 languages ([712254a](https://github.com/doberkofler/gantt-renderer/commit/712254acecc4110ad53de9de14833b2feb1ef16f))
 * **types:** add generic type params to Task, Link, GanttInput, GanttChart ([561ebcf](https://github.com/doberkofler/gantt-renderer/commit/561ebcf01dd1610f0f80739bd29509a05e7848c5))
-* **types:** make GanttInputRaw and parseGanttInput generic ([e665221](https://github.com/doberkofler/gantt-renderer/commit/e665221cd13ed58138770365079884cfcc5067fe))
 
 # [0.5.0](https://github.com/doberkofler/gantt-renderer/compare/v0.4.0...v0.5.0) (2026-05-09)
 
