@@ -39,6 +39,7 @@ describe('task interaction', () => {
 		expect(milestone).not.toBeNull();
 		milestone?.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 2}));
 
+		expect(onTaskDoubleClickMock).toHaveBeenCalledTimes(3);
 		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 3})}));
 		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
 		expect(onTaskDoubleClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 5})}));

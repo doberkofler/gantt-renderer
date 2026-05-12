@@ -139,20 +139,11 @@ export function attachDrag(barEl: HTMLElement, resizeHandleEl: HTMLElement, task
 		window.addEventListener('pointerup', onUp);
 	}
 
-	function onBarClick(event: MouseEvent): void {
-		if (event.detail !== 2) {
-			return;
-		}
-		cbs.onTaskDoubleClick?.({id: task.id, task: toTask(task)});
-	}
-
 	barEl.addEventListener('pointerdown', onBarDown);
-	barEl.addEventListener('click', onBarClick);
 	resizeHandleEl.addEventListener('pointerdown', onResizeDown);
 
 	return () => {
 		barEl.removeEventListener('pointerdown', onBarDown);
-		barEl.removeEventListener('click', onBarClick);
 		resizeHandleEl.removeEventListener('pointerdown', onResizeDown);
 	};
 }
