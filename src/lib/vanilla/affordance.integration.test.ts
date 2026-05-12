@@ -112,13 +112,19 @@ describe('add/toggle affordance visibility', () => {
 		}
 	});
 
-	it('add buttons are not rendered when showAddTaskButton is false', () => {
+	it('add buttons are not rendered when showAddTaskButton is false, and column space is freed', () => {
 		const container = document.createElement('div');
 		document.body.append(container);
 		mountTracked(container, INPUT, {showAddTaskButton: false});
 
 		const addBtns = container.querySelectorAll('.gantt-add-btn');
 		expect(addBtns).toHaveLength(0);
+
+		const rows = container.querySelectorAll<HTMLElement>('[role="row"]');
+		expect(rows.length).toBeGreaterThan(0);
+		for (const row of rows) {
+			expect(row.style.gridTemplateColumns).toBe('1fr 90px');
+		}
 	});
 
 	it('add buttons are rendered when showAddTaskButton is true (default)', () => {

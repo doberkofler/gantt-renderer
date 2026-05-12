@@ -224,8 +224,9 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 		this.#taskIndex = new Map();
 		this.#locale = resolveChartLocale(opts.locale);
 		this.#columns = opts.gridColumns ?? gridColumnDefaults(this.#locale);
-		this.#leftPaneDefaultWidth = opts.leftPaneWidth ?? gridNaturalWidth(this.#columns);
 		this.#showAddTaskButton = opts.showAddTaskButton ?? true;
+		this.#syncActionsColumnVisibility();
+		this.#leftPaneDefaultWidth = opts.leftPaneWidth ?? gridNaturalWidth(this.#columns);
 		this.#height = opts.height ?? 500;
 		this.#timelineMinWidth = opts.timelineMinWidth ?? TIMELINE_MIN_WIDTH;
 		this.#weekendDays = normalizeWeekendDays(opts.weekendDays ?? this.#locale.weekendDays);
@@ -519,6 +520,13 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 
 		if (opts.showAddTaskButton !== undefined) {
 			this.#showAddTaskButton = opts.showAddTaskButton;
+			this.#syncActionsColumnVisibility();
+			const naturalWidth = gridNaturalWidth(this.#columns);
+			if (naturalWidth !== this.#leftPaneDefaultWidth) {
+				this.#leftPaneDefaultWidth = naturalWidth;
+				columnsChanged = true;
+				this.#rebuildLeftPaneHeader();
+			}
 		}
 
 		const hasLayoutChange =
@@ -677,6 +685,17 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 
 	#findTask(id: number): Task | undefined {
 		return this.#input?.tasks.find((t) => t.id === id);
+	}
+
+	#syncActionsColumnVisibility(): void {
+		const actionsCol = this.#columns.find((c) => c.id === 'actions');
+		if (actionsCol !== undefined) {
+			if (this.#showAddTaskButton) {
+				delete actionsCol.visible;
+			} else {
+				actionsCol.visible = false;
+			}
+		}
 	}
 
 	readonly #handleGridClick = (payload: {id: number; task: Task}): void => {
