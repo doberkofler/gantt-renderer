@@ -1,16 +1,52 @@
 import {type GanttInputRaw} from '../lib/index.ts';
 
-/** Raw input matching the screenshots. Validated at runtime inside GanttChart.update. */
+export type DemoTaskData = {
+	owner: string;
+	priority: 'low' | 'medium' | 'high';
+};
+
+export type DemoLinkData = {
+	label: string;
+};
+
+/** Raw input matching the screenshots. Validated at runtime via parseGanttInput. */
 export const RAW_INPUT = {
 	tasks: [
-		{id: 1000, text: 'Enterprise CRM Rollout', startDate: '2026-01-06', endDate: '2026-07-04', kind: 'project', open: true, percentComplete: 32},
+		{
+			id: 1000,
+			text: 'Enterprise CRM Rollout',
+			startDate: '2026-01-06',
+			endDate: '2026-07-04',
+			kind: 'project',
+			open: true,
+			percentComplete: 32,
+			data: {owner: 'alice', priority: 'high'},
+		},
 		{id: 1100, text: 'Discovery and Planning', startDate: '2026-01-06', endDate: '2026-01-27', parent: 1000, kind: 'project', open: true, percentComplete: 78},
-		{id: 1110, text: 'Stakeholder Interviews', startDate: '2026-01-06', endDate: '2026-01-12', parent: 1100, kind: 'task', percentComplete: 100},
+		{
+			id: 1110,
+			text: 'Stakeholder Interviews',
+			startDate: '2026-01-06',
+			endDate: '2026-01-12',
+			parent: 1100,
+			kind: 'task',
+			percentComplete: 100,
+			data: {owner: 'bob', priority: 'high'},
+		},
 		{id: 1120, text: 'Requirements Backlog', startDate: '2026-01-10', endDate: '2026-01-19', parent: 1100, kind: 'task', percentComplete: 92},
 		{id: 1130, text: 'Solution Architecture Blueprint', startDate: '2026-01-15', endDate: '2026-01-22', parent: 1100, kind: 'task', percentComplete: 70},
-		{id: 1140, text: 'Design Sign-Off', startDate: '2026-01-28', parent: 1100, kind: 'milestone'},
+		{id: 1140, text: 'Design Sign-Off', startDate: '2026-01-28', parent: 1100, kind: 'milestone', data: {owner: 'alice', priority: 'high'}},
 		{id: 1200, text: 'Build and Configuration', startDate: '2026-01-20', endDate: '2026-02-28', parent: 1000, kind: 'project', open: true, percentComplete: 41},
-		{id: 1210, text: 'Core API Development', startDate: '2026-01-20', endDate: '2026-02-03', parent: 1200, kind: 'task', percentComplete: 66},
+		{
+			id: 1210,
+			text: 'Core API Development',
+			startDate: '2026-01-20',
+			endDate: '2026-02-03',
+			parent: 1200,
+			kind: 'task',
+			percentComplete: 66,
+			data: {owner: 'carol', priority: 'medium'},
+		},
 		{id: 1220, text: 'UI Component Implementation', startDate: '2026-01-23', endDate: '2026-02-09', parent: 1200, kind: 'task', percentComplete: 50},
 		{id: 1230, text: 'Data Migration Pipeline', startDate: '2026-01-25', endDate: '2026-02-07', parent: 1200, kind: 'task', percentComplete: 38},
 		{id: 1300, text: 'System Integrations', startDate: '2026-02-03', endDate: '2026-02-27', parent: 1000, kind: 'project', open: true, percentComplete: 27},
@@ -24,13 +60,13 @@ export const RAW_INPUT = {
 		{id: 1410, text: 'Integration Test Suite', startDate: '2026-05-01', endDate: '2026-05-18', parent: 1400, kind: 'task', percentComplete: 44},
 		{id: 1420, text: 'Performance and Security Testing', startDate: '2026-05-20', endDate: '2026-06-02', parent: 1400, kind: 'task', percentComplete: 25},
 		{id: 1430, text: 'User Acceptance Testing', startDate: '2026-06-08', endDate: '2026-06-23', parent: 1400, kind: 'task', percentComplete: 10},
-		{id: 1500, text: 'Release Readiness', startDate: '2026-06-28', parent: 1000, kind: 'milestone'},
+		{id: 1500, text: 'Release Readiness', startDate: '2026-06-28', parent: 1000, kind: 'milestone', data: {owner: 'bob', priority: 'medium'}},
 		{id: 1510, text: 'Production Cutover', startDate: '2026-06-29', endDate: '2026-07-02', parent: 1000, kind: 'task', percentComplete: 0},
 		{id: 1520, text: 'Hypercare Window', startDate: '2026-07-03', endDate: '2026-07-09', parent: 1000, kind: 'task', percentComplete: 0},
 	],
 	links: [
-		{id: 1, source: 1110, target: 1120, type: 'FS'},
-		{id: 2, source: 1120, target: 1130, type: 'FS'},
+		{id: 1, source: 1110, target: 1120, type: 'FS', data: {label: 'interviews feed backlog'}},
+		{id: 2, source: 1120, target: 1130, type: 'FS', data: {label: 'backlog informs blueprint'}},
 		{id: 3, source: 1130, target: 1140, type: 'FS'},
 		{id: 4, source: 1140, target: 1210, type: 'FS'},
 		{id: 5, source: 1140, target: 1220, type: 'FS'},
@@ -51,4 +87,4 @@ export const RAW_INPUT = {
 		{id: 20, source: 1220, target: 1430, type: 'FF'},
 		{id: 21, source: 1310, target: 1320, type: 'SS'},
 	],
-} as const satisfies GanttInputRaw;
+} as const satisfies GanttInputRaw<DemoTaskData, DemoLinkData>;

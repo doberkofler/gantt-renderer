@@ -16,8 +16,11 @@ import {
 	CHART_LOCALE_JA_JP,
 	type ChartLocale,
 } from '../lib/index.ts';
-import {RAW_INPUT} from './data.ts';
+import {RAW_INPUT, type DemoTaskData, type DemoLinkData} from './data.ts';
 import '../styles/gantt.css';
+
+type DemoGanttCallbacks = GanttCallbacks<DemoTaskData, DemoLinkData>;
+type DemoGanttInstance = GanttInstance<DemoTaskData, DemoLinkData>;
 
 const initialInput = RAW_INPUT;
 const DEMO_SPECIAL_DAYS = [
@@ -120,9 +123,10 @@ export const init = (): void => {
 		},
 	};
 
-	const callbacks: GanttCallbacks = {
+	const callbacks: DemoGanttCallbacks = {
 		onTaskClick(payload): void {
 			const {task} = payload;
+			const custom = task.data ? ` | owner=${task.data.owner} priority=${task.data.priority}` : '';
 			appendEventLog(
 				[
 					`onTaskClick ${task.text}`,
@@ -131,15 +135,16 @@ export const init = (): void => {
 					`endDate=${task.kind !== 'milestone' ? task.endDate : 'N/A'}`,
 					`kind=${task.kind}`,
 					`percentComplete=${task.kind !== 'milestone' ? task.percentComplete : 0}%`,
-				].join(' | '),
+				].join(' | ') + custom,
 			);
 		},
 		onTaskDoubleClick(payload) {
 			const {task} = payload;
+			const custom = task.data ? ` | owner=${task.data.owner} priority=${task.data.priority}` : '';
 			appendEventLog(
 				[`onTaskDoubleClick ${task.text}`, `id=${task.id}`, `start=${task.startDate}`, `endDate=${task.kind !== 'milestone' ? task.endDate : 'N/A'}`].join(
 					' | ',
-				),
+				) + custom,
 			);
 		},
 		onTaskMove(payload) {
@@ -156,6 +161,27 @@ export const init = (): void => {
 		onGridColumnsChange(payload) {
 			const widths = payload.columns.filter((c) => c.visible !== false).map((c) => `${c.id}:${c.width}`);
 			logControlHook('onGridColumnsChange', widths.join(', '));
+		},
+		onTooltipText(payload): string | null {
+			const {task} = payload;
+			const isMilestone = task.kind === 'milestone';
+			const custom = task.data;
+			const owner = custom?.owner ?? '-';
+			const priority = custom?.priority ?? '-';
+			return [
+				'<table class="demo-tooltip-table">',
+				`<tr><td class="demo-tooltip-label">Name</td><td><strong>${task.text}</strong></td></tr>`,
+				`<tr><td class="demo-tooltip-label">ID</td><td>${task.id}</td></tr>`,
+				`<tr><td class="demo-tooltip-label">Kind</td><td>${task.kind}</td></tr>`,
+				`<tr><td class="demo-tooltip-label">Start</td><td>${task.startDate}</td></tr>`,
+				isMilestone ? '' : `<tr><td class="demo-tooltip-label">End</td><td>${task.endDate}</td></tr>`,
+				isMilestone ? '' : `<tr><td class="demo-tooltip-label">Complete</td><td>${task.percentComplete}%</td></tr>`,
+				`<tr><td class="demo-tooltip-label">Owner</td><td>${owner}</td></tr>`,
+				`<tr><td class="demo-tooltip-label">Priority</td><td>${priority}</td></tr>`,
+				'</table>',
+			]
+				.filter(Boolean)
+				.join('');
 		},
 	};
 
@@ -175,7 +201,7 @@ export const init = (): void => {
 		};
 	}
 
-	let instance: GanttInstance = new GanttChart(ganttEl, buildOptions());
+	let instance: DemoGanttInstance = new GanttChart(ganttEl, buildOptions());
 	instance.setCallbacks(callbacks);
 	instance.update(initialInput);
 	appendEventLog('demo initialized');
