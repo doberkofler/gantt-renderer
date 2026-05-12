@@ -41,8 +41,7 @@ To run tests in watch mode:
 
 ### Debugging
 
-- Use the `debug` library for logging. Import it as `import debug from 'debug';`.
-- Configure debug namespaces in your code for selective logging.
+- Use `console.log`/`console.warn` for logging during development.
 
 ## Code Style Guidelines
 
