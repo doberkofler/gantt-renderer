@@ -1,3 +1,15 @@
+# [0.11.0](https://github.com/doberkofler/gantt-renderer/compare/v0.10.0...v0.11.0) (2026-05-13)
+
+
+### Bug Fixes
+
+* **gantt:** default fireCallback to false on select, collapseAll, and expandAll ([2572d4c](https://github.com/doberkofler/gantt-renderer/commit/2572d4c0c75b672b5f2d98d9a1dfde5fb30a421d))
+
+
+### Features
+
+* **gantt:** add getOpenStates instance method ([8c8b09c](https://github.com/doberkofler/gantt-renderer/commit/8c8b09cf323b45cc237e969ea190fb7cd7cb5428))
+
 # [0.10.0](https://github.com/doberkofler/gantt-renderer/compare/v0.9.0...v0.10.0) (2026-05-13)
 
 
