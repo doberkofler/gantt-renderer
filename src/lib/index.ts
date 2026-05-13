@@ -39,6 +39,8 @@ export type {
 	OnLinkClick,
 	OnLinkDblClick,
 	OnProgressChange,
+	OnExpandCollapse,
+	OnExpandCollapseAll,
 	OnTooltipText,
 } from './vanilla/gantt-chart.ts';
 export type {GridColumn} from './vanilla/dom/gridColumns.ts';

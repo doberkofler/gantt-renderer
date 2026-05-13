@@ -217,6 +217,24 @@ export const init = (): void => {
 			logControlHook('onTaskResize', payload.task.id.toString());
 			return true;
 		},
+		onTaskAdd(payload) {
+			logControlHook('onTaskAdd', payload.parentTask.id.toString());
+			return true;
+		},
+		onExpandCollapse(payload) {
+			const {task} = payload;
+			const open = task.kind === 'project' ? task.open : true;
+			const action = open ? 'expand' : 'collapse';
+			appendEventLog(`onExpandCollapse | ${action} | id=${task.id} | ${task.text}`);
+		},
+		onExpandCollapseAll(payload) {
+			const {tasks} = payload;
+			const count = tasks.length;
+			const [first] = tasks;
+			const open = first?.kind === 'project' ? first.open : tasks.length > 0;
+			const action = open ? 'expandAll' : 'collapseAll';
+			appendEventLog(`onExpandCollapseAll | ${action} | ${count} task${count !== 1 ? 's' : ''}`);
+		},
 		onLeftPaneWidthChange(payload) {
 			logControlHook('onLeftPaneWidthChange', `${payload.width}px`);
 		},
@@ -305,18 +323,6 @@ export const init = (): void => {
 		state.currentLocale = requested;
 		remountChart();
 		logControlHook('locale-select', 'integrated', requested);
-	});
-
-	document.querySelector<HTMLElement>('#control-collapse-all')?.addEventListener('click', () => {
-		instance.collapseAll();
-		clearControlFeedback();
-		logControlHook('control-collapse-all', 'integrated');
-	});
-
-	document.querySelector<HTMLElement>('#control-expand-all')?.addEventListener('click', () => {
-		instance.expandAll();
-		clearControlFeedback();
-		logControlHook('control-expand-all', 'integrated');
 	});
 
 	document.querySelector<HTMLInputElement>('#toggle-link-creation')?.addEventListener('change', (e) => {

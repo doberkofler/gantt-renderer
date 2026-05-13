@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Feladat {0}',
 		ariaMilestone: 'Mérföldkő {0}',
 		addSubtaskTitle: 'Részfeladat hozzáadása',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Feladat neve',
 		columnStartDate: 'Kezdés',
 		columnEndDate: 'Befejezés',

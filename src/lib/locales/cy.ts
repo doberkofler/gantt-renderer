@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Tasg {0}',
 		ariaMilestone: 'Carreg filltir {0}',
 		addSubtaskTitle: 'Ychwanegu is-dasg',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: "Enw'r dasg",
 		columnStartDate: 'Dechrau',
 		columnEndDate: 'Gorffen',

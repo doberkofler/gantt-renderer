@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Kompitu {0}',
 		ariaMilestone: 'Tragward {0}',
 		addSubtaskTitle: 'Żid subkompitu',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Isem il-kompitu',
 		columnStartDate: 'Bidu',
 		columnEndDate: 'Tmiem',

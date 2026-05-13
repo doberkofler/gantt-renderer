@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Εργασία {0}',
 		ariaMilestone: 'Ορόσημο {0}',
 		addSubtaskTitle: 'Προσθήκη υποεργασίας',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Όνομα εργασίας',
 		columnStartDate: 'Έναρξη',
 		columnEndDate: 'Λήξη',

@@ -2,6 +2,8 @@ export type LocaleLabelKey =
 	| 'ariaTask'
 	| 'ariaMilestone'
 	| 'addSubtaskTitle'
+	| 'expandAllTitle'
+	| 'collapseAllTitle'
 	| 'columnTaskName'
 	| 'columnStartDate'
 	| 'columnEndDate'
@@ -135,6 +137,8 @@ export const EN_US_LABELS: Record<LocaleLabelKey, string> = {
 	ariaTask: 'Task {0}',
 	ariaMilestone: 'Milestone {0}',
 	addSubtaskTitle: 'Add subtask',
+	expandAllTitle: 'Expand all',
+	collapseAllTitle: 'Collapse all',
 	columnTaskName: 'Task name',
 	columnStartDate: 'Start',
 	columnEndDate: 'End',

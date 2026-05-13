@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Úloha {0}',
 		ariaMilestone: 'Míľnik {0}',
 		addSubtaskTitle: 'Pridať podúlohu',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Názov úlohy',
 		columnStartDate: 'Začiatok',
 		columnEndDate: 'Koniec',

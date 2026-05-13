@@ -1,10 +1,13 @@
 import {describe, expect, it, vi} from 'vitest';
 import {buildLeftPaneHeader, setupColumnResize, COLUMN_RESIZE_MIN_WIDTH} from './leftPane.ts';
 import {type GridColumn, DEFAULT_GRID_COLUMNS} from './gridColumns.ts';
+import {type ChartLocale, EN_US_LABELS} from '../../locale.ts';
+
+const LOCALE: ChartLocale = {code: 'en', labels: EN_US_LABELS};
 
 describe('buildLeftPaneHeader', () => {
 	it('renders header cells from default schema', () => {
-		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
 		const cells = [...header.querySelectorAll('span')];
 
 		expect(cells).toHaveLength(3);
@@ -14,7 +17,7 @@ describe('buildLeftPaneHeader', () => {
 	});
 
 	it('uses gridTemplateColumns matching the column schema', () => {
-		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
 		expect(header.style.gridTemplateColumns).toBe('1fr 90px 28px');
 	});
 
@@ -24,7 +27,7 @@ describe('buildLeftPaneHeader', () => {
 			{id: 'percentComplete', header: 'Progress', width: '80px', align: 'right', field: 'percentComplete'},
 			{id: 'actions', header: '', width: '28px'},
 		];
-		const header = buildLeftPaneHeader(cols);
+		const header = buildLeftPaneHeader(cols, LOCALE);
 		const cells = [...header.querySelectorAll('span')];
 
 		expect(cells).toHaveLength(3);
@@ -39,7 +42,7 @@ describe('buildLeftPaneHeader', () => {
 			{id: 'name', header: 'Task name', width: '1fr'},
 			{id: 'endDate', header: 'End time', width: '90px', align: 'right'},
 		];
-		const header = buildLeftPaneHeader(cols);
+		const header = buildLeftPaneHeader(cols, LOCALE);
 		const cells = [...header.querySelectorAll('span')];
 
 		expect(cells[0]?.style.textAlign).toBe('');
@@ -52,7 +55,7 @@ describe('buildLeftPaneHeader', () => {
 			{id: 'startDate', header: 'Start time', width: '90px', visible: false},
 			{id: 'endDate', header: 'End time', width: '90px'},
 		];
-		const header = buildLeftPaneHeader(cols);
+		const header = buildLeftPaneHeader(cols, LOCALE);
 		const cells = [...header.querySelectorAll('span')];
 
 		expect(cells).toHaveLength(2);
@@ -64,13 +67,13 @@ describe('buildLeftPaneHeader', () => {
 
 describe('buildLeftPaneHeader resize handles', () => {
 	it('includes resize handles on all but the last visible column', () => {
-		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
 		const handles = header.querySelectorAll('.gantt-col-resize-handle');
 		expect(handles).toHaveLength(2); // 3 columns → 2 handles
 	});
 
 	it('resize handle has col-resize cursor', () => {
-		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS);
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
 		const handle = header.querySelector('.gantt-col-resize-handle');
 		expect(handle).not.toBeNull();
 		if (!(handle instanceof HTMLElement)) {
@@ -84,7 +87,7 @@ describe('buildLeftPaneHeader resize handles', () => {
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'endDate', header: 'Days', width: '60px'},
 		];
-		const header = buildLeftPaneHeader(cols);
+		const header = buildLeftPaneHeader(cols, LOCALE);
 		const wrappers = [...header.children] as HTMLElement[];
 		expect(wrappers).toHaveLength(2);
 		// First wrapper has span + handle
@@ -93,6 +96,75 @@ describe('buildLeftPaneHeader resize handles', () => {
 		// Last column: no handle
 		expect(wrappers[1]?.querySelector('span')?.textContent).toBe('Days');
 		expect(wrappers[1]?.querySelector('.gantt-col-resize-handle')).toBeNull();
+	});
+});
+
+describe('buildLeftPaneHeader expand/collapse all buttons', () => {
+	it('renders expand/collapse buttons when first column is the name column', () => {
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
+		expect(header.querySelector('.gantt-header-expand-btn')).not.toBeNull();
+		expect(header.querySelector('.gantt-header-collapse-btn')).not.toBeNull();
+	});
+
+	it('does not render expand/collapse buttons when first column is not the name column', () => {
+		const cols: GridColumn[] = [
+			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
+			{id: 'name', header: 'Task', width: '1fr'},
+		];
+		const header = buildLeftPaneHeader(cols, LOCALE);
+		expect(header.querySelector('.gantt-header-expand-btn')).toBeNull();
+		expect(header.querySelector('.gantt-header-collapse-btn')).toBeNull();
+	});
+
+	it('buttons have correct aria-labels', () => {
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
+
+		const expandBtn = header.querySelector<HTMLElement>('.gantt-header-expand-btn');
+		const collapseBtn = header.querySelector<HTMLElement>('.gantt-header-collapse-btn');
+
+		expect(expandBtn?.getAttribute('aria-label')).toBe('Expand all');
+		expect(collapseBtn?.getAttribute('aria-label')).toBe('Collapse all');
+	});
+
+	it('buttons have correct text content', () => {
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
+
+		const expandBtn = header.querySelector<HTMLElement>('.gantt-header-expand-btn');
+		const collapseBtn = header.querySelector<HTMLElement>('.gantt-header-collapse-btn');
+
+		expect(expandBtn?.textContent).toBe('+');
+		expect(collapseBtn?.textContent).toBe('\u2212');
+	});
+
+	it('renders controls inline before first name header label', () => {
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, LOCALE);
+		const firstWrapper = header.children[0] as HTMLElement | undefined;
+		const btnContainer = firstWrapper?.querySelector('.gantt-header-tree-controls') as HTMLElement | null;
+		const firstLabel = firstWrapper?.querySelector('span') as HTMLElement | null;
+
+		expect(btnContainer).not.toBeNull();
+		expect(firstLabel).not.toBeNull();
+		expect(btnContainer?.style.position).toBe('');
+		expect(btnContainer?.style.marginRight).toBe('6px');
+		expect(firstLabel?.style.paddingLeft).toBe('');
+	});
+
+	it('buttons use locale-specific title when available', () => {
+		const customLocale: ChartLocale = {
+			code: 'xx',
+			labels: {
+				...EN_US_LABELS,
+				expandAllTitle: 'Alles erweitern',
+				collapseAllTitle: 'Alles reduzieren',
+			},
+		};
+		const header = buildLeftPaneHeader(DEFAULT_GRID_COLUMNS, customLocale);
+
+		const expandBtn = header.querySelector<HTMLElement>('.gantt-header-expand-btn');
+		const collapseBtn = header.querySelector<HTMLElement>('.gantt-header-collapse-btn');
+
+		expect(expandBtn?.title).toBe('Alles erweitern');
+		expect(collapseBtn?.title).toBe('Alles reduzieren');
 	});
 });
 
@@ -110,7 +182,7 @@ describe('setupColumnResize', () => {
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
-		const header = buildLeftPaneHeader(columns);
+		const header = buildLeftPaneHeader(columns, LOCALE);
 		container.append(header);
 
 		const bodyEl = document.createElement('div');
@@ -136,7 +208,7 @@ describe('setupColumnResize', () => {
 			{id: 'startDate', header: 'Start', width: '90px', field: 'startDate'},
 			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
-		const header = buildLeftPaneHeader(columns);
+		const header = buildLeftPaneHeader(columns, LOCALE);
 		container.append(header);
 
 		const bodyEl = document.createElement('div');
@@ -172,7 +244,7 @@ describe('setupColumnResize', () => {
 			{id: 'name', header: 'Name', width: '1fr'},
 			{id: 'endDate', header: 'Days', width: '90px', field: 'endDate'},
 		];
-		const header = buildLeftPaneHeader(columns);
+		const header = buildLeftPaneHeader(columns, LOCALE);
 		container.append(header);
 
 		const bodyEl = document.createElement('div');

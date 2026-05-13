@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Tasc {0}',
 		ariaMilestone: 'Cloch mhíle {0}',
 		addSubtaskTitle: 'Cuir fotasc leis',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Ainm na taisc',
 		columnStartDate: 'Tús',
 		columnEndDate: 'Deireadh',

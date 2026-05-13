@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Naloga {0}',
 		ariaMilestone: 'Mejnik {0}',
 		addSubtaskTitle: 'Dodaj podnalogo',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Ime naloge',
 		columnStartDate: 'Začetek',
 		columnEndDate: 'Konec',

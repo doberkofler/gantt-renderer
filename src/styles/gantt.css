@@ -175,6 +175,29 @@
 	outline-offset: 1px;
 }
 
+/* ─── Header expand / collapse all buttons ────────────────────────────────── */
+.gantt-header-expand-btn,
+.gantt-header-collapse-btn {
+	transition:
+		color 0.1s ease,
+		background 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.gantt-header-expand-btn:hover,
+.gantt-header-collapse-btn:hover {
+	color: var(--gantt-task) !important;
+	border-color: var(--gantt-task) !important;
+}
+
+.gantt-header-expand-btn:focus-visible,
+.gantt-header-collapse-btn:focus-visible {
+	color: var(--gantt-task) !important;
+	border-color: var(--gantt-task) !important;
+	outline: 2px solid var(--gantt-task);
+	outline-offset: 1px;
+}
+
 /* ─── Scrollbar styling (webkit) ─────────────────────────────────────────── */
 .gantt-root ::-webkit-scrollbar {
 	width: 8px;

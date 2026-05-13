@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import {renderLeftPane, buildLeftPaneHeader} from './leftPane.ts';
 import {type GridColumn, DEFAULT_GRID_COLUMNS} from './gridColumns.ts';
 import {mockState, mockCallbacks, taskNode, projectNode} from './leftPane.test-utils.ts';
+import {EN_US_LABELS} from '../../locale.ts';
 
 describe('renderLeftPane', () => {
 	it('renders rows with default column schema', () => {
@@ -331,7 +332,7 @@ describe('renderLeftPane', () => {
 			{id: 'percentComplete', header: 'Progress', width: '80px', field: 'percentComplete', format: String},
 		];
 
-		const header = buildLeftPaneHeader(customColumns);
+		const header = buildLeftPaneHeader(customColumns, {code: 'en', labels: EN_US_LABELS});
 		expect(header.style.gridTemplateColumns).toBe('2fr 80px');
 
 		const container = document.createElement('div');

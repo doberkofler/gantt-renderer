@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Tehtävä {0}',
 		ariaMilestone: 'Välitavoite {0}',
 		addSubtaskTitle: 'Lisää alitehtävä',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Tehtävän nimi',
 		columnStartDate: 'Alku',
 		columnEndDate: 'Loppu',

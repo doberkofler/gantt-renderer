@@ -23,16 +23,16 @@ test.describe('gantt chart UX regressions', () => {
 		await expect(page.locator('.gantt-root')).toBeVisible();
 		await expect(page.locator('#scale-select')).toBeVisible();
 		await expect(page.locator('#scale-select')).toHaveValue('day');
-		await expect(page.locator('#control-collapse-all')).toBeVisible();
-		await expect(page.locator('#control-expand-all')).toBeVisible();
+		await expect(page.locator('.gantt-header-expand-btn')).toBeVisible();
+		await expect(page.locator('.gantt-header-collapse-btn')).toBeVisible();
 		await expect(page.locator('#control-select')).toHaveCount(0);
 		await expect(page.locator('.gantt-bar[data-task-id="1000"]')).toBeVisible();
 		await expect(page.locator('.gantt-milestone[data-task-id="1140"]')).toBeVisible();
 	});
 
 	test('provides tooltips for demo-shell controls', async ({page}) => {
-		await expect(page.locator('#control-collapse-all')).toHaveAttribute('title', 'Collapse all expandable groups');
-		await expect(page.locator('#control-expand-all')).toHaveAttribute('title', 'Expand all collapsed groups');
+		await expect(page.locator('.gantt-header-expand-btn')).toHaveAttribute('title', 'Expand all');
+		await expect(page.locator('.gantt-header-collapse-btn')).toHaveAttribute('title', 'Collapse all');
 		await expect(page.locator('#fullscreen-btn')).toHaveAttribute('title', 'Toggle fullscreen mode');
 		await expect(page.locator('#scale-select')).toHaveAttribute('title', 'Choose timeline scale');
 		await expect(page.locator('#toggle-link-creation')).toHaveAttribute('title', 'Enable/disable drag-to-create dependency links');
@@ -78,24 +78,24 @@ test.describe('gantt chart UX regressions', () => {
 		await expect(milestoneRow).toBeVisible();
 	});
 
-	test('collapses and expands all rows through demo controls', async ({page}) => {
+	test('collapses and expands all rows through header controls', async ({page}) => {
 		const rows = page.locator('.gantt-root [role="row"]');
-		const collapseAll = page.locator('#control-collapse-all');
-		const expandAll = page.locator('#control-expand-all');
+		const collapseAll = page.locator('.gantt-header-collapse-btn');
+		const expandAll = page.locator('.gantt-header-expand-btn');
 		const eventLog = page.locator('#event-log');
 
 		await expect(rows).toHaveCount(16);
 
 		await collapseAll.click();
 		await expect(rows).toHaveCount(1);
-		await expect(eventLog).toHaveValue(/control-collapse-all \| integrated/u);
+		await expect(eventLog).toHaveValue(/onExpandCollapseAll \| collapseAll \| 6 tasks/u);
 
 		await collapseAll.click();
 		await expect(rows).toHaveCount(1);
 
 		await expandAll.click();
 		await expect(rows).toHaveCount(16);
-		await expect(eventLog).toHaveValue(/control-expand-all \| integrated/u);
+		await expect(eventLog).toHaveValue(/onExpandCollapseAll \| expandAll \| 6 tasks/u);
 
 		await expandAll.click();
 		await expect(rows).toHaveCount(16);

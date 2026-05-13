@@ -75,6 +75,14 @@ export type OnProgressChange<TTaskData = never, TLinkData = never> = (payload: {
 	newPercentComplete: number;
 	instance: GanttInstance<TTaskData, TLinkData>;
 }) => boolean | Promise<boolean>;
+export type OnExpandCollapse<TTaskData = never, TLinkData = never> = (payload: {
+	task: GenTask<TTaskData>;
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
+export type OnExpandCollapseAll<TTaskData = never, TLinkData = never> = (payload: {
+	tasks: GenTask<TTaskData>[];
+	instance: GanttInstance<TTaskData, TLinkData>;
+}) => void | Promise<void>;
 export type OnTooltipText<TTaskData = never, TLinkData = never> = (payload: {
 	task: GenTask<TTaskData>;
 	instance: GanttInstance<TTaskData, TLinkData>;
@@ -90,6 +98,8 @@ export type GanttCallbacks<TTaskData = never, TLinkData = never> = {
 	onLinkClick?: OnLinkClick<TTaskData, TLinkData>;
 	onLinkDblClick?: OnLinkDblClick<TTaskData, TLinkData>;
 	onProgressChange?: OnProgressChange<TTaskData, TLinkData>;
+	onExpandCollapse?: OnExpandCollapse<TTaskData, TLinkData>;
+	onExpandCollapseAll?: OnExpandCollapseAll<TTaskData, TLinkData>;
 	onTooltipText?: OnTooltipText<TTaskData, TLinkData>;
 	onLeftPaneWidthChange?: (payload: {width: number; instance: GanttInstance<TTaskData, TLinkData>}) => void | Promise<void>;
 	onGridColumnsChange?: (payload: {columns: GridColumn[]; instance: GanttInstance<TTaskData, TLinkData>}) => void | Promise<void>;
@@ -613,6 +623,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 */
 	public collapseAll(): void {
 		this.#assertAlive();
+		const changed = this.#buildExpandCollapseAllPayload(false);
 		this.#expandedIds.clear();
 		if (this.#rafPending && this.#rafId !== null) {
 			cancelAnimationFrame(this.#rafId);
@@ -620,6 +631,9 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			this.#rafPending = false;
 		}
 		this.#render();
+		if (changed.length > 0) {
+			void this.#callbacks.onExpandCollapseAll?.({tasks: changed as unknown as GenTask<TTaskData>[], instance: this});
+		}
 	}
 
 	/**
@@ -629,6 +643,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 */
 	public expandAll(): void {
 		this.#assertAlive();
+		const changed = this.#buildExpandCollapseAllPayload(true);
 		this.#expandedIds.clear();
 		if (this.#input !== null) {
 			for (const id of getExpandableTaskIds(this.#input.tasks)) {
@@ -641,6 +656,27 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			this.#rafPending = false;
 		}
 		this.#render();
+		if (changed.length > 0) {
+			void this.#callbacks.onExpandCollapseAll?.({tasks: changed as unknown as GenTask<TTaskData>[], instance: this});
+		}
+	}
+
+	#buildExpandCollapseAllPayload(open: boolean): Task[] {
+		if (this.#input === null) {
+			return [];
+		}
+		const expandableIds = getExpandableTaskIds(this.#input.tasks);
+		const changed: Task[] = [];
+		for (const id of expandableIds) {
+			const currentlyExpanded = this.#expandedIds.has(id);
+			if (currentlyExpanded !== open) {
+				const task = this.#findTask(id);
+				if (task !== undefined) {
+					changed.push(task.kind === 'project' ? {...task, open} : {...task});
+				}
+			}
+		}
+		return changed;
 	}
 
 	/**
@@ -812,10 +848,19 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			state,
 			{
 				onToggle: (id) => {
-					if (this.#expandedIds.has(id)) {
-						this.#expandedIds.delete(id);
-					} else {
+					const expanded = !this.#expandedIds.has(id);
+					if (expanded) {
 						this.#expandedIds.add(id);
+					} else {
+						this.#expandedIds.delete(id);
+					}
+					const task = this.#findTask(id);
+					if (task !== undefined) {
+						const payload = task.kind === 'project' ? {...task, open: expanded} : {...task};
+						void this.#callbacks.onExpandCollapse?.({
+							task: payload as unknown as GenTask<TTaskData>,
+							instance: this,
+						});
 					}
 					this.#scheduleRender();
 				},
@@ -846,11 +891,29 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	#rebuildLeftPaneHeader(): void {
 		this.#columnResizeCleanup();
 		clearChildren(this.#leftHeader);
-		const headerEl = buildLeftPaneHeader(this.#columns);
+		const headerEl = buildLeftPaneHeader(this.#columns, this.#locale);
+		this.#wireHeaderTreeControls(headerEl);
 		this.#leftHeader.append(headerEl);
 		this.#columnResizeCleanup = setupColumnResize(headerEl, this.#leftBody, this.#columns, (updated) => {
 			this.#cbs.onGridColumnsChange?.(updated);
 		});
+	}
+
+	#wireHeaderTreeControls(headerEl: HTMLElement): void {
+		const expandBtn = headerEl.querySelector<HTMLElement>('.gantt-header-expand-btn');
+		const collapseBtn = headerEl.querySelector<HTMLElement>('.gantt-header-collapse-btn');
+		if (expandBtn !== null) {
+			expandBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.expandAll();
+			});
+		}
+		if (collapseBtn !== null) {
+			collapseBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				this.collapseAll();
+			});
+		}
 	}
 
 	#scheduleRender(): void {
@@ -905,7 +968,8 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 
 		const leftHeader = el('div');
 		css(leftHeader, {position: 'sticky', top: '0', zIndex: '11', background: 'var(--gantt-header-bg)'});
-		const headerEl = buildLeftPaneHeader(this.#columns);
+		const headerEl = buildLeftPaneHeader(this.#columns, this.#locale);
+		this.#wireHeaderTreeControls(headerEl);
 		leftHeader.append(headerEl);
 		leftPane.append(leftHeader);
 		this.#leftHeader = leftHeader;

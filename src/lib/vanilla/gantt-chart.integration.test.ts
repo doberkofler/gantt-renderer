@@ -158,4 +158,31 @@ describe('core rendering and viewport', () => {
 
 		expect(container.querySelector('.gantt-root')).not.toBeNull();
 	});
+
+	it('expand/collapse all buttons toggle child visibility', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		mountTracked(container, INPUT, {height: 420});
+
+		const collapseBtn = container.querySelector<HTMLElement>('.gantt-header-collapse-btn');
+		const expandBtn = container.querySelector<HTMLElement>('.gantt-header-expand-btn');
+		expect(collapseBtn).not.toBeNull();
+		expect(expandBtn).not.toBeNull();
+
+		// Verify children are initially visible (project is open, all 5 rows visible)
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(5);
+
+		// Collapse all
+		collapseBtn?.click();
+
+		// Only the project row should remain visible
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(1);
+
+		// Expand all
+		expandBtn?.click();
+
+		// All rows should be visible again
+		expect(container.querySelectorAll('[role="row"]')).toHaveLength(5);
+	});
 });

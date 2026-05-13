@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Aufgabe {0}',
 		ariaMilestone: 'Meilenstein {0}',
 		addSubtaskTitle: 'Teilaufgabe hinzufügen',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Aufgabenname',
 		columnStartDate: 'Start',
 		columnEndDate: 'Ende',

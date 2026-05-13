@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Detyrë {0}',
 		ariaMilestone: 'Pikë referimi {0}',
 		addSubtaskTitle: 'Shto nëndetyrë',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Emri i detyrës',
 		columnStartDate: 'Fillimi',
 		columnEndDate: 'Përfundimi',

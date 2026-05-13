@@ -290,9 +290,10 @@ export function renderLeftPane(container: HTMLElement, state: GanttState, cbs: L
  * Builds the header row for the left pane.
  *
  * @param columns - The grid column schema.
+ * @param locale - The current chart locale.
  * @returns The header DOM element.
  */
-export function buildLeftPaneHeader(columns: GridColumn[]): HTMLElement {
+export function buildLeftPaneHeader(columns: GridColumn[], locale: ChartLocale): HTMLElement {
 	const header = el('div');
 	css(header, {
 		display: 'grid',
@@ -314,6 +315,64 @@ export function buildLeftPaneHeader(columns: GridColumn[]): HTMLElement {
 		}
 		const wrapper = el('div');
 		css(wrapper, {position: 'relative', display: 'flex', alignItems: 'flex-end'});
+
+		if (i === 0 && visible[0]?.id === 'name') {
+			const btnContainer = el('div');
+			btnContainer.className = 'gantt-header-tree-controls';
+			css(btnContainer, {
+				display: 'flex',
+				gap: '4px',
+				marginRight: '6px',
+				paddingBottom: '1px',
+			});
+
+			const expandBtn = el('button');
+			expandBtn.className = 'gantt-header-expand-btn';
+			expandBtn.textContent = '+';
+			expandBtn.title = locale.labels?.expandAllTitle ?? EN_US_LABELS.expandAllTitle;
+			expandBtn.setAttribute('aria-label', expandBtn.title);
+			css(expandBtn, {
+				width: '18px',
+				height: '18px',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				background: 'var(--gantt-header-bg)',
+				border: '1px solid var(--gantt-border)',
+				borderRadius: '3px',
+				cursor: 'pointer',
+				color: 'var(--gantt-text-secondary)',
+				fontSize: '14px',
+				fontWeight: 'var(--gantt-font-weight-bold)',
+				lineHeight: '1',
+				padding: '0',
+			});
+
+			const collapseBtn = el('button');
+			collapseBtn.className = 'gantt-header-collapse-btn';
+			collapseBtn.textContent = '\u2212';
+			collapseBtn.title = locale.labels?.collapseAllTitle ?? EN_US_LABELS.collapseAllTitle;
+			collapseBtn.setAttribute('aria-label', collapseBtn.title);
+			css(collapseBtn, {
+				width: '18px',
+				height: '18px',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				background: 'var(--gantt-header-bg)',
+				border: '1px solid var(--gantt-border)',
+				borderRadius: '3px',
+				cursor: 'pointer',
+				color: 'var(--gantt-text-secondary)',
+				fontSize: '14px',
+				fontWeight: 'var(--gantt-font-weight-bold)',
+				lineHeight: '1',
+				padding: '0',
+			});
+
+			btnContainer.append(expandBtn, collapseBtn);
+			wrapper.append(btnContainer);
+		}
 
 		const cell = el('span');
 		css(cell, {

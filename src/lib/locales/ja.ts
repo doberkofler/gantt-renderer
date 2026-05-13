@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'タスク {0}',
 		ariaMilestone: 'マイルストーン {0}',
 		addSubtaskTitle: 'サブタスクを追加',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'タスク名',
 		columnStartDate: '開始',
 		columnEndDate: '終了',

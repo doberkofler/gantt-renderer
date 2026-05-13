@@ -6,6 +6,8 @@ export const CHART_LOCALE: ChartLocale = {
 		ariaTask: 'Ataza {0}',
 		ariaMilestone: 'Mugarria {0}',
 		addSubtaskTitle: 'Gehitu azpiataza',
+		expandAllTitle: 'Expand all',
+		collapseAllTitle: 'Collapse all',
 		columnTaskName: 'Atazaren izena',
 		columnStartDate: 'Hasiera',
 		columnEndDate: 'Amaiera',

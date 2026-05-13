@@ -1,4 +1,4 @@
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {GanttChart} from './gantt-chart.ts';
 import {INPUT} from './gantt-chart.test-utils.ts';
 
@@ -68,5 +68,62 @@ describe('api lifecycle', () => {
 
 		instance.expandAll();
 		expect(container.querySelectorAll('[role="row"]')).toHaveLength(1);
+	});
+
+	it('fires onExpandCollapseAll on expandAll with changed tasks', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const onExpandCollapseAll = vi.fn<(_p: {tasks: {id: number; kind: string}[]; instance: unknown}) => void>();
+		const instance = new GanttChart(container);
+		instance.setCallbacks({onExpandCollapseAll});
+		instance.update(INPUT);
+
+		instance.collapseAll();
+		onExpandCollapseAll.mockClear();
+		instance.expandAll();
+
+		expect(onExpandCollapseAll).toHaveBeenCalledWith(
+			expect.objectContaining({
+				tasks: expect.arrayContaining([expect.objectContaining({id: 1, kind: 'project'})]),
+			}),
+		);
+	});
+
+	it('fires onExpandCollapseAll on collapseAll with changed tasks', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const onExpandCollapseAll = vi.fn<(_p: {tasks: {id: number; kind: string}[]; instance: unknown}) => void>();
+		const instance = new GanttChart(container);
+		instance.setCallbacks({onExpandCollapseAll});
+		instance.update(INPUT);
+
+		instance.collapseAll();
+
+		expect(onExpandCollapseAll).toHaveBeenCalledWith(
+			expect.objectContaining({
+				tasks: [expect.objectContaining({id: 1, kind: 'project', open: false})],
+			}),
+		);
+	});
+
+	it('does not fire onExpandCollapseAll when no state change', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const onExpandCollapseAll = vi.fn<() => void>();
+		const instance = new GanttChart(container);
+		instance.setCallbacks({onExpandCollapseAll});
+		instance.update(INPUT);
+
+		onExpandCollapseAll.mockClear();
+		instance.expandAll();
+		expect(onExpandCollapseAll).not.toHaveBeenCalled();
+
+		instance.collapseAll();
+		onExpandCollapseAll.mockClear();
+		instance.collapseAll();
+		expect(onExpandCollapseAll).not.toHaveBeenCalled();
 	});
 });
