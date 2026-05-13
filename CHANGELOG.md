@@ -1,3 +1,11 @@
+# [0.9.0](https://github.com/doberkofler/gantt-renderer/compare/v0.8.0...v0.9.0) (2026-05-13)
+
+
+### Features
+
+* **locales:** modular locale system with 43 languages via subpath exports ([4866724](https://github.com/doberkofler/gantt-renderer/commit/48667247005c245fd55b9421012e03ec13d82ba1))
+* **vanilla:** add showTodayMarker option to toggle current-date line ([49ddc0f](https://github.com/doberkofler/gantt-renderer/commit/49ddc0fa1e00356403df286e99df71242cca0b01))
+
 # [0.8.0](https://github.com/doberkofler/gantt-renderer/compare/v0.7.0...v0.8.0) (2026-05-12)
 
 
