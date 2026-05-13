@@ -193,6 +193,10 @@ describe('deriveWeekNumbering', () => {
 		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('de-DE'));
 	});
 
+	it('returns a valid scheme for language-only de (via getWeekInfo or default)', () => {
+		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('de'));
+	});
+
 	it('returns a valid scheme for unknown region xx-XX (falls to getWeekInfo or default)', () => {
 		expect(['iso', 'us', 'simple']).toContain(deriveWeekNumbering('xx-XX'));
 	});

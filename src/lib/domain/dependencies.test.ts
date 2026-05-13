@@ -50,4 +50,22 @@ describe('dependency utilities', () => {
 			validateLinkRefs(tasks, links);
 		}).toThrow('duplicate pair');
 	});
+
+	it('throws on circular dependencies', () => {
+		const links: Link[] = [
+			{id: 1, source: 1, target: 2, type: 'FS'},
+			{id: 2, source: 2, target: 3, type: 'FS'},
+			{id: 3, source: 3, target: 1, type: 'FS'},
+		];
+		expect(() => {
+			detectCycles(tasks, links);
+		}).toThrow('Circular dependency detected');
+	});
+
+	it('throws on self-referencing cycle', () => {
+		const links: Link[] = [{id: 1, source: 1, target: 1, type: 'FS'}];
+		expect(() => {
+			detectCycles(tasks, links);
+		}).toThrow('Circular dependency detected');
+	});
 });

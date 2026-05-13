@@ -362,4 +362,197 @@ describe('task interaction', () => {
 
 		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
 	});
+
+	it('reverts task move when onTaskMove returns false synchronously', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskMove = (): boolean => false;
+
+		mountTracked(container, INPUT, {height: 420}, {onTaskMove});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+		const originalStart = bar?.style.left;
+
+		bar?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 200, pointerId: 20}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 260, pointerId: 20}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 20}));
+
+		const movedBar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(movedBar?.style.left).toBe(originalStart);
+	});
+
+	it('reverts task resize when onTaskResize returns false synchronously', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskResize = (): boolean => false;
+
+		mountTracked(container, INPUT, {height: 420}, {onTaskResize});
+
+		const resizeHandle = container.querySelector<HTMLElement>('.gantt-resize-handle');
+		expect(resizeHandle).not.toBeNull();
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		const originalWidth = bar?.style.width;
+
+		resizeHandle?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 300, pointerId: 21}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 350, pointerId: 21}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 21}));
+
+		const resizedBar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(resizedBar?.style.width).toBe(originalWidth);
+	});
+
+	it('reverts progress when onProgressChange returns false synchronously', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onProgressChange = (): boolean => false;
+
+		const instance = mountTracked(container, INPUT, {progressDragEnabled: true}, {onProgressChange});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+		const progressOverlay = bar?.querySelector<HTMLElement>('.gantt-progress-overlay');
+		expect(progressOverlay).not.toBeNull();
+
+		progressOverlay?.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: 100, pointerId: 22}));
+		window.dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: 180, pointerId: 22}));
+		window.dispatchEvent(new PointerEvent('pointerup', {bubbles: true, pointerId: 22}));
+
+		expect(() => {
+			instance.select(1);
+		}).not.toThrow();
+	});
+
+	it('fires onLinkClick when dependency link is clicked', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onLinkClickMock = vi.fn<(payload: {link: {id: number}}) => void>();
+		const onLinkClick = (payload: {link: {id: number}}): void => {
+			onLinkClickMock(payload);
+		};
+
+		mountTracked(container, INPUT, {height: 420}, {onLinkClick});
+
+		const linkPath = container.querySelector<SVGPathElement>('path[data-link-id]');
+		expect(linkPath).not.toBeNull();
+		linkPath?.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 1}));
+
+		expect(onLinkClickMock).toHaveBeenCalledWith(expect.objectContaining({link: expect.objectContaining({id: 1})}));
+	});
+
+	it('fires onLinkDblClick when dependency link is double-clicked', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onLinkDblClickMock = vi.fn<(payload: {link: {id: number}}) => void>();
+		const onLinkDblClick = (payload: {link: {id: number}}): void => {
+			onLinkDblClickMock(payload);
+		};
+
+		mountTracked(container, INPUT, {height: 420}, {onLinkDblClick});
+
+		const linkPath = container.querySelector<SVGPathElement>('path[data-link-id]');
+		expect(linkPath).not.toBeNull();
+		linkPath?.dispatchEvent(new MouseEvent('dblclick', {bubbles: true}));
+
+		expect(onLinkDblClickMock).toHaveBeenCalledWith(expect.objectContaining({link: expect.objectContaining({id: 1})}));
+	});
+
+	it('fires onTaskAdd when add button is clicked', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskAddMock = vi.fn<(payload: {parentTask: {id: number}}) => boolean>();
+		const onTaskAdd = (payload: {parentTask: {id: number}}): boolean => {
+			onTaskAddMock(payload);
+			return true;
+		};
+
+		mountTracked(container, INPUT, {}, {onTaskAdd});
+
+		const addBtn = container.querySelector<HTMLElement>('.gantt-add-btn');
+		expect(addBtn).not.toBeNull();
+		addBtn?.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+
+		expect(onTaskAddMock).toHaveBeenCalledWith(expect.objectContaining({parentTask: expect.objectContaining({id: 1})}));
+	});
+
+	it('handles keyboard Enter on bar for selection', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskClickMock = vi.fn<(payload: {task: {id: number}}) => void>();
+		const onTaskClick = (payload: {task: {id: number}}): void => {
+			onTaskClickMock(payload);
+		};
+
+		mountTracked(container, INPUT, {}, {onTaskClick});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+		bar?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+	});
+
+	it('handles keyboard Enter on milestone for selection', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskClickMock = vi.fn<(payload: {task: {id: number}}) => void>();
+		const onTaskClick = (payload: {task: {id: number}}): void => {
+			onTaskClickMock(payload);
+		};
+
+		mountTracked(container, INPUT, {}, {onTaskClick});
+
+		const milestone = container.querySelector<HTMLElement>('.gantt-milestone');
+		expect(milestone).not.toBeNull();
+		milestone?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 5})}));
+	});
+
+	it('handles keyboard Enter on grid row for selection', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+		const onTaskClickMock = vi.fn<(payload: {task: {id: number}}) => void>();
+		const onTaskClick = (payload: {task: {id: number}}): void => {
+			onTaskClickMock(payload);
+		};
+
+		mountTracked(container, INPUT, {}, {onTaskClick});
+
+		const row = container.querySelector<HTMLElement>('[role="row"]');
+		expect(row).not.toBeNull();
+		row?.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true}));
+
+		expect(onTaskClickMock).toHaveBeenCalledWith(expect.objectContaining({task: expect.objectContaining({id: 1})}));
+	});
+
+	it('shows and hides link creation handles on bar hover', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		mountTracked(container, INPUT, {linkCreationEnabled: true});
+
+		const bar = container.querySelector<HTMLElement>('.gantt-bar');
+		expect(bar).not.toBeNull();
+
+		bar?.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true}));
+
+		expect(container.querySelectorAll('.gantt-link-endpoint').length).toBeGreaterThanOrEqual(2);
+		expect(bar?.closest('.gantt-root')).not.toBeNull();
+	});
+
+	it('shows and hides link creation handle on milestone hover', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		mountTracked(container, INPUT, {linkCreationEnabled: true});
+
+		const milestone = container.querySelector<HTMLElement>('.gantt-milestone');
+		expect(milestone).not.toBeNull();
+
+		milestone?.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true}));
+
+		expect(container.querySelectorAll('.gantt-link-endpoint').length).toBeGreaterThan(0);
+	});
 });

@@ -178,4 +178,58 @@ describe('setOptions', () => {
 
 		expect(root?.style.height).toBe('600px');
 	});
+
+	it('updates gridColumns via setOptions', () => {
+		const container = createContainer();
+		const instance = mountTracked(container, INPUT);
+
+		instance.setOptions({
+			gridColumns: [
+				{id: 'name', header: 'Name', width: '2fr'},
+				{id: 'startDate', header: 'Start', width: '100px', field: 'startDate'},
+			],
+		});
+
+		expect(container.querySelector('.gantt-root')).not.toBeNull();
+	});
+
+	it('updates leftPaneWidth via setOptions', () => {
+		const container = createContainer();
+		const instance = mountTracked(container, INPUT);
+
+		instance.setOptions({leftPaneWidth: 400});
+
+		expect(container.querySelector('.gantt-root')).not.toBeNull();
+	});
+
+	it('updates timelineMinWidth via setOptions', () => {
+		const container = createContainer();
+		const instance = mountTracked(container, INPUT);
+
+		instance.setOptions({timelineMinWidth: 300});
+
+		const rightPane = container.querySelector<HTMLElement>('[data-pane="right"]');
+		expect(rightPane?.style.minWidth).toBe('300px');
+	});
+
+	it('updates showAddTaskButton via setOptions', () => {
+		const container = createContainer();
+		const instance = mountTracked(container, INPUT);
+
+		instance.setOptions({showAddTaskButton: false});
+		expect(container.querySelector('.gantt-add-btn')).toBeNull();
+
+		instance.setOptions({showAddTaskButton: true});
+		expect(container.querySelector('.gantt-add-btn')).not.toBeNull();
+	});
+
+	it('does not throw when destroyed twice', () => {
+		const container = createContainer();
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+		instance.destroy();
+		expect(() => {
+			instance.destroy();
+		}).not.toThrow();
+	});
 });

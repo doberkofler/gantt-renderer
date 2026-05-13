@@ -59,4 +59,18 @@ describe('tree utilities', () => {
 		];
 		expect(() => buildTaskTree(broken)).toThrow("kind 'task'");
 	});
+
+	it('throws on parent cycle', () => {
+		const broken: Task[] = [
+			{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-05', percentComplete: 0, kind: 'project', open: true, parent: 3},
+			{id: 2, text: 'B', startDate: '2026-01-01', endDate: '2026-01-03', percentComplete: 0, kind: 'project', open: true, parent: 1},
+			{id: 3, text: 'C', startDate: '2026-01-01', endDate: '2026-01-04', percentComplete: 0, kind: 'project', open: true, parent: 2},
+		];
+		expect(() => buildTaskTree(broken)).toThrow('Parent cycle detected');
+	});
+
+	it('throws on self-referencing parent cycle', () => {
+		const broken: Task[] = [{id: 1, text: 'A', startDate: '2026-01-01', endDate: '2026-01-05', percentComplete: 0, kind: 'project', open: true, parent: 1}];
+		expect(() => buildTaskTree(broken)).toThrow('Parent cycle detected');
+	});
 });

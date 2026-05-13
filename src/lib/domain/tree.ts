@@ -19,6 +19,8 @@ function detectParentCycles(tasks: Task[]): void {
 	const adj = new Map<number, number[]>();
 	for (const task of tasks) {
 		adj.set(task.id, []);
+	}
+	for (const task of tasks) {
 		if (task.parent !== undefined) {
 			const parents = adj.get(task.parent);
 			if (parents !== undefined) {

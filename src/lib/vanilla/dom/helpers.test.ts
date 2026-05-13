@@ -53,4 +53,17 @@ describe('dom helper utilities', () => {
 		css(div, {width: undefined as unknown as string});
 		expect(div.style.width).toBe('');
 	});
+
+	it('creates SVG namespaced element with el()', () => {
+		const circle = el('circle', {fill: 'red', stroke: 'blue'}, 'http://www.w3.org/2000/svg') as SVGElement;
+		expect(circle.namespaceURI).toBe('http://www.w3.org/2000/svg');
+		expect(circle.getAttribute('fill')).toBe('red');
+		expect(circle.getAttribute('stroke')).toBe('blue');
+	});
+
+	it('creates SVG namespaced element with el() and styles', () => {
+		const rect = el('rect', {fill: 'green', style: {stroke: 'black'}}, 'http://www.w3.org/2000/svg') as SVGElement;
+		expect(rect.namespaceURI).toBe('http://www.w3.org/2000/svg');
+		expect(rect.getAttribute('fill')).toBe('green');
+	});
 });

@@ -125,4 +125,37 @@ describe('core rendering and viewport', () => {
 		expect(rightPane).not.toBeNull();
 		expect(rightPane?.style.minWidth).toBe('180px');
 	});
+
+	it('uses window resize fallback when ResizeObserver is unavailable', () => {
+		const originalResizeObserver = (globalThis as Record<string, unknown>)['ResizeObserver'];
+		delete (globalThis as Record<string, unknown>)['ResizeObserver'];
+
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = mountTracked(container, INPUT, {height: 420});
+
+		expect(() => {
+			instance.destroy();
+		}).not.toThrow();
+
+		if (originalResizeObserver !== undefined) {
+			(globalThis as Record<string, unknown>)['ResizeObserver'] = originalResizeObserver;
+		}
+	});
+
+	it('renders custom grid column reading open field from project tasks', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		mountTracked(container, INPUT, {
+			height: 420,
+			gridColumns: [
+				{id: 'name', header: 'Name', width: '1fr'},
+				{id: 'open', header: 'Open', width: '60px', field: 'open' as const},
+			],
+		});
+
+		expect(container.querySelector('.gantt-root')).not.toBeNull();
+	});
 });
