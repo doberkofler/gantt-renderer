@@ -39,6 +39,7 @@ export type GanttState = {
 	endIndex: number;
 	paddingTop: number;
 	paddingBottom: number;
+	showTodayMarker: boolean;
 	showWeekends: boolean;
 	weekendDays: Set<number>;
 	specialDaysByDate: Map<string, ResolvedSpecialDay>;

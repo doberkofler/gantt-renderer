@@ -38,6 +38,44 @@ describe('special days', () => {
 		expect(container.querySelector('.gantt-today-marker')).not.toBeNull();
 	});
 
+	it('does not render today marker when showTodayMarker is false', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const now = new Date();
+		const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5);
+		const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5);
+
+		const chart = new GanttChart(container, {
+			scale: 'day',
+			showTodayMarker: false,
+			viewportStart: start,
+			viewportEnd: end,
+		});
+		chart.update(INPUT);
+
+		expect(container.querySelector('.gantt-today-marker')).toBeNull();
+	});
+
+	it('renders today marker when showTodayMarker is true (default)', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const now = new Date();
+		const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 5);
+		const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5);
+
+		const chart = new GanttChart(container, {
+			scale: 'day',
+			showTodayMarker: true,
+			viewportStart: start,
+			viewportEnd: end,
+		});
+		chart.update(INPUT);
+
+		expect(container.querySelector('.gantt-today-marker')).not.toBeNull();
+	});
+
 	it('renders weekend day backgrounds by default in day scale', () => {
 		const container = document.createElement('div');
 		document.body.append(container);

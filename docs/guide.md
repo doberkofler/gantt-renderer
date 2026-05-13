@@ -83,6 +83,7 @@ All constructor options with their types, defaults, and descriptions.
 | `linkCreationEnabled` | `boolean` | `false` | Enables per-task endpoint handles and drag-to-create-link interactions. |
 | `progressDragEnabled` | `boolean` | `false` | Enables dragging the percent-complete fill inside a task bar to change `percentComplete`. |
 | `showAddTaskButton` | `boolean` | `true` | Shows the add-subtask button (`+`) in the actions column. Set to `false` to hide it.
+| `showTodayMarker` | `boolean` | `true` | Shows a red vertical line marking the current date in the timeline. |
 
 #### Callback options
 

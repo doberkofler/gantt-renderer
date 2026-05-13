@@ -94,6 +94,17 @@ describe('setOptions', () => {
 		expect(container.querySelector('.gantt-root')).not.toBeNull();
 	});
 
+	it('updates showTodayMarker and re-renders timeline', () => {
+		const container = createContainer();
+		const instance = mountTracked(container, INPUT, {scale: 'day'});
+
+		instance.setOptions({showTodayMarker: false});
+		expect(container.querySelector('.gantt-root')).not.toBeNull();
+
+		instance.setOptions({showTodayMarker: true});
+		expect(container.querySelector('.gantt-root')).not.toBeNull();
+	});
+
 	it('updates weekendDays and specialDays', () => {
 		const container = createContainer();
 		const instance = mountTracked(container, INPUT);

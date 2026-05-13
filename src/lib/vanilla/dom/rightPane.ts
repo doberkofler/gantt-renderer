@@ -625,10 +625,10 @@ export function renderRightPane(refs: RightPaneRefs, state: GanttState, cbs: Rig
 		gridCur = nextScaleBoundary(gridCur, scale);
 	}
 
-	// Today marker (render only when within timeline bounds)
+	// Today marker (render only when enabled and within timeline bounds)
 	const todayX = mapper.toX(new Date());
 	const todayLineWidth = 2;
-	if (todayX >= 0 && todayX <= totalWidth - todayLineWidth) {
+	if (state.showTodayMarker && todayX >= 0 && todayX <= totalWidth - todayLineWidth) {
 		const todayLine = el('div');
 		todayLine.className = 'gantt-today-marker';
 		css(todayLine, {

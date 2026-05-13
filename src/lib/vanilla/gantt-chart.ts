@@ -137,6 +137,7 @@ export type GanttOptions = {
 	gridColumns?: GridColumn[];
 	theme?: ThemeMode;
 	showAddTaskButton?: boolean;
+	showTodayMarker?: boolean;
 };
 
 export type GanttInstance<TTaskData = never, TLinkData = never> = {
@@ -546,6 +547,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 
 		const hasRightPaneChange =
 			opts.scale !== undefined ||
+			opts.showTodayMarker !== undefined ||
 			opts.showWeekends !== undefined ||
 			opts.weekendDays !== undefined ||
 			opts.specialDays !== undefined ||
@@ -775,6 +777,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			paddingTop,
 			paddingBottom,
 			showWeekends: this.#opts.showWeekends ?? true,
+			showTodayMarker: this.#opts.showTodayMarker ?? true,
 			weekendDays: this.#weekendDays,
 			specialDaysByDate: this.#specialDaysByDate,
 			locale: this.#locale,
