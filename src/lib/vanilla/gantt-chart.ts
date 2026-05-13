@@ -155,8 +155,8 @@ export type GanttInstance<TTaskData = never, TLinkData = never> = {
 	setOptions: (opts: Partial<GanttOptions>) => void;
 	setCallbacks: (cbs: GanttCallbacks<TTaskData, TLinkData>) => void;
 	select: (id: number | null, fireCallback?: boolean) => void;
-	collapseAll: () => void;
-	expandAll: () => void;
+	collapseAll: (fireCallback?: boolean) => void;
+	expandAll: (fireCallback?: boolean) => void;
 	destroy: () => void;
 };
 
@@ -594,10 +594,10 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 * Programmatically selects or deselects a task.
 	 *
 	 * @param id - The task ID to select, or `null` to clear the selection.
-	 * @param fireCallback - Whether to fire the `onTaskClick` callback. Default `true`.
+	 * @param fireCallback - Whether to fire the `onTaskClick` callback. Default `false`.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public select(id: number | null, fireCallback = true): void {
+	public select(id: number | null, fireCallback = false): void {
 		this.#assertAlive();
 		if (id === null) {
 			this.#selectedId = null;
@@ -619,11 +619,12 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	/**
 	 * Collapses all expandable groups in the task tree.
 	 *
+	 * @param fireCallback - Whether to fire the `onExpandCollapseAll` callback. Default `false`.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public collapseAll(): void {
+	public collapseAll(fireCallback = false): void {
 		this.#assertAlive();
-		const changed = this.#buildExpandCollapseAllPayload(false);
+		const changed = fireCallback ? this.#buildExpandCollapseAllPayload(false) : [];
 		this.#expandedIds.clear();
 		if (this.#rafPending && this.#rafId !== null) {
 			cancelAnimationFrame(this.#rafId);
@@ -639,11 +640,12 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	/**
 	 * Expands all expandable groups in the task tree.
 	 *
+	 * @param fireCallback - Whether to fire the `onExpandCollapseAll` callback. Default `false`.
 	 * @throws {GanttError} When the instance has been destroyed.
 	 */
-	public expandAll(): void {
+	public expandAll(fireCallback = false): void {
 		this.#assertAlive();
-		const changed = this.#buildExpandCollapseAllPayload(true);
+		const changed = fireCallback ? this.#buildExpandCollapseAllPayload(true) : [];
 		this.#expandedIds.clear();
 		if (this.#input !== null) {
 			for (const id of getExpandableTaskIds(this.#input.tasks)) {
@@ -905,13 +907,13 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 		if (expandBtn !== null) {
 			expandBtn.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.expandAll();
+				this.expandAll(true);
 			});
 		}
 		if (collapseBtn !== null) {
 			collapseBtn.addEventListener('click', (e) => {
 				e.stopPropagation();
-				this.collapseAll();
+				this.collapseAll(true);
 			});
 		}
 	}

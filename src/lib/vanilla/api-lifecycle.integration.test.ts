@@ -81,7 +81,7 @@ describe('api lifecycle', () => {
 
 		instance.collapseAll();
 		onExpandCollapseAll.mockClear();
-		instance.expandAll();
+		instance.expandAll(true);
 
 		expect(onExpandCollapseAll).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -99,7 +99,7 @@ describe('api lifecycle', () => {
 		instance.setCallbacks({onExpandCollapseAll});
 		instance.update(INPUT);
 
-		instance.collapseAll();
+		instance.collapseAll(true);
 
 		expect(onExpandCollapseAll).toHaveBeenCalledWith(
 			expect.objectContaining({
