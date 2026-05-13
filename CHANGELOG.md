@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/doberkofler/gantt-renderer/compare/v0.9.0...v0.10.0) (2026-05-13)
+
+
+### Features
+
+* **gantt:** add onExpandCollapse/onExpandCollapseAll callbacks and header +/− controls ([652d626](https://github.com/doberkofler/gantt-renderer/commit/652d6261b7d6cdfd74c07acebb54b84708a155b1))
+
 # [0.9.0](https://github.com/doberkofler/gantt-renderer/compare/v0.8.0...v0.9.0) (2026-05-13)
 
 
