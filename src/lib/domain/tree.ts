@@ -1,4 +1,4 @@
-import {type ZodTaskInferred as Task} from '../validation/schemas.ts';
+import {type Task as GenTask, type ZodTaskInferred as Task} from '../validation/schemas.ts';
 import {GanttError} from '../errors.ts';
 
 /**
@@ -8,7 +8,7 @@ import {GanttError} from '../errors.ts';
  * Produced by {@link buildTaskTree}; consumed by virtualized row rendering
  * and the timeline layout engine.
  */
-export type TaskNode = Task & {
+export type TaskNode = GenTask<Record<string, unknown>> & {
 	/** Array of child task nodes in the tree hierarchy. */
 	children: TaskNode[];
 	/** 0 = root */

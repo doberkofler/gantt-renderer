@@ -1,6 +1,6 @@
 import {formatDisplayDate} from '../../domain/dateMath.ts';
 import {type ChartLocale, EN_US_LABELS} from '../../locale.ts';
-import {type ZodTaskInferred as Task} from '../../validation/schemas.ts';
+import {type Task as GenTask} from '../../validation/schemas.ts';
 import {type TaskNode} from '../../domain/tree.ts';
 
 /**
@@ -8,7 +8,7 @@ import {type TaskNode} from '../../domain/tree.ts';
  * Use when referencing task fields in grid column schemas that apply
  * across a heterogeneous set of task kinds.
  */
-export type TaskDataField = keyof Task | 'endDate' | 'percentComplete' | 'open';
+export type TaskDataField = keyof GenTask | 'endDate' | 'percentComplete' | 'open';
 
 export type GridColumn = {
 	id: string;
@@ -17,7 +17,7 @@ export type GridColumn = {
 	align?: 'left' | 'center' | 'right';
 	visible?: boolean;
 	field?: TaskDataField;
-	format?: (value: unknown, task: Task, row: TaskNode, locale: ChartLocale) => string;
+	format?: (value: unknown, task: GenTask<Record<string, unknown>>, row: TaskNode, locale: ChartLocale) => string;
 };
 
 export const DEFAULT_GRID_COLUMNS: GridColumn[] = [

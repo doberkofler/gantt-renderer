@@ -164,29 +164,7 @@ export type ZodTaskInferred = z.infer<typeof TaskSchema>;
 /** @internal */
 export type ZodLinkInferred = z.infer<typeof LinkSchema>;
 
-/** @internal */
-type ZodTaskInput = z.input<typeof TaskSchema>;
-/** @internal */
-type ZodLinkInput = z.input<typeof LinkSchema>;
-
-/** Raw input version of a task — uses zod's input shape where fields with defaults are optional. */
-type TaskRaw<TData = never> = WithoutData<ZodTaskInput> & WithData<TData>;
-/** Raw input version of a link — uses zod's input shape where fields with defaults are optional. */
-type LinkRaw<TData = never> = WithoutData<ZodLinkInput> & WithData<TData>;
-
 // ─── Public generic types ───
-
-/**
- * Conditional data property helper.
- * When `T` is `never`, adds nothing. Otherwise adds `{data?: T | undefined}`.
- */
-type WithData<T> = [T] extends [never] ? Record<never, never> : {data?: T | undefined};
-
-/**
- * Distributes `Omit` over union members so variant-specific properties
- * (e.g. `endDate`, `percentComplete`, `open`) are preserved in discriminated unions.
- */
-type WithoutData<T> = T extends unknown ? Omit<T, 'data'> : never;
 
 /**
  * A task in the Gantt chart &mdash; discriminated by `kind` into leaf tasks,
@@ -209,14 +187,66 @@ type WithoutData<T> = T extends unknown ? Omit<T, 'data'> : never;
  * };
  * ```
  */
-export type Task<TData = never> = WithoutData<ZodTaskInferred> & WithData<TData>;
+export type Task<TData = never> =
+	| {
+			id: number;
+			text: string;
+			startDate: string;
+			parent?: number | undefined;
+			color?: string | undefined;
+			readonly?: boolean | undefined;
+			data?: unknown;
+			kind: 'task';
+			endDate: string;
+			percentComplete: number;
+	  }
+	| {
+			id: number;
+			text: string;
+			startDate: string;
+			parent?: number | undefined;
+			color?: string | undefined;
+			readonly?: boolean | undefined;
+			data?: unknown;
+			kind: 'project';
+			endDate: string;
+			percentComplete: number;
+			open: boolean;
+	  }
+	| {
+			id: number;
+			text: string;
+			startDate: string;
+			parent?: number | undefined;
+			color?: string | undefined;
+			readonly?: boolean | undefined;
+			data?: unknown;
+			kind: 'milestone';
+	  } extends infer _U
+	? _U extends unknown
+		? Omit<_U, 'data'> &
+				([TData] extends [never]
+					? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+						Record<never, never>
+					: {data?: TData | undefined})
+		: never
+	: never;
 
 /**
  * A dependency link between two tasks.
  *
  * @param TData - The type of the optional `data` property. Defaults to `never`.
  */
-export type Link<TData = never> = WithoutData<ZodLinkInferred> & WithData<TData>;
+export type Link<TData = never> = {
+	id: number;
+	source: number;
+	target: number;
+	type: LinkType;
+	readonly?: boolean | undefined;
+} & ([TData] extends [never]
+	? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+		Record<never, never>
+	: {data?: TData | undefined});
 
 /**
  * The complete input data for the chart.
@@ -242,15 +272,73 @@ export type _GanttInputZod = z.infer<typeof GanttInputSchema>;
  * @param TLinkData - The type of the `data` property on links. Defaults to `never`.
  */
 export type GanttInputRaw<TTaskData = never, TLinkData = never> = {
-	tasks: readonly TaskRaw<TTaskData>[];
-	links?: readonly LinkRaw<TLinkData>[];
+	tasks: readonly (
+		| {
+				id: number;
+				text: string;
+				startDate: string;
+				parent?: number | undefined;
+				color?: string | undefined;
+				readonly?: boolean | undefined;
+				data?: unknown;
+				kind: 'task';
+				endDate: string;
+				percentComplete?: number | undefined;
+		  }
+		| {
+				id: number;
+				text: string;
+				startDate: string;
+				parent?: number | undefined;
+				color?: string | undefined;
+				readonly?: boolean | undefined;
+				data?: unknown;
+				kind: 'project';
+				endDate: string;
+				percentComplete?: number | undefined;
+				open?: boolean | undefined;
+		  }
+		| {
+				id: number;
+				text: string;
+				startDate: string;
+				parent?: number | undefined;
+				color?: string | undefined;
+				readonly?: boolean | undefined;
+				data?: unknown;
+				kind: 'milestone';
+		  } extends infer _RU
+		? _RU extends unknown
+			? Omit<_RU, 'data'> &
+					([TTaskData] extends [never]
+						? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+							Record<never, never>
+						: {data?: TTaskData | undefined})
+			: never
+		: never)[];
+	links?: readonly ({
+		id: number;
+		source: number;
+		target: number;
+		type?: LinkType | undefined;
+		readonly?: boolean | undefined;
+	} & ([TLinkData] extends [never]
+		? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+			Record<never, never>
+		: {data?: TLinkData | undefined}))[];
 };
 /** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
-export type LinkType = z.infer<typeof LinkTypeSchema>;
+export type LinkType = 'FS' | 'SS' | 'FF' | 'SF';
 /** Allowed task kind values: `'task'`, `'project'`, or `'milestone'`. */
-export type TaskKind = z.infer<typeof TaskKindSchema>;
-export type SpecialDayKind = z.infer<typeof SpecialDayKindSchema>;
-export type SpecialDay = z.infer<typeof SpecialDaySchema>;
+export type TaskKind = 'task' | 'project' | 'milestone';
+export type SpecialDayKind = 'holiday' | 'custom';
+export type SpecialDay = {
+	/** ISO date: YYYY-MM-DD */
+	date: string;
+	kind: SpecialDayKind;
+	label?: string | undefined;
+	className?: string | undefined;
+};
 /** @internal */
 export type TaskLeafInferred = z.infer<typeof TaskLeafSchema>;
 /** @internal */
