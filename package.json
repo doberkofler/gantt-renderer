@@ -33,7 +33,195 @@
 			"import": "./dist/index.mjs",
 			"default": "./dist/index.mjs"
 		},
-		"./styles/gantt.css": "./dist/styles/gantt.css"
+		"./styles/gantt.css": "./dist/styles/gantt.css",
+		"./locales/en": {
+			"types": "./dist/locales/en.d.mts",
+			"import": "./dist/locales/en.mjs"
+		},
+		"./locales/zh-Hans": {
+			"types": "./dist/locales/zh-Hans.d.mts",
+			"import": "./dist/locales/zh-Hans.mjs"
+		},
+		"./locales/zh-Hant": {
+			"types": "./dist/locales/zh-Hant.d.mts",
+			"import": "./dist/locales/zh-Hant.mjs"
+		},
+		"./locales/es": {
+			"types": "./dist/locales/es.d.mts",
+			"import": "./dist/locales/es.mjs"
+		},
+		"./locales/pt-BR": {
+			"types": "./dist/locales/pt-BR.d.mts",
+			"import": "./dist/locales/pt-BR.mjs"
+		},
+		"./locales/pt-PT": {
+			"types": "./dist/locales/pt-PT.d.mts",
+			"import": "./dist/locales/pt-PT.mjs"
+		},
+		"./locales/fr": {
+			"types": "./dist/locales/fr.d.mts",
+			"import": "./dist/locales/fr.mjs"
+		},
+		"./locales/de": {
+			"types": "./dist/locales/de.d.mts",
+			"import": "./dist/locales/de.mjs"
+		},
+		"./locales/ru": {
+			"types": "./dist/locales/ru.d.mts",
+			"import": "./dist/locales/ru.mjs"
+		},
+		"./locales/ja": {
+			"types": "./dist/locales/ja.d.mts",
+			"import": "./dist/locales/ja.mjs"
+		},
+		"./locales/ko": {
+			"types": "./dist/locales/ko.d.mts",
+			"import": "./dist/locales/ko.mjs"
+		},
+		"./locales/ar": {
+			"types": "./dist/locales/ar.d.mts",
+			"import": "./dist/locales/ar.mjs"
+		},
+		"./locales/hi": {
+			"types": "./dist/locales/hi.d.mts",
+			"import": "./dist/locales/hi.mjs"
+		},
+		"./locales/id": {
+			"types": "./dist/locales/id.d.mts",
+			"import": "./dist/locales/id.mjs"
+		},
+		"./locales/th": {
+			"types": "./dist/locales/th.d.mts",
+			"import": "./dist/locales/th.mjs"
+		},
+		"./locales/tr": {
+			"types": "./dist/locales/tr.d.mts",
+			"import": "./dist/locales/tr.mjs"
+		},
+		"./locales/it": {
+			"types": "./dist/locales/it.d.mts",
+			"import": "./dist/locales/it.mjs"
+		},
+		"./locales/pl": {
+			"types": "./dist/locales/pl.d.mts",
+			"import": "./dist/locales/pl.mjs"
+		},
+		"./locales/nl": {
+			"types": "./dist/locales/nl.d.mts",
+			"import": "./dist/locales/nl.mjs"
+		},
+		"./locales/sv": {
+			"types": "./dist/locales/sv.d.mts",
+			"import": "./dist/locales/sv.mjs"
+		},
+		"./locales/da": {
+			"types": "./dist/locales/da.d.mts",
+			"import": "./dist/locales/da.mjs"
+		},
+		"./locales/nb": {
+			"types": "./dist/locales/nb.d.mts",
+			"import": "./dist/locales/nb.mjs"
+		},
+		"./locales/fi": {
+			"types": "./dist/locales/fi.d.mts",
+			"import": "./dist/locales/fi.mjs"
+		},
+		"./locales/uk": {
+			"types": "./dist/locales/uk.d.mts",
+			"import": "./dist/locales/uk.mjs"
+		},
+		"./locales/ro": {
+			"types": "./dist/locales/ro.d.mts",
+			"import": "./dist/locales/ro.mjs"
+		},
+		"./locales/cs": {
+			"types": "./dist/locales/cs.d.mts",
+			"import": "./dist/locales/cs.mjs"
+		},
+		"./locales/hu": {
+			"types": "./dist/locales/hu.d.mts",
+			"import": "./dist/locales/hu.mjs"
+		},
+		"./locales/el": {
+			"types": "./dist/locales/el.d.mts",
+			"import": "./dist/locales/el.mjs"
+		},
+		"./locales/sk": {
+			"types": "./dist/locales/sk.d.mts",
+			"import": "./dist/locales/sk.mjs"
+		},
+		"./locales/bg": {
+			"types": "./dist/locales/bg.d.mts",
+			"import": "./dist/locales/bg.mjs"
+		},
+		"./locales/hr": {
+			"types": "./dist/locales/hr.d.mts",
+			"import": "./dist/locales/hr.mjs"
+		},
+		"./locales/sr": {
+			"types": "./dist/locales/sr.d.mts",
+			"import": "./dist/locales/sr.mjs"
+		},
+		"./locales/lt": {
+			"types": "./dist/locales/lt.d.mts",
+			"import": "./dist/locales/lt.mjs"
+		},
+		"./locales/lv": {
+			"types": "./dist/locales/lv.d.mts",
+			"import": "./dist/locales/lv.mjs"
+		},
+		"./locales/et": {
+			"types": "./dist/locales/et.d.mts",
+			"import": "./dist/locales/et.mjs"
+		},
+		"./locales/sl": {
+			"types": "./dist/locales/sl.d.mts",
+			"import": "./dist/locales/sl.mjs"
+		},
+		"./locales/be": {
+			"types": "./dist/locales/be.d.mts",
+			"import": "./dist/locales/be.mjs"
+		},
+		"./locales/sq": {
+			"types": "./dist/locales/sq.d.mts",
+			"import": "./dist/locales/sq.mjs"
+		},
+		"./locales/mk": {
+			"types": "./dist/locales/mk.d.mts",
+			"import": "./dist/locales/mk.mjs"
+		},
+		"./locales/ca": {
+			"types": "./dist/locales/ca.d.mts",
+			"import": "./dist/locales/ca.mjs"
+		},
+		"./locales/eu": {
+			"types": "./dist/locales/eu.d.mts",
+			"import": "./dist/locales/eu.mjs"
+		},
+		"./locales/cy": {
+			"types": "./dist/locales/cy.d.mts",
+			"import": "./dist/locales/cy.mjs"
+		},
+		"./locales/ga": {
+			"types": "./dist/locales/ga.d.mts",
+			"import": "./dist/locales/ga.mjs"
+		},
+		"./locales/mt": {
+			"types": "./dist/locales/mt.d.mts",
+			"import": "./dist/locales/mt.mjs"
+		},
+		"./locales/load": {
+			"types": "./dist/locales/load.d.mts",
+			"import": "./dist/locales/load.mjs"
+		},
+		"./locales/registry": {
+			"types": "./dist/locales/registry.d.mts",
+			"import": "./dist/locales/registry.mjs"
+		},
+		"./locales/all": {
+			"types": "./dist/locales/all.d.mts",
+			"import": "./dist/locales/all.mjs"
+		}
 	},
 	"scripts": {
 		"typecheck": "tsc --noEmit",

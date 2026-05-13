@@ -17,9 +17,9 @@ import {
 	startOfWeek,
 	startOfYear,
 } from './dateMath.ts';
-import {CHART_LOCALE_EN_US, type ChartLocale} from '../locale.ts';
+import {type ChartLocale} from '../locale.ts';
 
-const EN_US: ChartLocale = CHART_LOCALE_EN_US;
+const EN_US: ChartLocale = {code: 'en', weekStartsOn: 0, weekNumbering: 'iso', weekendDays: [0, 6]};
 
 describe('dateMath utilities', () => {
 	it('parses valid ISO date and throws on invalid date', () => {

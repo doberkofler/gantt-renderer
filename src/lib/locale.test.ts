@@ -1,14 +1,5 @@
 import {describe, expect, it} from 'vitest';
 import {
-	CHART_LOCALE_EN_US,
-	CHART_LOCALE_EN_GB,
-	CHART_LOCALE_DE_DE,
-	CHART_LOCALE_FR_FR,
-	CHART_LOCALE_ES_ES,
-	CHART_LOCALE_IT_IT,
-	CHART_LOCALE_PT_PT,
-	CHART_LOCALE_ZH_CN,
-	CHART_LOCALE_JA_JP,
 	EN_US_LABELS,
 	resolveChartLocale,
 	deriveWeekStartsOn,
@@ -19,6 +10,7 @@ import {
 	type ChartLocale,
 	type LocaleLabelKey,
 } from './locale.ts';
+import {ALL_LOCALES} from './locales/all.ts';
 
 describe('EN_US_LABELS', () => {
 	it('covers all LocaleLabelKey entries', () => {
@@ -48,24 +40,14 @@ describe('EN_US_LABELS', () => {
 	});
 });
 
-describe('CHART_LOCALE_EN_US', () => {
-	it('has code en-US', () => {
-		expect(CHART_LOCALE_EN_US.code).toBe('en-US');
-	});
-
-	it('has ISO week numbering for backward compat with pre-i18n rendering', () => {
-		expect(CHART_LOCALE_EN_US.weekStartsOn).toBe(0);
-		expect(CHART_LOCALE_EN_US.weekNumbering).toBe('iso');
-	});
-
-	it('has EN_US_LABELS as labels', () => {
-		expect(CHART_LOCALE_EN_US.labels).toBe(EN_US_LABELS);
-	});
-});
-
 describe('resolveChartLocale', () => {
-	it('returns CHART_LOCALE_EN_US when undefined', () => {
-		expect(resolveChartLocale(undefined)).toBe(CHART_LOCALE_EN_US);
+	it('returns a default en locale when undefined', () => {
+		const result = resolveChartLocale(undefined);
+		expect(result.code).toBe('en');
+		expect(result.weekStartsOn).toBe(0);
+		expect(result.weekNumbering).toBe('iso');
+		expect(result.weekendDays).toStrictEqual([0, 6]);
+		expect(result.labels?.ariaTask).toBe('Task {0}');
 	});
 
 	it('resolves from a BCP 47 string (de-DE → ISO/Monday)', () => {
@@ -96,13 +78,13 @@ describe('resolveChartLocale', () => {
 	});
 
 	it('preserves labels when provided', () => {
-		const input: ChartLocale = {code: 'en-US', labels: {addSubtaskTitle: 'Add child'}};
+		const input: ChartLocale = {code: 'en', labels: {addSubtaskTitle: 'Add child'}};
 		const locale = resolveChartLocale(input);
 		expect(locale.labels?.addSubtaskTitle).toBe('Add child');
 	});
 
 	it('does not set labels when not provided', () => {
-		const input: ChartLocale = {code: 'en-US'};
+		const input: ChartLocale = {code: 'en'};
 		const locale = resolveChartLocale(input);
 		expect(locale.labels).toBeUndefined();
 	});
@@ -293,20 +275,65 @@ describe('shipped locales', () => {
 		'columnQuarter',
 	];
 
-	const SHIPPED_LOCALES: ChartLocale[] = [
-		CHART_LOCALE_EN_US,
-		CHART_LOCALE_EN_GB,
-		CHART_LOCALE_DE_DE,
-		CHART_LOCALE_FR_FR,
-		CHART_LOCALE_ES_ES,
-		CHART_LOCALE_IT_IT,
-		CHART_LOCALE_PT_PT,
-		CHART_LOCALE_ZH_CN,
-		CHART_LOCALE_JA_JP,
+	const EXPECTED_CODES = [
+		'en',
+		'zh-Hans',
+		'zh-Hant',
+		'es',
+		'pt-BR',
+		'pt-PT',
+		'fr',
+		'de',
+		'ru',
+		'ja',
+		'ko',
+		'ar',
+		'hi',
+		'id',
+		'th',
+		'tr',
+		'it',
+		'pl',
+		'nl',
+		'sv',
+		'da',
+		'nb',
+		'fi',
+		'uk',
+		'ro',
+		'cs',
+		'hu',
+		'el',
+		'sk',
+		'bg',
+		'hr',
+		'sr',
+		'lt',
+		'lv',
+		'et',
+		'sl',
+		'be',
+		'sq',
+		'mk',
+		'ca',
+		'eu',
+		'cy',
+		'ga',
+		'mt',
 	];
 
+	it('contains all expected locale codes', () => {
+		const codes = new Set(EXPECTED_CODES);
+		for (const code of ALL_LOCALES.keys()) {
+			expect(codes.has(code), `unexpected locale code: ${code}`).toBe(true);
+		}
+		for (const code of EXPECTED_CODES) {
+			expect(ALL_LOCALES.has(code), `missing locale code: ${code}`).toBe(true);
+		}
+	});
+
 	it('each shipped locale covers all LocaleLabelKey entries', () => {
-		for (const locale of SHIPPED_LOCALES) {
+		for (const locale of ALL_LOCALES.values()) {
 			for (const key of ALL_LABEL_KEYS) {
 				expect(locale.labels?.[key], `${locale.code}: missing label key "${key}"`).toBeTypeOf('string');
 			}
@@ -314,13 +341,13 @@ describe('shipped locales', () => {
 	});
 
 	it('each shipped locale has valid weekStartsOn', () => {
-		for (const locale of SHIPPED_LOCALES) {
+		for (const locale of ALL_LOCALES.values()) {
 			expect([0, 1, 6], `${locale.code}: invalid weekStartsOn`).toContain(locale.weekStartsOn);
 		}
 	});
 
 	it('each shipped locale has valid weekendDays', () => {
-		for (const locale of SHIPPED_LOCALES) {
+		for (const locale of ALL_LOCALES.values()) {
 			expect(locale.weekendDays, `${locale.code}: missing weekendDays`).toBeDefined();
 			expect(locale.weekendDays?.length, `${locale.code}: empty weekendDays`).toBeGreaterThan(0);
 			for (const day of locale.weekendDays ?? []) {
@@ -330,18 +357,8 @@ describe('shipped locales', () => {
 		}
 	});
 
-	it('en-GB uses Monday start and ISO numbering', () => {
-		expect(CHART_LOCALE_EN_GB.weekStartsOn).toBe(1);
-		expect(CHART_LOCALE_EN_GB.weekNumbering).toBe('iso');
-	});
-
-	it('de-DE uses Monday start and ISO numbering', () => {
-		expect(CHART_LOCALE_DE_DE.weekStartsOn).toBe(1);
-		expect(CHART_LOCALE_DE_DE.weekNumbering).toBe('iso');
-	});
-
 	it('resolveChartLocale preserves labels from shipped locales', () => {
-		for (const locale of SHIPPED_LOCALES) {
+		for (const locale of ALL_LOCALES.values()) {
 			const resolved = resolveChartLocale(locale);
 			expect(resolved.code).toBe(locale.code);
 			for (const key of ALL_LABEL_KEYS) {

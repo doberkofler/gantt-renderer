@@ -1,21 +1,48 @@
-import {
-	GanttChart,
-	type GanttCallbacks,
-	type GanttInstance,
-	type GanttOptions,
-	type ThemeMode,
-	type TimeScale,
-	CHART_LOCALE_EN_US,
-	CHART_LOCALE_EN_GB,
-	CHART_LOCALE_DE_DE,
-	CHART_LOCALE_FR_FR,
-	CHART_LOCALE_ES_ES,
-	CHART_LOCALE_IT_IT,
-	CHART_LOCALE_PT_PT,
-	CHART_LOCALE_ZH_CN,
-	CHART_LOCALE_JA_JP,
-	type ChartLocale,
-} from '../lib/index.ts';
+import {CHART_LOCALE as EN} from '../lib/locales/en.ts';
+import {CHART_LOCALE as ZH_HANS} from '../lib/locales/zh-Hans.ts';
+import {CHART_LOCALE as ZH_HANT} from '../lib/locales/zh-Hant.ts';
+import {CHART_LOCALE as ES} from '../lib/locales/es.ts';
+import {CHART_LOCALE as PT_BR} from '../lib/locales/pt-BR.ts';
+import {CHART_LOCALE as PT_PT} from '../lib/locales/pt-PT.ts';
+import {CHART_LOCALE as FR} from '../lib/locales/fr.ts';
+import {CHART_LOCALE as DE} from '../lib/locales/de.ts';
+import {CHART_LOCALE as RU} from '../lib/locales/ru.ts';
+import {CHART_LOCALE as JA} from '../lib/locales/ja.ts';
+import {CHART_LOCALE as KO} from '../lib/locales/ko.ts';
+import {CHART_LOCALE as AR} from '../lib/locales/ar.ts';
+import {CHART_LOCALE as HI} from '../lib/locales/hi.ts';
+import {CHART_LOCALE as ID} from '../lib/locales/id.ts';
+import {CHART_LOCALE as TH} from '../lib/locales/th.ts';
+import {CHART_LOCALE as TR} from '../lib/locales/tr.ts';
+import {CHART_LOCALE as IT} from '../lib/locales/it.ts';
+import {CHART_LOCALE as PL} from '../lib/locales/pl.ts';
+import {CHART_LOCALE as NL} from '../lib/locales/nl.ts';
+import {CHART_LOCALE as SV} from '../lib/locales/sv.ts';
+import {CHART_LOCALE as DA} from '../lib/locales/da.ts';
+import {CHART_LOCALE as NB} from '../lib/locales/nb.ts';
+import {CHART_LOCALE as FI} from '../lib/locales/fi.ts';
+import {CHART_LOCALE as UK} from '../lib/locales/uk.ts';
+import {CHART_LOCALE as RO} from '../lib/locales/ro.ts';
+import {CHART_LOCALE as CS} from '../lib/locales/cs.ts';
+import {CHART_LOCALE as HU} from '../lib/locales/hu.ts';
+import {CHART_LOCALE as EL} from '../lib/locales/el.ts';
+import {CHART_LOCALE as SK} from '../lib/locales/sk.ts';
+import {CHART_LOCALE as BG} from '../lib/locales/bg.ts';
+import {CHART_LOCALE as HR} from '../lib/locales/hr.ts';
+import {CHART_LOCALE as SR} from '../lib/locales/sr.ts';
+import {CHART_LOCALE as LT} from '../lib/locales/lt.ts';
+import {CHART_LOCALE as LV} from '../lib/locales/lv.ts';
+import {CHART_LOCALE as ET} from '../lib/locales/et.ts';
+import {CHART_LOCALE as SL} from '../lib/locales/sl.ts';
+import {CHART_LOCALE as BE} from '../lib/locales/be.ts';
+import {CHART_LOCALE as SQ} from '../lib/locales/sq.ts';
+import {CHART_LOCALE as MK} from '../lib/locales/mk.ts';
+import {CHART_LOCALE as CA} from '../lib/locales/ca.ts';
+import {CHART_LOCALE as EU} from '../lib/locales/eu.ts';
+import {CHART_LOCALE as CY} from '../lib/locales/cy.ts';
+import {CHART_LOCALE as GA} from '../lib/locales/ga.ts';
+import {CHART_LOCALE as MT} from '../lib/locales/mt.ts';
+import {GanttChart, type GanttCallbacks, type GanttInstance, type GanttOptions, type ThemeMode, type TimeScale, type ChartLocale} from '../lib/index.ts';
 import {RAW_INPUT, type DemoTaskData, type DemoLinkData} from './data.ts';
 import '../styles/gantt.css';
 
@@ -43,15 +70,50 @@ const SUPPORTED_SCALES: Record<string, TimeScale> = {
 const ZOOM_LEVELS: TimeScale[] = ['year', 'quarter', 'month', 'week', 'day', 'hour'];
 
 const DEMO_LOCALES: Record<string, ChartLocale> = {
-	'en-US': CHART_LOCALE_EN_US,
-	'en-GB': CHART_LOCALE_EN_GB,
-	'de-DE': CHART_LOCALE_DE_DE,
-	'fr-FR': CHART_LOCALE_FR_FR,
-	'es-ES': CHART_LOCALE_ES_ES,
-	'it-IT': CHART_LOCALE_IT_IT,
-	'pt-PT': CHART_LOCALE_PT_PT,
-	'zh-CN': CHART_LOCALE_ZH_CN,
-	'ja-JP': CHART_LOCALE_JA_JP,
+	en: EN,
+	'zh-Hans': ZH_HANS,
+	'zh-Hant': ZH_HANT,
+	es: ES,
+	'pt-BR': PT_BR,
+	'pt-PT': PT_PT,
+	fr: FR,
+	de: DE,
+	ru: RU,
+	ja: JA,
+	ko: KO,
+	ar: AR,
+	hi: HI,
+	id: ID,
+	th: TH,
+	tr: TR,
+	it: IT,
+	pl: PL,
+	nl: NL,
+	sv: SV,
+	da: DA,
+	nb: NB,
+	fi: FI,
+	uk: UK,
+	ro: RO,
+	cs: CS,
+	hu: HU,
+	el: EL,
+	sk: SK,
+	bg: BG,
+	hr: HR,
+	sr: SR,
+	lt: LT,
+	lv: LV,
+	et: ET,
+	sl: SL,
+	be: BE,
+	sq: SQ,
+	mk: MK,
+	ca: CA,
+	eu: EU,
+	cy: CY,
+	ga: GA,
+	mt: MT,
 };
 
 type DemoControlState = {

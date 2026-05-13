@@ -2,7 +2,9 @@ import {vi} from 'vitest';
 import {type GanttState} from '../state.ts';
 import {type LeftPaneCallbacks} from './leftPane.ts';
 import {type TaskNode} from '../../domain/tree.ts';
-import {CHART_LOCALE_EN_US} from '../../locale.ts';
+import {type ChartLocale} from '../../locale.ts';
+
+const LOCALE_EN: ChartLocale = {code: 'en', weekStartsOn: 0, weekNumbering: 'iso', weekendDays: [0, 6]};
 
 export function mockState(overrides: Partial<GanttState> = {}): GanttState {
 	return {
@@ -26,7 +28,7 @@ export function mockState(overrides: Partial<GanttState> = {}): GanttState {
 		showWeekends: true,
 		weekendDays: new Set([0, 6]),
 		specialDaysByDate: new Map(),
-		locale: CHART_LOCALE_EN_US,
+		locale: LOCALE_EN,
 		...overrides,
 	} as GanttState;
 }

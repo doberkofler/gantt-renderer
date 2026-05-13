@@ -7,6 +7,7 @@ For a quick overview, see the [README](../README.md).
 
 ```ts
 import {GanttChart} from 'gantt-renderer';
+import {CHART_LOCALE} from 'gantt-renderer/locales/en';
 import 'gantt-renderer/styles/gantt.css';
 
 const rawData = {
@@ -34,6 +35,7 @@ const rawData = {
 
 const instance = new GanttChart(document.getElementById('chart')!, {
 	scale: 'day',
+	locale: CHART_LOCALE,
 });
 instance.update(rawData);
 ```
@@ -706,6 +708,10 @@ export type ChartLocale = {
 };
 ```
 
+Pre-built locales with translated labels are available as separate subpath exports (see
+[Built-in locales](#built-in-locales) below). Pass a `ChartLocale` object from a subpath
+import, or pass a BCP 47 string for automatic calendar derivation with English fallback labels.
+
 When a plain string is passed, `weekStartsOn`, `weekNumbering`, and `weekendDays` are derived from
 CLDR conventions using `Intl.Locale.getWeekInfo()` (with a built-in fallback mapping table for
 Firefox and older runtimes).
@@ -744,7 +750,7 @@ const instance = new GanttChart(container, {locale: deLocale});
 instance.update(input);
 ```
 
-When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conventions).
+When omitted, the default is English labels with US week conventions (equivalent to `import {CHART_LOCALE} from 'gantt-renderer/locales/en'`).
 
 **Label keys** (`LocaleLabelKey`):
 
@@ -759,14 +765,12 @@ When omitted, the default is `CHART_LOCALE_EN_US` (English labels, US week conve
 | `columnQuarter` | `Q` | Quarter prefix in time header |
 
 Aria-label templates use `{0}` as the task name placeholder. Only the keys you override in
-`labels` are replaced; missing keys fall back to `EN_US_LABELS`.
+`labels` are replaced; missing keys fall back to English labels.
 
 **Exported locale utilities:**
 
 ```ts
 import {
-	CHART_LOCALE_EN_US,   // default ChartLocale
-	EN_US_LABELS,         // fallback label record
 	resolveChartLocale,   // ChartLocale | string → ChartLocale
 	deriveWeekStartsOn,   // BCP 47 → 0|1|6
 	deriveWeekNumbering,  // BCP 47 → 'iso'|'us'|'simple'
@@ -774,6 +778,11 @@ import {
 	formatWeekNumber,     // Date × scheme → number
 	formatLabel,          // template × arg → string
 } from 'gantt-renderer';
+
+// Locale objects come from subpath exports:
+import {CHART_LOCALE, EN_US_LABELS} from 'gantt-renderer/locales/en';
+// import {CHART_LOCALE} from 'gantt-renderer/locales/de';
+// import {CHART_LOCALE} from 'gantt-renderer/locales/fr';
 ```
 
 **Week numbering schemes:**
@@ -787,36 +796,59 @@ The `weekendDays` option overrides the locale default for non-standard corporate
 
 #### Built-in locales
 
-The library ships with nine prebuilt `ChartLocale` constants covering common languages:
+Locales are available as separate subpath exports, keeping the bundle size small by
+letting you import only the locales you need.
 
-| Constant | Code | Language |
-|---|---|---|
-| `CHART_LOCALE_EN_US` | `en-US` | English (US) |
-| `CHART_LOCALE_EN_GB` | `en-GB` | English (UK) |
-| `CHART_LOCALE_DE_DE` | `de-DE` | German |
-| `CHART_LOCALE_FR_FR` | `fr-FR` | French |
-| `CHART_LOCALE_ES_ES` | `es-ES` | Spanish |
-| `CHART_LOCALE_IT_IT` | `it-IT` | Italian |
-| `CHART_LOCALE_PT_PT` | `pt-PT` | Portuguese |
-| `CHART_LOCALE_ZH_CN` | `zh-CN` | Chinese (Simplified) |
-| `CHART_LOCALE_JA_JP` | `ja-JP` | Japanese |
+**Available locale codes:** `en`, `zh-Hans`, `zh-Hant`, `es`, `pt-BR`, `pt-PT`, `fr`, `de`, `ru`, `ja`, `ko`, `ar`, `hi`, `id`, `th`, `tr`, `it`, `pl`, `nl`, `sv`, `da`, `nb`, `fi`, `uk`, `ro`, `cs`, `hu`, `el`, `sk`, `bg`, `hr`, `sr`, `lt`, `lv`, `et`, `sl`, `be`, `sq`, `mk`, `ca`, `eu`, `cy`, `ga`, `mt`
 
-Each constant includes translated chart labels (`ariaTask`, `columnTaskName`, etc.) and
-pre-configured `weekStartsOn`, `weekNumbering`, and `weekendDays`.
+Each module exports a `CHART_LOCALE` constant with translated chart labels
+(`ariaTask`, `columnTaskName`, etc.) and pre-configured `weekStartsOn`,
+`weekNumbering`, and `weekendDays`.
 
 ```ts
-import {GanttChart, CHART_LOCALE_DE_DE, CHART_LOCALE_FR_FR} from 'gantt-renderer';
+import {CHART_LOCALE} from 'gantt-renderer/locales/de';
 
-// Pass the constant directly
 const instance = new GanttChart(container, {
-	locale: CHART_LOCALE_DE_DE,
+	locale: CHART_LOCALE,
 });
+instance.update(input);
 
-// Or switch at runtime
-instance.setOptions({locale: CHART_LOCALE_FR_FR});
+// Switch at runtime
+instance.setOptions({locale: (await import('gantt-renderer/locales/fr')).CHART_LOCALE});
 ```
 
-For any other language, pass a BCP 47 string — the chart derives calendar
+**Async loader** — load a locale dynamically by its code:
+
+```ts
+import {loadLocale} from 'gantt-renderer/locales/load';
+
+const deLocale = await loadLocale('de');
+instance.setOptions({locale: deLocale});
+```
+
+**All locales at once** (for development or tools that need runtime access to every locale):
+
+```ts
+import {ALL_LOCALES} from 'gantt-renderer/locales/all';
+// ALL_LOCALES is Record<string, ChartLocale>
+```
+
+**Custom locale registry** — register your own locale for `loadLocale` or `resolveChartLocale`:
+
+```ts
+import {registerLocale} from 'gantt-renderer/locales/registry';
+
+registerLocale('xx', {
+	code: 'xx',
+	labels: {
+		columnTaskName: 'My Task',
+		addSubtaskTitle: 'Add child',
+	},
+	weekStartsOn: 1,
+});
+```
+
+For any language not in the built-in list, pass a BCP 47 string — the chart derives calendar
 conventions automatically but uses English fallback labels.
 
 ### Grid column schema
@@ -836,7 +868,7 @@ conventions automatically but uses English fallback labels.
 - `format?: (value, task, row, locale: ChartLocale) => string` - Optional formatter. Receives the raw field value plus full task/row context and locale.
 
 `gridColumnDefaults(locale)` returns a localized schema using the locale's label overrides
-with `EN_US_LABELS` fallback. The static `DEFAULT_GRID_COLUMNS` constant is also exported
+with English labels as fallback. The static `DEFAULT_GRID_COLUMNS` constant is also exported
 for consumers that manage localization externally.
 
 Example — custom column schema:

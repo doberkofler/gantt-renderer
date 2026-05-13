@@ -23,24 +23,7 @@ export type {RoutedLink, Point} from './rendering/linkRouter.ts';
 
 // ─── Locale ───────────────────────────────────────────────────────────────────
 
-export {
-	CHART_LOCALE_EN_US,
-	CHART_LOCALE_EN_GB,
-	CHART_LOCALE_DE_DE,
-	CHART_LOCALE_FR_FR,
-	CHART_LOCALE_ES_ES,
-	CHART_LOCALE_IT_IT,
-	CHART_LOCALE_PT_PT,
-	CHART_LOCALE_ZH_CN,
-	CHART_LOCALE_JA_JP,
-	EN_US_LABELS,
-	resolveChartLocale,
-	deriveWeekStartsOn,
-	deriveWeekNumbering,
-	deriveWeekendDays,
-	formatWeekNumber,
-	formatLabel,
-} from './locale.ts';
+export {EN_US_LABELS, resolveChartLocale, deriveWeekStartsOn, deriveWeekNumbering, deriveWeekendDays, formatWeekNumber, formatLabel} from './locale.ts';
 
 // ─── Vanilla adapter ──────────────────────────────────────────────────────────
 

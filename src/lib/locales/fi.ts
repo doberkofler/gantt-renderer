@@ -1,0 +1,18 @@
+import {type ChartLocale} from '../locale.ts';
+
+export const CHART_LOCALE: ChartLocale = {
+	code: 'fi',
+	labels: {
+		ariaTask: 'Tehtävä {0}',
+		ariaMilestone: 'Välitavoite {0}',
+		addSubtaskTitle: 'Lisää alitehtävä',
+		columnTaskName: 'Tehtävän nimi',
+		columnStartDate: 'Alku',
+		columnEndDate: 'Loppu',
+		columnDuration: 'Kesto',
+		columnQuarter: 'Q',
+	},
+	weekStartsOn: 1,
+	weekNumbering: 'iso',
+	weekendDays: [0, 6],
+};
