@@ -126,4 +126,78 @@ describe('api lifecycle', () => {
 		instance.collapseAll();
 		expect(onExpandCollapseAll).not.toHaveBeenCalled();
 	});
+
+	it('returns empty array from getOpenStates before first update', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		expect(instance.getOpenStates()).toStrictEqual([]);
+	});
+
+	it('returns initial open states from getOpenStates after update', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+		expect(instance.getOpenStates()).toStrictEqual([{id: 1, open: true}]);
+	});
+
+	it('reflects collapseAll in getOpenStates', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+		instance.collapseAll();
+		expect(instance.getOpenStates()).toStrictEqual([{id: 1, open: false}]);
+	});
+
+	it('reflects expandAll in getOpenStates', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+		instance.collapseAll();
+		instance.expandAll();
+		expect(instance.getOpenStates()).toStrictEqual([{id: 1, open: true}]);
+	});
+
+	it('returns empty array for flat trees from getOpenStates', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update({tasks: [{id: 1, text: 'X', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}]});
+		expect(instance.getOpenStates()).toStrictEqual([]);
+	});
+
+	it('does not mutate return value across successive calls', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+
+		const first = instance.getOpenStates();
+		instance.collapseAll();
+		const second = instance.getOpenStates();
+
+		expect(first).not.toStrictEqual(second);
+		expect(first).toStrictEqual([{id: 1, open: true}]);
+		expect(second).toStrictEqual([{id: 1, open: false}]);
+	});
+
+	it('returns stable result under idempotent calls', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		const instance = new GanttChart(container);
+		instance.update(INPUT);
+
+		expect(instance.getOpenStates()).toStrictEqual([{id: 1, open: true}]);
+		expect(instance.getOpenStates()).toStrictEqual([{id: 1, open: true}]);
+	});
 });

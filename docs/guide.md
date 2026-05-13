@@ -55,6 +55,7 @@ The essential API surface: how to create, drive, and interact with the chart.
 - `select(id | null)` — Programmatically selects a task id or clears selection with `null`. Fires the `onTaskSelect` callback when the selection actually changes.
 - `collapseAll()` — Collapses all expandable groups in the task tree. Idempotent.
 - `expandAll()` — Expands all expandable groups in the task tree. Idempotent.
+- `getOpenStates()` — Returns the current expand/collapse state of every expandable node (project tasks with children). Each entry is `{id: number, open: boolean}`, ordered by input task list order. Returns `[]` before the first `update()` call and for flat trees. Reflects live UI state after row toggles, `collapseAll()`, or `expandAll()`.
 - `destroy()` — Removes chart DOM and internal listeners. Subsequent calls to any public method throw.
 
 ### GanttOptions Reference

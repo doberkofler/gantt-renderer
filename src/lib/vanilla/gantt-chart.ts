@@ -157,6 +157,7 @@ export type GanttInstance<TTaskData = never, TLinkData = never> = {
 	select: (id: number | null, fireCallback?: boolean) => void;
 	collapseAll: (fireCallback?: boolean) => void;
 	expandAll: (fireCallback?: boolean) => void;
+	getOpenStates: () => {id: number; open: boolean}[];
 	destroy: () => void;
 };
 
@@ -679,6 +680,29 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			}
 		}
 		return changed;
+	}
+
+	/**
+	 * Returns the current expand/collapse state of every expandable node
+	 * (project tasks that have children). The result is ordered by the
+	 * input task list order.
+	 *
+	 * @returns An array of `{id, open}` objects for expandable nodes only.
+	 * @throws {GanttError} When the instance has been destroyed.
+	 */
+	public getOpenStates(): {id: number; open: boolean}[] {
+		this.#assertAlive();
+		if (this.#input === null) {
+			return [];
+		}
+		const expandableIds = getExpandableTaskIds(this.#input.tasks);
+		const result: {id: number; open: boolean}[] = [];
+		for (const task of this.#input.tasks) {
+			if (expandableIds.has(task.id)) {
+				result.push({id: task.id, open: this.#expandedIds.has(task.id)});
+			}
+		}
+		return result;
 	}
 
 	/**
