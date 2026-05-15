@@ -23,7 +23,7 @@ importers:
         version: 1.60.0
       '@tsdown/css':
         specifier: 0.22.0
-        version: 0.22.0(jiti@2.6.1)(postcss@8.5.13)(tsdown@0.22.0)(yaml@2.8.4)
+        version: 0.22.0(jiti@2.6.1)(postcss@8.5.14)(tsdown@0.22.0)(yaml@2.8.4)
       '@types/node':
         specifier: 25.7.0
         version: 25.7.0
@@ -64,11 +64,11 @@ importers:
         specifier: 20.0.1
         version: 20.0.1(@types/node@25.7.0)(magicast@0.5.2)
       stylelint:
-        specifier: 17.11.0
-        version: 17.11.0(typescript@6.0.3)
+        specifier: 17.11.1
+        version: 17.11.1(typescript@6.0.3)
       stylelint-config-standard:
         specifier: 40.0.0
-        version: 40.0.0(stylelint@17.11.0(typescript@6.0.3))
+        version: 40.0.0(stylelint@17.11.1(typescript@6.0.3))
       tsdown:
         specifier: 0.22.0
         version: 0.22.0(@tsdown/css@0.22.0)(typescript@6.0.3)
@@ -1869,10 +1869,6 @@ packages:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
     engines: {node: '>=12'}
 
-  is-plain-object@5.0.0:
-    resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
-    engines: {node: '>=0.10.0'}
-
   is-ssh@1.4.1:
     resolution: {integrity: sha512-JNeu1wQsHjyHgn9NcWTaXq6zWSR6hqE0++zhfZlkFBbScNkyvxCdeV8sRkSBaeLKxmbpR21brail63ACNxJ0Tg==}
 
@@ -2356,10 +2352,6 @@ packages:
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  postcss@8.5.13:
-    resolution: {integrity: sha512-qif0+jGGZoLWdHey3UFHHWP0H7Gbmsk8T5VEqyYFbWqPr1XqvLGBbk/sl8V5exGmcYJklJOhOQq1pV9IcsiFag==}
-    engines: {node: ^10 || ^12 || >=14}
-
   postcss@8.5.14:
     resolution: {integrity: sha512-SoSL4+OSEtR99LHFZQiJLkT59C5B1amGO1NzTwj7TT1qCUgUO6hxOvzkOYxD+vMrXBM3XJIKzokoERdqQq/Zmg==}
     engines: {node: ^10 || ^12 || >=14}
@@ -2602,8 +2594,8 @@ packages:
     peerDependencies:
       stylelint: ^17.0.0
 
-  stylelint@17.11.0:
-    resolution: {integrity: sha512-/3czzmbF9XdGWvReDF3Ex4R23Ajolo7j8RB2bFNEqk6Ht356nlpVV+G5bG2Qt8AW1ofJzXztBRDnAtd7cgowWA==}
+  stylelint@17.11.1:
+    resolution: {integrity: sha512-+smN/HqVTggUx3iuAzOi9fPh8SrH+cJWlZrYVldXoJ06orWBhZ4Ue/QEp64oei6pVrAh4w3tG+Y12Vw7MbCFRQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -3758,14 +3750,14 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@tsdown/css@0.22.0(jiti@2.6.1)(postcss@8.5.13)(tsdown@0.22.0)(yaml@2.8.4)':
+  '@tsdown/css@0.22.0(jiti@2.6.1)(postcss@8.5.14)(tsdown@0.22.0)(yaml@2.8.4)':
     dependencies:
       lightningcss: 1.32.0
-      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.13)(yaml@2.8.4)
+      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4)
       rolldown: 1.0.0
       tsdown: 0.22.0(@tsdown/css@0.22.0)(typescript@6.0.3)
     optionalDependencies:
-      postcss: 8.5.13
+      postcss: 8.5.14
     transitivePeerDependencies:
       - jiti
       - tsx
@@ -4570,8 +4562,6 @@ snapshots:
 
   is-plain-obj@4.1.0: {}
 
-  is-plain-object@5.0.0: {}
-
   is-ssh@1.4.1:
     dependencies:
       protocols: 2.0.2
@@ -5005,17 +4995,17 @@ snapshots:
 
   pngjs@7.0.0: {}
 
-  postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.13)(yaml@2.8.4):
+  postcss-load-config@6.0.1(jiti@2.6.1)(postcss@8.5.14)(yaml@2.8.4):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 2.6.1
-      postcss: 8.5.13
+      postcss: 8.5.14
       yaml: 2.8.4
 
-  postcss-safe-parser@7.0.1(postcss@8.5.13):
+  postcss-safe-parser@7.0.1(postcss@8.5.14):
     dependencies:
-      postcss: 8.5.13
+      postcss: 8.5.14
 
   postcss-selector-parser@7.1.1:
     dependencies:
@@ -5023,12 +5013,6 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
-
-  postcss@8.5.13:
-    dependencies:
-      nanoid: 3.3.12
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
 
   postcss@8.5.14:
     dependencies:
@@ -5279,16 +5263,16 @@ snapshots:
     dependencies:
       ansi-regex: 6.2.2
 
-  stylelint-config-recommended@18.0.0(stylelint@17.11.0(typescript@6.0.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.11.1(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.11.0(typescript@6.0.3)
+      stylelint: 17.11.1(typescript@6.0.3)
 
-  stylelint-config-standard@40.0.0(stylelint@17.11.0(typescript@6.0.3)):
+  stylelint-config-standard@40.0.0(stylelint@17.11.1(typescript@6.0.3)):
     dependencies:
-      stylelint: 17.11.0(typescript@6.0.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.11.0(typescript@6.0.3))
+      stylelint: 17.11.1(typescript@6.0.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.11.1(typescript@6.0.3))
 
-  stylelint@17.11.0(typescript@6.0.3):
+  stylelint@17.11.1(typescript@6.0.3):
     dependencies:
       '@csstools/css-calc': 3.2.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -5311,14 +5295,13 @@ snapshots:
       html-tags: 5.1.0
       ignore: 7.0.5
       import-meta-resolve: 4.2.0
-      is-plain-object: 5.0.0
       mathml-tag-names: 4.0.0
       meow: 14.1.0
       micromatch: 4.0.8
       normalize-path: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.13
-      postcss-safe-parser: 7.0.1(postcss@8.5.13)
+      postcss: 8.5.14
+      postcss-safe-parser: 7.0.1(postcss@8.5.14)
       postcss-selector-parser: 7.1.1
       postcss-value-parser: 4.2.0
       string-width: 8.2.1
@@ -5395,7 +5378,7 @@ snapshots:
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
     optionalDependencies:
-      '@tsdown/css': 0.22.0(jiti@2.6.1)(postcss@8.5.13)(tsdown@0.22.0)(yaml@2.8.4)
+      '@tsdown/css': 0.22.0(jiti@2.6.1)(postcss@8.5.14)(tsdown@0.22.0)(yaml@2.8.4)
       typescript: 6.0.3
     transitivePeerDependencies:
       - '@ts-macro/tsc'
