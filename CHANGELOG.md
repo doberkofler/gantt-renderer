@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/doberkofler/gantt-renderer/compare/v0.11.0...v0.12.0) (2026-05-18)
+
+
+### Bug Fixes
+
+* **gantt:** align timeline right edge to full scale bucket ([614cd66](https://github.com/doberkofler/gantt-renderer/commit/614cd66e93ae7c7a7c6a71034feafce19299aad7))
+
 # [0.11.0](https://github.com/doberkofler/gantt-renderer/compare/v0.10.0...v0.11.0) (2026-05-13)
 
 
