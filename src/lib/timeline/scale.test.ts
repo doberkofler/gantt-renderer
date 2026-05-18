@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {nextScaleBoundary, snapToScaleBoundary} from './scale.ts';
+import {ceilToScaleBoundary, nextScaleBoundary, snapToScaleBoundary} from './scale.ts';
 
 describe('snapToScaleBoundary', () => {
 	it('snaps to hour boundary', () => {
@@ -89,5 +89,30 @@ describe('nextScaleBoundary', () => {
 	it('steps year scale on canonical boundary', () => {
 		const d = new Date('2026-01-01T00:00:00.000Z');
 		expect(nextScaleBoundary(d, 'year').toISOString()).toBe('2027-01-01T00:00:00.000Z');
+	});
+});
+
+describe('ceilToScaleBoundary', () => {
+	it('keeps already aligned boundaries unchanged', () => {
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:00:00.000Z'), 'hour').toISOString()).toBe('2026-01-15T14:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-15T00:00:00.000Z'), 'day').toISOString()).toBe('2026-01-15T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-12T00:00:00.000Z'), 'week', 1).toISOString()).toBe('2026-01-12T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-01T00:00:00.000Z'), 'month').toISOString()).toBe('2026-01-01T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-07-01T00:00:00.000Z'), 'quarter').toISOString()).toBe('2026-07-01T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-01T00:00:00.000Z'), 'year').toISOString()).toBe('2026-01-01T00:00:00.000Z');
+	});
+
+	it('rounds up to the next boundary for non-aligned dates', () => {
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'hour').toISOString()).toBe('2026-01-15T15:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'day').toISOString()).toBe('2026-01-16T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'week', 1).toISOString()).toBe('2026-01-19T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'month').toISOString()).toBe('2026-02-01T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-08-19T14:30:00.000Z'), 'quarter').toISOString()).toBe('2026-10-01T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-08-19T14:30:00.000Z'), 'year').toISOString()).toBe('2027-01-01T00:00:00.000Z');
+	});
+
+	it('rounds week boundaries using locale week start', () => {
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'week', 0).toISOString()).toBe('2026-01-18T00:00:00.000Z');
+		expect(ceilToScaleBoundary(new Date('2026-01-15T14:30:00.000Z'), 'week', 6).toISOString()).toBe('2026-01-17T00:00:00.000Z');
 	});
 });

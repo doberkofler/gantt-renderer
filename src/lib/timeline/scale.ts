@@ -89,3 +89,20 @@ export function nextScaleBoundary(date: Date, scale: TimeScale): Date {
 		}
 	}
 }
+
+/**
+ * Rounds a date up to the end boundary of the containing scale bucket.
+ * If the date is already on a boundary, it is returned unchanged.
+ *
+ * @param date - The date to round.
+ * @param scale - The target {@link TimeScale}.
+ * @param weekStartsOn - First day of the week (`0`-Sun, `1`-Mon, `6`-Sat). Defaults to `1` (Monday).
+ * @returns A boundary-aligned date at or after the input.
+ */
+export function ceilToScaleBoundary(date: Date, scale: TimeScale, weekStartsOn: 0 | 1 | 6 = 1): Date {
+	const start = snapToScaleBoundary(date, scale, weekStartsOn);
+	if (start.getTime() === date.getTime()) {
+		return start;
+	}
+	return nextScaleBoundary(start, scale);
+}

@@ -12,7 +12,7 @@ import {buildTaskTree, flattenTree} from '../domain/tree.ts';
 import {createPixelMapper} from '../timeline/pixelMapper.ts';
 import {computeLayout, deriveViewport, ROW_HEIGHT} from '../timeline/layoutEngine.ts';
 import {routeLinks} from '../rendering/linkRouter.ts';
-import {type TimeScale} from '../timeline/scale.ts';
+import {ceilToScaleBoundary, type TimeScale} from '../timeline/scale.ts';
 import {type GanttState, type ResolvedSpecialDay} from './state.ts';
 import {el, css, clearChildren} from './dom/helpers.ts';
 import {renderTimeHeader} from './dom/timeHeader.ts';
@@ -805,9 +805,11 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			this.#opts.viewportStart !== undefined && this.#opts.viewportEnd !== undefined
 				? [this.#opts.viewportStart, this.#opts.viewportEnd]
 				: deriveViewport(allRows, 48);
+		const weekStartsOn = this.#locale.weekStartsOn ?? 1;
+		const renderViewportEnd = ceilToScaleBoundary(vpEnd, this.#scale, weekStartsOn);
 
 		const mapper = createPixelMapper(this.#scale, vpStart);
-		const totalWidth = Math.ceil(mapper.toX(vpEnd)) + 1;
+		const totalWidth = Math.ceil(mapper.toX(renderViewportEnd)) + 1;
 		const layouts = computeLayout(allRows, mapper);
 		const links = routeLinks(input.links, layouts);
 
@@ -830,7 +832,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			allRows,
 			mapper,
 			viewportStart: vpStart,
-			viewportEnd: vpEnd,
+			viewportEnd: renderViewportEnd,
 			totalWidth,
 			layouts,
 			links,

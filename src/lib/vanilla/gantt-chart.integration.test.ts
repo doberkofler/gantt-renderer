@@ -185,4 +185,28 @@ describe('core rendering and viewport', () => {
 		// All rows should be visible again
 		expect(container.querySelectorAll('[role="row"]')).toHaveLength(5);
 	});
+
+	it('extends right edge to a full scale column when viewportEnd is mid-bucket', () => {
+		const container = document.createElement('div');
+		document.body.append(container);
+
+		mountTracked(container, INPUT, {
+			height: 420,
+			scale: 'week',
+			locale: {code: 'en-US', weekStartsOn: 1, weekNumbering: 'iso', weekendDays: [0, 6]},
+			viewportStart: new Date('2026-09-21T00:00:00.000Z'),
+			viewportEnd: new Date('2026-09-24T12:00:00.000Z'),
+		});
+
+		const rightHeader = container.querySelector<HTMLElement>('[data-pane="right"] > div:first-child');
+		expect(rightHeader).not.toBeNull();
+
+		const lowerRow = rightHeader?.children[1] as HTMLElement | undefined;
+		expect(lowerRow).toBeDefined();
+		expect(lowerRow?.style.width).toBe('121px');
+
+		const lowerCells = [...(lowerRow?.children ?? [])] as HTMLElement[];
+		expect(lowerCells).toHaveLength(1);
+		expect(lowerCells[0]?.style.width).toBe('120px');
+	});
 });
