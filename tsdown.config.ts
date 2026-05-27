@@ -1,8 +1,8 @@
 import {readdirSync} from 'node:fs';
-import {join} from 'node:path';
+import path from 'node:path';
 import {defineConfig} from 'tsdown';
 
-const LOCALES_DIR = join(import.meta.dirname, 'src/lib/locales');
+const LOCALES_DIR = path.join(import.meta.dirname, 'src/lib/locales');
 const localeFiles = readdirSync(LOCALES_DIR).filter((f) => f.endsWith('.ts') && f !== 'loadLocale.ts' && f !== 'registry.ts' && f !== 'all.ts');
 
 const localeEntries: Record<string, string> = {};
