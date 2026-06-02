@@ -94,18 +94,18 @@ export function visibleColumns(columns: GridColumn[]): GridColumn[] {
 
 export const GRID_COLUMN_FR_MIN_WIDTH = 120;
 
-const PX_RE = /^(\d+(?:\.\d+)?)px$/u;
-const FR_RE = /^(\d+(?:\.\d+)?)fr$/u;
+const PX_RE = /^(?<value>\d+(?:\.\d+)?)px$/u;
+const FR_RE = /^(?<value>\d+(?:\.\d+)?)fr$/u;
 
 function parseColumnMinWidth(width: string): number {
 	const trimmed = width.trim();
 	const pxMatch = PX_RE.exec(trimmed);
 	if (pxMatch) {
-		return parseFloat(pxMatch[1] ?? '0');
+		return parseFloat(pxMatch.groups?.['value'] ?? '0');
 	}
 	const frMatch = FR_RE.exec(trimmed);
 	if (frMatch) {
-		return parseFloat(frMatch[1] ?? '0') * GRID_COLUMN_FR_MIN_WIDTH;
+		return parseFloat(frMatch.groups?.['value'] ?? '0') * GRID_COLUMN_FR_MIN_WIDTH;
 	}
 	return 0;
 }
