@@ -43,8 +43,8 @@ importers:
         specifier: 8.0.0
         version: 8.0.0
       conventional-changelog-angular:
-        specifier: 9.1.0
-        version: 9.1.0
+        specifier: 9.2.0
+        version: 9.2.0
       eslint-plugin-regexp:
         specifier: 3.1.1
         version: 3.1.1(eslint@10.6.0(jiti@2.7.0))
@@ -286,6 +286,10 @@ packages:
 
   '@conventional-changelog/template@1.1.0':
     resolution: {integrity: sha512-zH/7Mjo+vEsGv4Lr9Sja1Eqk8WvWeCVWkofz+3CTwow3IEWsMdfVrPR2iyMWQTrRQF5yZK3e++FVD+m9MENU0A==}
+    engines: {node: '>=22'}
+
+  '@conventional-changelog/template@1.2.0':
+    resolution: {integrity: sha512-12qHxvlKjHmP0PQ+17EREgC7lWyLwbph1RKcZQZ7k7ZWGmrxfxC9gadHGfvzr0g0u8BhiBGg3tks93txodlyRQ==}
     engines: {node: '>=22'}
 
   '@csstools/css-calc@3.2.1':
@@ -1372,8 +1376,8 @@ packages:
     resolution: {integrity: sha512-6gfI3otXK5Ph5DfCOI1dblr+kN3FAm5a97hYoQkqNZxOaYa5WKfXH+AnpsmS+iUH2mgVC2Cg2Qw9m5OKcmNrIg==}
     engines: {node: '>=18'}
 
-  conventional-changelog-angular@9.1.0:
-    resolution: {integrity: sha512-hOnglp1joUV9QmLY8UkG2kF4S0l7iks/gdwMQ3GPkixeld3cFJMXoOEt1/sITVOh+m6qwV5LGA3dQL4ZZ3U5nw==}
+  conventional-changelog-angular@9.2.0:
+    resolution: {integrity: sha512-2EihZvM1KmbBGwuUow8lNXLe+ECRFsyOcV8X0197/WI7Rvvgfi55Oicfw0wxJTXGGIVXSfj+xBoNj+cxLlIiVw==}
     engines: {node: '>=22'}
 
   conventional-changelog-conventionalcommits@9.3.1:
@@ -3190,6 +3194,8 @@ snapshots:
 
   '@conventional-changelog/template@1.1.0': {}
 
+  '@conventional-changelog/template@1.2.0': {}
+
   '@csstools/css-calc@3.2.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
     dependencies:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -4088,9 +4094,9 @@ snapshots:
     dependencies:
       compare-func: 2.0.0
 
-  conventional-changelog-angular@9.1.0:
+  conventional-changelog-angular@9.2.0:
     dependencies:
-      '@conventional-changelog/template': 1.1.0
+      '@conventional-changelog/template': 1.2.0
 
   conventional-changelog-conventionalcommits@9.3.1:
     dependencies:
