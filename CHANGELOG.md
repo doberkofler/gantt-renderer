@@ -1,3 +1,4 @@
+## [0.12.11](https://github.com/doberkofler/gantt-renderer/compare/v0.12.10...v0.12.11) (2026-06-30)
 
 ## [0.12.10](https://github.com/doberkofler/gantt-renderer/compare/v0.12.9...v0.12.10) (2026-06-28)
 
