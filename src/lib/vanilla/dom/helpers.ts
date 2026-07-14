@@ -25,7 +25,7 @@ export function el(tag: string, props?: Record<string, unknown>, ns?: string): E
 	if (props !== undefined) {
 		for (const [k, v] of Object.entries(props)) {
 			if (k === 'style' && typeof v === 'object' && v !== null) {
-				css(elem as HTMLElement, v as Partial<CSSStyleDeclaration>);
+				css(elem as HTMLElement, v);
 			} else if (k in elem) {
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(elem as any)[k] = v;

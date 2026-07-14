@@ -46,7 +46,7 @@ describe('attachLinkEndpointHandle', () => {
 	function mockCbs(onLinkCreate: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void): {
 		onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void;
 	} {
-		return {onLinkCreate} as {onLinkCreate?: (payload: {sourceTaskId: number; targetTaskId: number; type: 'FS'}) => void};
+		return {onLinkCreate};
 	}
 
 	it('fires onLinkCreate when drag ends on a valid target bar', () => {

@@ -58,7 +58,9 @@ export function taskNode(overrides: Partial<TaskNode> = {}): TaskNode {
 	} as TaskNode;
 }
 
-export function projectNode(overrides: Partial<TaskNode> & {children?: TaskNode[]} = {}): TaskNode {
+type ProjectNode = Extract<TaskNode, {kind: 'project'}>;
+
+export function projectNode(overrides: Partial<ProjectNode> & {children?: TaskNode[]} = {}): TaskNode {
 	const children = overrides.children ?? [];
 	return {
 		id: 1,
@@ -71,5 +73,5 @@ export function projectNode(overrides: Partial<TaskNode> & {children?: TaskNode[
 		children,
 		depth: 0,
 		...overrides,
-	} as TaskNode;
+	};
 }

@@ -35,7 +35,7 @@ describe('schema utilities', () => {
 			GanttInputSchema.parse({
 				tasks: [{id: 1, text: 'Task', startDate: '2026-01-01', endDate: '2026-01-02', kind: 'task'}],
 				links: [{id: 1, source: 1, target: 1, type: 'INVALID'}],
-			} as unknown as GanttInputRaw),
+			}),
 		).toThrow();
 	});
 

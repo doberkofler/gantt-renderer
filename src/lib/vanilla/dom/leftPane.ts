@@ -151,7 +151,9 @@ function buildDataCell(row: TaskNode, column: GridColumn, locale: ChartLocale): 
 				rawValue !== null && rawValue !== undefined
 					? typeof rawValue === 'object'
 						? JSON.stringify(rawValue)
-						: String(rawValue as string | number | boolean)
+						: typeof rawValue === 'string' || typeof rawValue === 'number' || typeof rawValue === 'boolean'
+							? String(rawValue)
+							: ''
 					: '';
 		}
 	}

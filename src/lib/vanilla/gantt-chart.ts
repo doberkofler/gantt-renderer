@@ -269,16 +269,16 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 				if (this.#selectedId !== null) {
 					const task = this.#findTask(this.#selectedId);
 					if (task !== undefined) {
-						void this.#callbacks.onTaskClick?.({task: task as unknown as GenTask<TTaskData>, instance: this});
+						void this.#callbacks.onTaskClick?.({task, instance: this});
 					}
 				}
 				this.#scheduleRender();
 			},
 			onTaskDoubleClick: (payload): void => {
-				void this.#callbacks.onTaskDoubleClick?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
 			},
 			onTaskEditIntent: (payload): void => {
-				void this.#callbacks.onTaskDoubleClick?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this});
+				void this.#callbacks.onTaskDoubleClick?.({task: payload.task, instance: this});
 			},
 			onTaskMove: (payload): void => {
 				if (!this.#dragOriginals.has(payload.id)) {
@@ -296,7 +296,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 				if (task !== undefined) {
 					const newEndDate = task.kind !== 'milestone' ? parseDate(task.endDate) : payload.startDate;
 					const result = this.#callbacks.onTaskMove?.({
-						task: task as unknown as GenTask<TTaskData>,
+						task,
 						newStartDate: payload.startDate,
 						newEndDate,
 						instance: this,
@@ -336,7 +336,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 					const newEndDate = parseDate(task.endDate);
 					const newDurationHours = diffHours(newEndDate, newStartDate);
 					const result = this.#callbacks.onTaskResize?.({
-						task: task as unknown as GenTask<TTaskData>,
+						task,
 						newDurationHours,
 						newStartDate,
 						newEndDate,
@@ -374,7 +374,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 				const task = this.#findTask(payload.id);
 				if (task !== undefined) {
 					const result = this.#callbacks.onProgressChange?.({
-						task: task as unknown as GenTask<TTaskData>,
+						task,
 						newPercentComplete: payload.percentComplete,
 						instance: this,
 					});
@@ -399,7 +399,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			onTaskAdd: (parentId): void => {
 				const parentTask = this.#findTask(parentId);
 				if (parentTask !== undefined) {
-					void this.#callbacks.onTaskAdd?.({parentTask: parentTask as unknown as GenTask<TTaskData>, instance: this});
+					void this.#callbacks.onTaskAdd?.({parentTask, instance: this});
 				}
 			},
 			onLeftPaneWidthChange: (width): void => {
@@ -414,8 +414,8 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 				if (sourceTask !== undefined && targetTask !== undefined) {
 					void this.#callbacks.onLinkCreate?.({
 						type: 'FS',
-						sourceTask: sourceTask as unknown as GenTask<TTaskData>,
-						targetTask: targetTask as unknown as GenTask<TTaskData>,
+						sourceTask,
+						targetTask,
 						instance: this,
 					});
 				}
@@ -426,7 +426,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 			onLinkDblClick: (payload): void => {
 				void this.#callbacks.onLinkDblClick?.({link: payload as unknown as GenLink<TLinkData>, instance: this});
 			},
-			onTooltipText: (payload): string | null => this.#callbacks.onTooltipText?.({task: payload.task as unknown as GenTask<TTaskData>, instance: this}) ?? null,
+			onTooltipText: (payload): string | null => this.#callbacks.onTooltipText?.({task: payload.task, instance: this}) ?? null,
 		};
 	}
 
@@ -451,7 +451,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 	 */
 	public update(newInput: GanttInputRaw<TTaskData, TLinkData>): void {
 		this.#assertAlive();
-		const input = GanttInputSchema.parse(newInput) as unknown as GanttInput;
+		const input = GanttInputSchema.parse(newInput);
 		validateLinkRefs(input.tasks, input.links);
 		detectCycles(input.tasks, input.links);
 		this.#input = structuredClone(input);
@@ -634,7 +634,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 		}
 		this.#render();
 		if (changed.length > 0) {
-			void this.#callbacks.onExpandCollapseAll?.({tasks: changed as unknown as GenTask<TTaskData>[], instance: this});
+			void this.#callbacks.onExpandCollapseAll?.({tasks: changed, instance: this});
 		}
 	}
 
@@ -660,7 +660,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 		}
 		this.#render();
 		if (changed.length > 0) {
-			void this.#callbacks.onExpandCollapseAll?.({tasks: changed as unknown as GenTask<TTaskData>[], instance: this});
+			void this.#callbacks.onExpandCollapseAll?.({tasks: changed, instance: this});
 		}
 	}
 
@@ -886,7 +886,7 @@ export class GanttChart<TTaskData = never, TLinkData = never> implements GanttIn
 					if (task !== undefined) {
 						const payload = task.kind === 'project' ? {...task, open: expanded} : {...task};
 						void this.#callbacks.onExpandCollapse?.({
-							task: payload as unknown as GenTask<TTaskData>,
+							task: payload,
 							instance: this,
 						});
 					}
