@@ -253,7 +253,7 @@
 		"@commitlint/cli": "21.2.1",
 		"@commitlint/config-conventional": "21.2.0",
 		"@playwright/test": "1.61.1",
-		"@tsdown/css": "0.22.7",
+		"@tsdown/css": "0.22.9",
 		"@types/node": "26.1.1",
 		"@vitest/browser": "4.1.10",
 		"@vitest/browser-playwright": "4.1.10",
@@ -265,15 +265,15 @@
 		"husky": "9.1.7",
 		"oxfmt": "0.59.0",
 		"oxlint": "1.74.0",
-		"oxlint-tsgolint": "0.24.0",
+		"oxlint-tsgolint": "0.25.0",
 		"playwright": "1.61.1",
 		"release-it": "20.2.1",
 		"stylelint": "17.14.0",
 		"stylelint-config-standard": "40.0.0",
-		"tsdown": "0.22.7",
+		"tsdown": "0.22.9",
 		"typedoc": "0.28.20",
 		"typescript": "6.0.3",
-		"vite": "8.1.4",
+		"vite": "8.1.5",
 		"vitest": "4.1.10"
 	}
 }
