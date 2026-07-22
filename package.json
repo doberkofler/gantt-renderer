@@ -224,7 +224,7 @@
 		}
 	},
 	"scripts": {
-		"typecheck": "tsc --noEmit",
+		"typecheck": "./node_modules/typescript7/bin/tsc --noEmit",
 		"lint": "oxlint",
 		"lint:css": "stylelint 'src/**/*.css'",
 		"lint:css:fix": "stylelint --fix 'src/**/*.css'",
@@ -268,11 +268,12 @@
 		"oxlint-tsgolint": "0.25.0",
 		"playwright": "1.61.1",
 		"release-it": "20.2.1",
-		"stylelint": "17.14.0",
+		"stylelint": "17.14.1",
 		"stylelint-config-standard": "40.0.0",
 		"tsdown": "0.22.12",
 		"typedoc": "0.28.20",
 		"typescript": "6.0.3",
+		"typescript7": "npm:typescript@7.0.2",
 		"vite": "8.1.5",
 		"vitest": "4.1.10"
 	}
