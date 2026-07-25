@@ -15,7 +15,7 @@ jobs:
     outputs:
       image: ${{ steps.version.outputs.image }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Derive Playwright image tag
         id: version
@@ -32,7 +32,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm run lint
       - run: pnpm run lint:css
@@ -46,7 +46,7 @@ jobs:
       image: ${{ needs.resolve-playwright-version.outputs.image }}
       options: --user 1001
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
 
       - run: pnpm run build:lib
@@ -68,7 +68,7 @@ jobs:
       image: ${{ needs.resolve-playwright-version.outputs.image }}
       options: --user 1001
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm run integration-test
         env:
@@ -91,15 +91,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm run build --base=/gantt-renderer/
       - run: pnpm run docs:api
       - run: mkdir -p dist-demo/docs && mv docs/api dist-demo/docs/api
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist-demo
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
