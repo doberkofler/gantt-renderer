@@ -224,7 +224,7 @@
 		}
 	},
 	"scripts": {
-		"typecheck": "./node_modules/typescript7/bin/tsc --noEmit",
+		"typecheck": "node ./node_modules/typescript7/bin/tsc --noEmit",
 		"lint": "oxlint",
 		"lint:css": "stylelint 'src/**/*.css'",
 		"lint:css:fix": "stylelint --fix 'src/**/*.css'",
@@ -253,7 +253,7 @@
 		"@commitlint/cli": "21.2.1",
 		"@commitlint/config-conventional": "21.2.0",
 		"@playwright/test": "1.61.1",
-		"@tsdown/css": "0.22.13",
+		"@tsdown/css": "0.22.14",
 		"@types/node": "26.1.1",
 		"@vitest/browser": "4.1.10",
 		"@vitest/browser-playwright": "4.1.10",
@@ -270,7 +270,7 @@
 		"release-it": "20.2.1",
 		"stylelint": "17.14.1",
 		"stylelint-config-standard": "40.0.0",
-		"tsdown": "0.22.13",
+		"tsdown": "0.22.14",
 		"typedoc": "0.28.20",
 		"typescript": "6.0.3",
 		"typescript7": "npm:typescript@7.0.2",
