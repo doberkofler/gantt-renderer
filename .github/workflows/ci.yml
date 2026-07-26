@@ -7,28 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  # Resolves the Playwright Docker image tag from package.json.
-  # Other jobs depending on the Playwright container must list this in `needs`
-  # because GitHub Actions does not propagate job outputs transitively.
-  resolve-playwright-version:
-    runs-on: ubuntu-latest
-    outputs:
-      image: ${{ steps.version.outputs.image }}
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Derive Playwright image tag
-        id: version
-        shell: bash
-        run: |
-          RAW=$(node -p "
-            const p = require('./package.json');
-            p.devDependencies?.['@playwright/test'] ?? p.dependencies['@playwright/test']
-          ")
-          VERSION=$(echo "$RAW" | sed 's/^[^0-9]*//')
-          echo "image=mcr.microsoft.com/playwright:v${VERSION}" >> "$GITHUB_OUTPUT"
-
-  # Fast static checks that run in parallel with Playwright version resolution.
+  # Fast static checks that run in parallel with browser tests.
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -37,17 +16,16 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run lint:css
 
-  # Builds the library and runs browser-based unit tests inside a Playwright
-  # Docker container (provides consistent Chromium/Firefox/WebKit binaries).
+  # Builds the library and runs browser-based unit tests with Playwright browsers
+  # installed from the package version resolved by pnpm.
   test:
-    needs: [lint, resolve-playwright-version]
+    needs: [lint]
     runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.resolve-playwright-version.outputs.image }}
-      options: --user 1001
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
+
+      - run: pnpm exec playwright install --with-deps
 
       - run: pnpm run build:lib
 
@@ -62,14 +40,14 @@ jobs:
   # End-to-end Playwright tests that drive a live dev server against the demo
   # page across Chromium, Firefox, and WebKit.
   integration-test:
-    needs: [test, resolve-playwright-version]
+    needs: [test]
     runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.resolve-playwright-version.outputs.image }}
-      options: --user 1001
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
+
+      - run: pnpm exec playwright install --with-deps
+
       - run: pnpm run integration-test
         env:
           CI: true
