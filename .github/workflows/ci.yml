@@ -26,7 +26,7 @@ jobs:
             p.devDependencies?.['@playwright/test'] ?? p.dependencies['@playwright/test']
           ")
           VERSION=$(echo "$RAW" | sed 's/^[^0-9]*//')
-          echo "image=mcr.microsoft.com/playwright:v${VERSION}-noble" >> "$GITHUB_OUTPUT"
+          echo "image=mcr.microsoft.com/playwright:v${VERSION}" >> "$GITHUB_OUTPUT"
 
   # Fast static checks that run in parallel with Playwright version resolution.
   lint:
