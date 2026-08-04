@@ -81,7 +81,11 @@ describe('attachMilestoneClick', () => {
 	it('calls onTaskClick on click', () => {
 		const diamond = document.createElement('div');
 		const calls: number[] = [];
-		const cbs = {onTaskClick: (id: number): void => void calls.push(id)};
+		const cbs = {
+			onTaskClick: (id: number): void => {
+				calls.push(id);
+			},
+		};
 		const cleanup = attachMilestoneClick(diamond, 7, cbs);
 		diamond.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 		expect(calls).toStrictEqual([7]);
@@ -93,7 +97,11 @@ describe('attachMilestoneClick', () => {
 		const task: Task = {id: 42, text: 'MS', startDate: '2026-06-01', kind: 'milestone'};
 		bindMilestoneTask(diamond, task);
 		const doubleCalls: {id: number; task: Task}[] = [];
-		const cbs = {onTaskDoubleClick: (payload: {id: number; task: Task}): void => void doubleCalls.push(payload)};
+		const cbs = {
+			onTaskDoubleClick: (payload: {id: number; task: Task}): void => {
+				doubleCalls.push(payload);
+			},
+		};
 		const cleanup = attachMilestoneClick(diamond, 42, cbs);
 		diamond.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 2}));
 		expect(doubleCalls).toHaveLength(1);
@@ -105,7 +113,11 @@ describe('attachMilestoneClick', () => {
 	it('ignores double click when task is not bound', () => {
 		const diamond = document.createElement('div');
 		const doubleCalls: {id: number; task: Task}[] = [];
-		const cbs = {onTaskDoubleClick: (payload: {id: number; task: Task}): void => void doubleCalls.push(payload)};
+		const cbs = {
+			onTaskDoubleClick: (payload: {id: number; task: Task}): void => {
+				doubleCalls.push(payload);
+			},
+		};
 		const cleanup = attachMilestoneClick(diamond, 42, cbs);
 		expect(() => {
 			diamond.dispatchEvent(new MouseEvent('click', {bubbles: true, detail: 2}));
@@ -117,7 +129,11 @@ describe('attachMilestoneClick', () => {
 	it('cleans up listeners', () => {
 		const diamond = document.createElement('div');
 		const calls: number[] = [];
-		const cbs = {onTaskClick: (id: number): void => void calls.push(id)};
+		const cbs = {
+			onTaskClick: (id: number): void => {
+				calls.push(id);
+			},
+		};
 		const cleanup = attachMilestoneClick(diamond, 7, cbs);
 		cleanup();
 		diamond.dispatchEvent(new MouseEvent('click', {bubbles: true}));
