@@ -267,7 +267,7 @@
 		"oxlint": "1.77.0",
 		"oxlint-tsgolint": "7.0.2001",
 		"playwright": "1.62.1",
-		"release-it": "21.0.1",
+		"release-it": "21.0.2",
 		"stylelint": "17.14.1",
 		"stylelint-config-standard": "40.0.0",
 		"tsdown": "0.22.14",
