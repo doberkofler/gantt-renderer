@@ -60,6 +60,7 @@ export const linter = defineConfig({
 		'eslint/no-warning-comments': 'off',
 		'eslint/no-undefined': 'off', // TODO: consider enabling
 		'eslint/no-plusplus': 'off',
+		'eslint/one-var': 'off',
 		'eslint/sort-imports': 'off',
 		'eslint/sort-keys': 'off',
 		'eslint/no-ternary': 'off',
