@@ -1,5 +1,7 @@
-import {describe, expect, it} from 'vitest';
-import {GanttInputSchema, SpecialDaySchema, type GanttInputRaw} from './schemas.ts';
+import {describe, expect, expectTypeOf, it} from 'vitest';
+import {GanttInputSchema, SpecialDaySchema, type GanttInputRaw, type Link, type Task} from './schemas.ts';
+
+type Metadata = {readonly label: string};
 
 describe('schema utilities', () => {
 	it('parses valid input and applies defaults', () => {
@@ -115,6 +117,22 @@ describe('schema utilities', () => {
 		const parsed = GanttInputSchema.parse(raw);
 		expect(parsed.tasks[0]?.text).toBe('Typed');
 		expect(parsed.links).toStrictEqual([]);
+	});
+
+	it('exposes data only when a metadata type is provided', () => {
+		type RawTask = GanttInputRaw['tasks'][number];
+		type RawLink = NonNullable<GanttInputRaw['links']>[number];
+		type TypedRawTask = GanttInputRaw<Metadata>['tasks'][number];
+		type TypedRawLink = NonNullable<GanttInputRaw<never, Metadata>['links']>[number];
+
+		expectTypeOf<'data' extends keyof Task ? true : false>().toEqualTypeOf<false>();
+		expectTypeOf<'data' extends keyof Link ? true : false>().toEqualTypeOf<false>();
+		expectTypeOf<'data' extends keyof RawTask ? true : false>().toEqualTypeOf<false>();
+		expectTypeOf<'data' extends keyof RawLink ? true : false>().toEqualTypeOf<false>();
+		expectTypeOf<Task<Metadata>['data']>().toEqualTypeOf<Metadata | undefined>();
+		expectTypeOf<Link<Metadata>['data']>().toEqualTypeOf<Metadata | undefined>();
+		expectTypeOf<TypedRawTask['data']>().toEqualTypeOf<Metadata | undefined>();
+		expectTypeOf<TypedRawLink['data']>().toEqualTypeOf<Metadata | undefined>();
 	});
 
 	it('accepts readonly on tasks', () => {

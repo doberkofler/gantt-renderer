@@ -224,11 +224,7 @@ export type Task<TData = never> =
 			kind: 'milestone';
 	  } extends infer _U
 	? _U extends unknown
-		? Omit<_U, 'data'> &
-				([TData] extends [never]
-					? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-						Record<never, never>
-					: {data?: TData | undefined})
+		? Omit<_U, 'data'> & ([TData] extends [never] ? unknown : {data?: TData | undefined})
 		: never
 	: never;
 
@@ -243,10 +239,7 @@ export type Link<TData = never> = {
 	target: number;
 	type: LinkType;
 	readonly?: boolean | undefined;
-} & ([TData] extends [never]
-	? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		Record<never, never>
-	: {data?: TData | undefined});
+} & ([TData] extends [never] ? unknown : {data?: TData | undefined});
 
 /**
  * The complete input data for the chart.
@@ -309,11 +302,7 @@ export type GanttInputRaw<TTaskData = never, TLinkData = never> = {
 				kind: 'milestone';
 		  } extends infer _RU
 		? _RU extends unknown
-			? Omit<_RU, 'data'> &
-					([TTaskData] extends [never]
-						? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-							Record<never, never>
-						: {data?: TTaskData | undefined})
+			? Omit<_RU, 'data'> & ([TTaskData] extends [never] ? unknown : {data?: TTaskData | undefined})
 			: never
 		: never)[];
 	links?: readonly ({
@@ -322,10 +311,7 @@ export type GanttInputRaw<TTaskData = never, TLinkData = never> = {
 		target: number;
 		type?: LinkType | undefined;
 		readonly?: boolean | undefined;
-	} & ([TLinkData] extends [never]
-		? // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			Record<never, never>
-		: {data?: TLinkData | undefined}))[];
+	} & ([TLinkData] extends [never] ? unknown : {data?: TLinkData | undefined}))[];
 };
 /** Allowed dependency link type values: `'FS'`, `'SS'`, `'FF'`, or `'SF'`. */
 export type LinkType = 'FS' | 'SS' | 'FF' | 'SF';
