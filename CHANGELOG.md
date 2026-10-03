@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/doberkofler/gantt-renderer/compare/v1.0.2...v1.1.0) (2026-10-03)
+
+### Features
+
+* **react:** add chart adapter ([93aed3d](https://github.com/doberkofler/gantt-renderer/commit/93aed3de298f4ded1a72ac15745f6ff005db97d3))
+
 ## [1.0.2](https://github.com/doberkofler/gantt-renderer/compare/v1.0.1...v1.0.2) (2026-10-03)
 
 ## [1.0.1](https://github.com/doberkofler/gantt-renderer/compare/v1.0.0...v1.0.1) (2026-10-02)
