@@ -72,6 +72,38 @@ const instance = new GanttChart(document.getElementById('chart')!, {
 instance.update(yourData);
 ```
 
+### React
+
+React applications can use the optional adapter while retaining access to the native instance:
+
+```tsx
+import {useRef} from 'react';
+
+import {GanttChart} from 'gantt-renderer/react';
+import 'gantt-renderer/styles/gantt.css';
+
+import {type GanttInput, type GanttInstance} from 'gantt-renderer';
+
+function ProjectChart({input}: {readonly input: GanttInput}) {
+	const chartRef = useRef<GanttInstance>(null);
+
+	return (
+		<GanttChart
+			ref={chartRef}
+			input={input}
+			options={{scale: 'day'}}
+			callbacks={{
+				onTaskClick: ({task}) => {
+					console.log(task.text);
+				},
+			}}
+		/>
+	);
+}
+```
+
+React is an optional peer dependency. The adapter does not import the stylesheet automatically.
+
 ## Integration Pattern
 
 1. Compute/plan project data in your domain layer or backend.
@@ -82,6 +114,7 @@ instance.update(yourData);
 ## Package Exports
 
 - **`gantt-renderer`** — ESM bundle with all types and utilities.
+- **`gantt-renderer/react`** — Optional React adapter backed by the native chart.
 - **`gantt-renderer/styles/gantt.css`** — Core chart stylesheet.
 
 ## Further Reading

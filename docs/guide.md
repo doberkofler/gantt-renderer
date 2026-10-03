@@ -40,6 +40,56 @@ const instance = new GanttChart(document.getElementById('chart')!, {
 instance.update(rawData);
 ```
 
+## React Adapter
+
+Import the optional React adapter from its dedicated subpath. The root `gantt-renderer` API remains
+framework-independent.
+
+```tsx
+import {useRef} from 'react';
+
+import {GanttChart} from 'gantt-renderer/react';
+import 'gantt-renderer/styles/gantt.css';
+
+import {type GanttInput, type GanttInstance} from 'gantt-renderer';
+
+function ProjectChart({input}: {readonly input: GanttInput}) {
+	const chartRef = useRef<GanttInstance>(null);
+
+	return (
+		<GanttChart
+			ref={chartRef}
+			input={input}
+			options={{scale: 'day', height: 600}}
+			callbacks={{
+				onTaskClick: ({task}) => {
+					console.log(task.text);
+				},
+			}}
+			className="project-chart"
+		/>
+	);
+}
+```
+
+The adapter accepts these props:
+
+| Prop | Type | Description |
+|---|---|---|
+| `input` | `GanttInputRaw<TTaskData, TLinkData>` | Required complete chart dataset. A new object identity calls the native `update()` method. |
+| `options` | `GanttOptions` | Optional native chart configuration. Changed values call `setOptions()`. Removing a previously supplied option recreates the native instance so its default is restored. |
+| `callbacks` | `GanttCallbacks<TTaskData, TLinkData>` | Optional native callbacks. Callback changes do not recreate the chart. |
+| `className` | `string` | Additional class for the adapter-owned host element. |
+| `ref` | `Ref<GanttInstance<TTaskData, TLinkData>>` | Access to the active native instance. The ref is updated after recreation and cleared on unmount. |
+
+The adapter owns a dedicated host element because native `destroy()` clears its host. It destroys the
+native instance during unmount and supports React Strict Mode lifecycle replay. Treat `input`,
+`options`, and `callbacks` as immutable React props; mutate by supplying a new object. Removing an
+option restores the native default but also resets transient native selection, expansion, and scroll
+state because the native instance is recreated.
+
+React is an optional peer dependency (`>=18`). Import `gantt-renderer/styles/gantt.css` separately.
+
 ---
 
 ## Part 1 — Core Configuration & Usage

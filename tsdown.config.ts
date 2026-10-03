@@ -17,7 +17,11 @@ localeEntries['locales/all'] = 'src/lib/locales/all.ts';
 export default defineConfig({
 	entry: {
 		index: 'src/lib/index.ts',
+		react: 'src/lib/react.tsx',
 		...localeEntries,
+	},
+	deps: {
+		neverBundle: ['react', 'react/jsx-runtime'],
 	},
 	format: ['esm'],
 	dts: true,

@@ -4,9 +4,11 @@
 		"target": "ES2022" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
 		"lib": ["ES2022", "DOM", "DOM.Iterable"] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
 		"module": "ESNext" /* Specify what module code is generated. */,
+		"jsx": "react-jsx",
 		"moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
 		"paths": {
-			"gantt-renderer": ["./src/lib/index.ts"]
+			"gantt-renderer": ["./src/lib/index.ts"],
+			"gantt-renderer/react": ["./src/lib/react.tsx"]
 		},
 		"esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. */,
 		"resolveJsonModule": true /* Enable importing .json files. */,
