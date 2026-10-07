@@ -286,7 +286,7 @@
 		"typedoc": "0.28.20",
 		"typescript": "6.0.3",
 		"typescript7": "npm:typescript@7.0.2",
-		"vite": "8.3.2",
+		"vite": "8.3.3",
 		"vitest": "5.0.3"
 	},
 	"peerDependencies": {
